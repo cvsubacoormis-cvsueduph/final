@@ -1,0 +1,106 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
+// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model Admin {
+  id       String @id @default(uuid()) // Use UUID for id
+  username String @unique
+}
+
+enum Term {
+  FIRST
+  SECOND
+  SUMMER
+}
+
+model Student {
+  id              String     @id @default(cuid())
+  studentNumber   Int        @unique
+  username        String     @unique
+  password        String
+  confirmPassword String
+  firstName       String
+  lastName        String
+  middleInit      String?
+  email           String?    @unique
+  phone           String    @unique
+  address         String
+  img             String?
+  sex             UserSex
+  course          Courses
+  major           String?
+  yearLevel       String
+  status          Status
+  birthday        String
+  role            Role @default(USER)
+  createdAt       DateTime   @default(now())
+}
+
+model Event {
+  id          Int      @id @default(autoincrement())
+  title       String
+  description String?
+  startTime   String
+  endTime     String
+
+  createdAt DateTime @default(now())
+}
+
+model Announcement {
+  id          Int      @id @default(autoincrement())
+  title       String
+  description String
+  date        String
+
+  createdAt DateTime @default(now())
+}
+
+enum UserSex {
+  MALE
+  FEMALE
+}
+
+enum Courses {
+  BSIT
+  BSCS
+  BSCRIM
+  BSP
+  BSHM
+  BSED
+  BSBM
+}
+
+enum yearLevels {
+  FIRST
+  SECOND
+  THIRD
+  FOURTH
+}
+
+enum Status {
+  REGULAR
+  IRREGULAR
+}
+
+enum Role {
+  ADMIN
+  USER
+}
+
+enum Major {
+  HR
+  MM
+  ENG
+  MATH
+}
