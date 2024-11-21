@@ -20,7 +20,7 @@ export async function createStudentAction(data: StudentSchema) {
         lastName: data.lastName,
         middleInit: data?.middleInit,
         email: data?.email,
-        birthday: data.dob,
+        birthday: data.birthday,
         phone: data.phone,
         address: data.address,
         sex: data.sex as UserSex,

@@ -33,7 +33,7 @@ export async function POST(request: NextRequest) {
             confirmPassword: `cvsubacoor${student.studentNumber}${student.lastName}`,
             firstName: student.firstName,
             lastName: student.lastName,
-            middleInit: student?.middleInit,
+            middleInit: student?.middleInit || "",
             email: student?.email,
             phone: student.phone,
             address: student.address,

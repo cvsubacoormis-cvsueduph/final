@@ -11,9 +11,22 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
-import { CSchecklistData } from "@/lib/data";
+import {
+  BMHRchecklistData,
+  BMMMchecklistData,
+  BSEDENGData,
+  BSEDMATHchecklistData,
+  CRIMchecklistData,
+  CSchecklistData,
+  HMchecklistData,
+  ITchecklistData,
+  major,
+  PSYchecklistData,
+  selectedCourse,
+} from "@/lib/data";
 import { Printer } from "lucide-react";
 import Link from "next/link";
+
 
 const Checklist = () => {
   const [selectedYear, setSelectedYear] = useState<string>("First Year");
@@ -25,17 +38,61 @@ const Checklist = () => {
   const columns = [
     { header: "Course Code", accessor: "courseCode" },
     { header: "Course Title", accessor: "courseTitle" },
-    { header: "Unit", accessor: "creditUnit" },
+    { header: "Credit Unit", accessor: "creditUnit" },
     { header: "Pre-requisite", accessor: "preRequisite" },
     { header: "Grade", accessor: "grade" },
     { header: "Completion", accessor: "completion" },
     { header: "Remarks", accessor: "remarks" },
   ];
 
-  const filteredData = (semester: string) =>
-    CSchecklistData.filter(
-      (item) => item.yearLevel === selectedYear && item.semester === semester
-    );
+  const filteredData = (semester: string) => {
+    if (selectedCourse === "BSCS") {
+      return CSchecklistData.filter(
+        (item) => item.yearLevel === selectedYear && item.semester === semester
+      );
+    }
+    if (selectedCourse === "BSHM") {
+      return HMchecklistData.filter(
+        (item) => item.yearLevel === selectedYear && item.semester === semester
+      );
+    }
+    if (selectedCourse === "BSBM" && major === "MM") {
+      return BMMMchecklistData.filter(
+        (item) => item.yearLevel === selectedYear && item.semester === semester
+      );
+    }
+    if (selectedCourse === "BSBM" && major === "HR") {
+      return BMHRchecklistData.filter(
+        (item) => item.yearLevel === selectedYear && item.semester === semester
+      );
+    }
+    if (selectedCourse === "BSCRIM") {
+      return CRIMchecklistData.filter(
+        (item) => item.yearLevel === selectedYear && item.semester === semester
+      );
+    }
+    if (selectedCourse === "BSIT") {
+      return ITchecklistData.filter(
+        (item) => item.yearLevel === selectedYear && item.semester === semester
+      );
+    }
+    if (selectedCourse === "BSP") {
+      return PSYchecklistData.filter(
+        (item) => item && item.yearLevel === selectedYear && item.semester === semester
+      );
+    }
+    if (selectedCourse === "BSED" && major === "ENG") {
+      return BSEDENGData.filter(
+        (item) => item.yearLevel === selectedYear && item.semester === semester
+      );
+    }
+    if (selectedCourse === "BSED" && major === "MATH") {
+      return BSEDMATHchecklistData.filter(
+        (item) => item.yearLevel === selectedYear && item.semester === semester
+      );
+    }
+    return [];
+  };
 
   const formatPrerequisites = (prerequisites: string) => {
     return prerequisites
@@ -48,7 +105,22 @@ const Checklist = () => {
     <>
       <Card className="m-4 mt-5 sm:m-3">
         <CardHeader>
-          <h1 className="text-xl font-semibold flex justify-between">Computer Science <span className="text-right"><Link href="/printChecklist"><Printer /></Link></span></h1>
+          <h1 className="text-xl font-semibold flex justify-between">
+            {selectedCourse === "BSCRIM" && "Criminology"}
+            {selectedCourse === "BSIT" && "Information Technology"}
+            {selectedCourse === "BSCS" && "Computer Science"}
+            {selectedCourse === "BSHM" && "Hospitality Management"}
+            {selectedCourse === "BSED" && major === "ENGLISH" && "Education Major in English"}
+            {selectedCourse === "BSED" && major === "MATH" && "Education Major in Math"}
+            {selectedCourse === "BSP" && "Psychology"}
+            {selectedCourse === "BSBM" && major === "MM" && "Business Management"}
+            {selectedCourse === "BSBM" && major === "HR" && "Business Management"}
+            <span className="text-right">
+              <Link href="/printChecklist">
+                <Printer />
+              </Link>
+            </span>
+          </h1>
         </CardHeader>
         <CardContent>
           <div className="flex items-center gap-4">
@@ -81,11 +153,11 @@ const Checklist = () => {
                   </TableRow>
                 </TableHeader>
                 <TableBody>
-                  {filteredData("First Semester").map((item) => (
+                  {filteredData("First Semester").map((item) => item && (
                     <TableRow key={item.id} className="hover:bg-muted">
                       <TableCell>{item.courseCode}</TableCell>
                       <TableCell>{item.courseTitle}</TableCell>
-                      <TableCell>{item.creditUnit}</TableCell>
+                      <TableCell>{`${typeof item.creditUnit === 'object' && item.creditUnit.lec ? item.creditUnit.lec : ''} Lecture, ${typeof item.creditUnit === 'object' && item.creditUnit.lab ? item.creditUnit.lab : '0'} Laboratory`}</TableCell>
                       <TableCell>
                         {formatPrerequisites(item.preRequisite)}
                       </TableCell>
@@ -116,11 +188,11 @@ const Checklist = () => {
                 </TableRow>
               </TableHeader>
               <TableBody>
-                {filteredData("Second Semester").map((item) => (
+                {filteredData("Second Semester").map((item) => item && (
                   <TableRow key={item.id} className="hover:bg-muted">
                     <TableCell>{item.courseCode}</TableCell>
                     <TableCell>{item.courseTitle}</TableCell>
-                    <TableCell>{item.creditUnit}</TableCell>
+                    <TableCell>{`${typeof item.creditUnit === 'object' && item.creditUnit.lec ? item.creditUnit.lec : ''} Lecture, ${typeof item.creditUnit === 'object' && item.creditUnit.lab ? item.creditUnit.lab : '0'} Laboratory`}</TableCell>
                     <TableCell>
                       {formatPrerequisites(item.preRequisite)}
                     </TableCell>
@@ -150,11 +222,11 @@ const Checklist = () => {
                 </TableRow>
               </TableHeader>
               <TableBody>
-                {filteredData("Mid-year").map((item) => (
+                {filteredData("Mid-year").map((item) => item && (
                   <TableRow key={item.id} className="hover:bg-muted">
                     <TableCell>{item.courseCode}</TableCell>
                     <TableCell>{item.courseTitle}</TableCell>
-                    <TableCell>{item.creditUnit}</TableCell>
+                    <TableCell>{`${typeof item.creditUnit === 'object' && item.creditUnit.lec ? item.creditUnit.lec : ''} Lecture, ${typeof item.creditUnit === 'object' && item.creditUnit.lab ? item.creditUnit.lab : '0'} Laboratory`}</TableCell>
                     <TableCell>
                       {formatPrerequisites(item.preRequisite)}
                     </TableCell>
@@ -171,5 +243,4 @@ const Checklist = () => {
     </>
   );
 };
-
 export default Checklist;

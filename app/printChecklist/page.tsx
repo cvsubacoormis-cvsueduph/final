@@ -69,20 +69,17 @@ function PrintChecklist() {
             <th className="border border-black text-center text-[10px]">Lec</th>
             <th className="border border-black text-center text-[10px]">Lab</th>
           </tr>
-          <tr className=" text-center text-[10px] h-[20px]">
-
-          </tr>
         </thead>
 
         <tbody>
           {/* Map data for each year and semester */}
           {['First Year', 'Second Year', 'Third Year', 'Fourth Year'].map((yearLevel) => (
-            <>
-              <tr key={yearLevel}>
+            <React.Fragment key={yearLevel}>
+              <tr>
                 <td colSpan={10} className="text-center font-bold text-[10px] pt-[10px]">{yearLevel}</td>
               </tr>
               {['First Semester', 'Second Semester'].map((semester) => (
-                <React.Fragment key={semester}>
+                <React.Fragment key={`${yearLevel}-${semester}`}>
                   <tr>
                     <td colSpan={10} className="text-left text-[10px] p-2">{semester}</td>
                   </tr>
@@ -90,10 +87,10 @@ function PrintChecklist() {
                     <tr key={item.id}>
                       <td className="border border-black text-center text-[8px]">{item.courseCode}</td>
                       <td className="border border-black text-[8px]">{item.courseTitle}</td>
-                      <td className="border border-black text-center text-[8px]">{item.creditUnit}</td>
-                      <td className="border border-black text-center text-[8px]">{item.creditUnit}</td>
-                      <td className="border border-black text-center text-[8px]">{item.creditUnit}</td>
-                      <td className="border border-black text-center text-[8px]">{item.creditUnit}</td>
+                      <td className="border border-black text-center text-[8px]">{item.creditUnit.lec}</td>
+                      <td className="border border-black text-center text-[8px]">{item.creditUnit.lab}</td>
+                      <td className="border border-black text-center text-[8px]">{item.contactHrs.lec}</td>
+                      <td className="border border-black text-center text-[8px]">{item.contactHrs.lab}</td>
                       <td className="border border-black text-center text-[8px]">{item.preRequisite}</td>
                       <td className="border border-black text-center text-[8px]"></td>
                       <td className="border border-black text-center text-[8px]">{item.grade}</td>
@@ -103,7 +100,7 @@ function PrintChecklist() {
                 </React.Fragment>
               ))}
               {hasMidYear(yearLevel) && (
-                <>
+                <React.Fragment key={`${yearLevel}-Mid-year`}>
                   <tr>
                     <td colSpan={10} className="text-left text-[10px] p-2">Mid-year</td>
                   </tr>
@@ -111,19 +108,19 @@ function PrintChecklist() {
                     <tr key={item.id}>
                       <td className="border border-black text-center text-[8px]">{item.courseCode}</td>
                       <td className="border border-black text-[8px]">{item.courseTitle}</td>
-                      <td className="border border-black text-center text-[8px]">{item.creditUnit}</td>
-                      <td className="border border-black text-center text-[8px]">{item.creditUnit}</td>
-                      <td className="border border-black text-center text-[8px]">{item.creditUnit}</td>
-                      <td className="border border-black text-center text-[8px]">{item.creditUnit}</td>
+                      <td className="border border-black text-center text-[8px]">{item.creditUnit.lec}</td>
+                      <td className="border border-black text-center text-[8px]">{item.creditUnit.lab}</td>
+                      <td className="border border-black text-center text-[8px]">{item.contactHrs.lec}</td>
+                      <td className="border border-black text-center text-[8px]">{item.contactHrs.lab}</td>
                       <td className="border border-black text-center text-[8px]">{item.preRequisite}</td>
                       <td className="border border-black text-center text-[8px]"></td>
                       <td className="border border-black text-center text-[8px]">{item.grade}</td>
                       <td className="border border-black text-center text-[8px]"></td>
                     </tr>
                   ))}
-                </>
+                </React.Fragment>
               )}
-            </>
+            </React.Fragment>
           ))}
         </tbody>
       </table>
@@ -132,3 +129,4 @@ function PrintChecklist() {
 }
 
 export default PrintChecklist;
+
