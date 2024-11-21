@@ -8,12 +8,17 @@ import SearchStudent from "@/components/students/search-students";
 import { Suspense } from "react";
 import Spinner from "@/components/Spinner";
 
-export default async function StudentLists({
-  searchParams,
-}: {
-  searchParams?: { query?: string };
-}) {
-  const { query = '' } = await searchParams ?? {};
+export type PageProps = {
+  params: { [key: string]: string | string[] | undefined };
+  searchParams?: {
+    [key: string]: string | string[] | undefined;
+    query?: string;
+  };
+  query?: string;
+};
+
+export default async function StudentLists(props: PageProps) {
+  const { query = "" } = (await props.searchParams) ?? {};
   return (
     <>
       <div className="bg-white p-4 rounded-md flex-1 m-4 mt-0">
@@ -42,7 +47,7 @@ export default async function StudentLists({
         </div>
         {/* LIST */}
         <Suspense key={query} fallback={<Spinner />}>
-          <StudentsTable query={query} />
+          <StudentsTable query={query} {...props} />
         </Suspense>
       </div>
     </>

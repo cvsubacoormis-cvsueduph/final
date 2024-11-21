@@ -1,3 +1,4 @@
+"use server";
 import {
   Table,
   TableBody,
@@ -15,10 +16,10 @@ import DeleteStudent from "./DeleteStudent";
 import UpdateStudent from "./students/update-student";
 import { getStudents } from "@/actions/search-student-action";
 import PaginationStudents from "./students/pagination-students";
+import { PageProps } from "@/app/(dashboard)/list/students/page";
 
-export default async function StudentsTable({ query }: { query: string }) {
-  const studentList = await getStudents(query);
-
+export default async function StudentsTable(props: PageProps) {
+  const { data } = await getStudents(props.query || "");
   return (
     <div>
       <Table className="w-full mt-4">
@@ -56,56 +57,55 @@ export default async function StudentsTable({ query }: { query: string }) {
           </TableRow>
         </TableHeader>
         <TableBody>
-          {studentList &&
-            studentList.slice(0, 10).map((student: Student, index: number) => (
-              <TableRow key={student.id}>
-                <TableCell className="hidden md:table-cell text-center">
-                  {index + 1}
-                </TableCell>
-                <TableCell className="hidden md:table-cell text-center">
-                  <Image
-                    src="/Noavatar.png"
-                    alt="avatar"
-                    width={40}
-                    height={40}
-                    className="hidden md:table-cell text-center"
-                  />
-                </TableCell>
-                <TableCell className="hidden md:table-cell text-center">
-                  {student.firstName +
-                    " " +
-                    student.middleInit +
-                    " " +
-                    student.lastName}
-                </TableCell>
-                <TableCell className="hidden md:table-cell text-center">
-                  {student.studentNumber}
-                </TableCell>
-                <TableCell className="hidden md:table-cell text-center">
-                  {student.yearLevel}
-                </TableCell>
-                <TableCell className="hidden md:table-cell text-center">
-                  {student.course}
-                </TableCell>
-                <TableCell className="hidden md:table-cell text-center">
-                  {student.status}
-                </TableCell>
-                <TableCell className="hidden md:table-cell text-center">
-                  {student.phone}
-                </TableCell>
-                <TableCell className="hidden md:table-cell text-center">
-                  {student.address}
-                </TableCell>
-                <TableCell className="hidden md:table-cell text-right">
-                  {role === "admin" && (
-                    <div className="flex items-center gap-2">
-                      <DeleteStudent id={student.id.toString()} />
-                      <UpdateStudent student={student} />
-                    </div>
-                  )}
-                </TableCell>
-              </TableRow>
-            ))}
+          {data.slice(0, 10).map((student: Student, index: number) => (
+            <TableRow key={student.id}>
+              <TableCell className="hidden md:table-cell text-center">
+                {index + 1}
+              </TableCell>
+              <TableCell className="hidden md:table-cell text-center">
+                <Image
+                  src="/Noavatar.png"
+                  alt="avatar"
+                  width={40}
+                  height={40}
+                  className="hidden md:table-cell text-center"
+                />
+              </TableCell>
+              <TableCell className="hidden md:table-cell text-center">
+                {student.firstName +
+                  " " +
+                  student.middleInit +
+                  " " +
+                  student.lastName}
+              </TableCell>
+              <TableCell className="hidden md:table-cell text-center">
+                {student.studentNumber}
+              </TableCell>
+              <TableCell className="hidden md:table-cell text-center">
+                {student.yearLevel}
+              </TableCell>
+              <TableCell className="hidden md:table-cell text-center">
+                {student.course}
+              </TableCell>
+              <TableCell className="hidden md:table-cell text-center">
+                {student.status}
+              </TableCell>
+              <TableCell className="hidden md:table-cell text-center">
+                {student.phone}
+              </TableCell>
+              <TableCell className="hidden md:table-cell text-center">
+                {student.address}
+              </TableCell>
+              <TableCell className="hidden md:table-cell text-right">
+                {role === "admin" && (
+                  <div className="flex items-center gap-2">
+                    <DeleteStudent id={student.id.toString()} />
+                    <UpdateStudent student={student} />
+                  </div>
+                )}
+              </TableCell>
+            </TableRow>
+          ))}
         </TableBody>
       </Table>
       <PaginationStudents />

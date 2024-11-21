@@ -9,7 +9,7 @@ import {
   PaginationPrevious,
 } from "@/components/ui/pagination";
 
-export default function PaginationStudents({totalPage=10}) {
+export default function PaginationStudents() {
   return (
     <div>
       <Pagination>
@@ -18,7 +18,7 @@ export default function PaginationStudents({totalPage=10}) {
             <PaginationPrevious href="#" />
           </PaginationItem>
           <PaginationItem>
-            <PaginationLink href="#">1</PaginationLink>
+              <PaginationLink>1</PaginationLink>
           </PaginationItem>
           <PaginationItem>
             <PaginationEllipsis />
