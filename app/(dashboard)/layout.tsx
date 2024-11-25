@@ -1,5 +1,5 @@
 import Menu from "@/components/Menu";
-import NavBar from "@/components/Navbar";
+import NavBar from "@/components/NavBar";
 import Image from "next/image";
 import Link from "next/link";
 

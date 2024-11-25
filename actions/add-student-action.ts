@@ -2,7 +2,8 @@
 
 import { StudentSchema } from "@/lib/formValidationSchemas";
 import prisma from "@/lib/prisma";
-import { Courses, Status, UserSex } from "@prisma/client";
+import { Courses, Major, Status, UserSex, yearLevels } from "@prisma/client";
+import { mutate } from "swr";
 
 export async function createStudentAction(data: StudentSchema) {
   try {
@@ -13,9 +14,9 @@ export async function createStudentAction(data: StudentSchema) {
         password: `cvsubacoor${data.firstName}${data.studentNumber}`,
         confirmPassword: `cvsubacoor${data.firstName}${data.studentNumber}`,
         status: data.status as Status,
-        yearLevel: data.yearLevel,
+        yearLevel: data.yearLevel as yearLevels,
         course: data.course as Courses,
-        major: data?.major ?? "",
+        major: data?.major as Major ?? "",
         firstName: data.firstName,
         lastName: data.lastName,
         middleInit: data?.middleInit,
@@ -27,6 +28,7 @@ export async function createStudentAction(data: StudentSchema) {
       },
     });
 
+    mutate("/api/students");
     return student;
   } catch (error) {
     console.error("Error adding student:", error);
@@ -39,7 +41,9 @@ export async function createBulkStudentsAction(students: StudentSchema[]) {
     for (const student of students) {
       await createStudentAction(student);
     }
+    mutate("/api/students");
   } catch (error) {
     console.log(error);
   }
 }
+

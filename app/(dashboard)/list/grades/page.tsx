@@ -6,15 +6,17 @@ import { gradeData } from "@/lib/data";
 import Link from "next/link";
 import Image from "next/image";
 
-type Grade = {
-  id: number;
+export type Grade = {
+  studentNumber: number;
   courseCode: string;
-  courseTitle: string;
   creditUnit: number;
-  finalGrade: number;
-  completion: string;
-  teacher: string;
-  academicYear: string;
+  courseTitle: string;
+  grade: number;
+  reExam?: number;
+  remarks: string;
+  instructor: string;
+  academicYear?: string;
+  semester?: string;
 };
 
 const columns = [
@@ -62,19 +64,34 @@ export default function GradesPage() {
 
   const renderrow = (item: Grade) => (
     <tr
-      key={item.id}
+      key={item.studentNumber}
       className="border-b border-gray-200 even:bg-slate-50 text-sm hover:bg-lamaPurpleLight"
     >
       <td className="gap-4 p-4 text-center">{item.courseCode}</td>
       <td className="hidden md:table-cell text-center">{item.courseTitle}</td>
 
       <td className="hidden md:table-cell text-center">{item.creditUnit}</td>
-      <td className="text-center">{item.finalGrade}</td>
-      <td className="hidden md:table-cell text-center">{item.completion}</td>
-      <td className="hidden md:table-cell text-center">{item.teacher}</td>
+      <td className="text-center">{item.grade}</td>
+      <td className="hidden md:table-cell text-center">{item.reExam}</td>
+      <td className="hidden md:table-cell text-center">{item.instructor}</td>
       <td></td>
     </tr>
   );
+
+  const convertGradeToRowData = (grade: any): Grade => ({
+    studentNumber: grade.studentNumber,
+    courseCode: grade.courseCode,
+    creditUnit: grade.creditUnit,
+    courseTitle: grade.courseTitle,
+    grade: grade.grade,
+    reExam: grade?.reExam,
+    remarks: grade.remarks,
+    instructor: grade.instructor,
+    academicYear: grade.academicYear,
+    semester: grade.semester,
+  });
+
+  const rowData = filteredGrades.map(convertGradeToRowData);
 
   return (
     <>
@@ -119,11 +136,7 @@ export default function GradesPage() {
             </select>
           </div>
           {/* LIST */}
-          <Table
-            columns={columns}
-            renderRow={renderrow}
-            data={filteredGrades}
-          />
+          <Table columns={columns} renderRow={renderrow} data={rowData} />
           <div className="mt-4 text-sm font-medium flex items-center justify-center">
             <p className="text-gray-900 dark:text-black">
               Average Grade:{" "}

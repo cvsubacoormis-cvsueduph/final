@@ -105,6 +105,12 @@ export default function Menu() {
         },
         {
           icon: "/result.png",
+          label: "Upload Grades",
+          href: "/list/uploading",
+          visible: ["admin"],
+        },
+        {
+          icon: "/result.png",
           label: "Grades",
           href: "/list/grades",
           visible: ["admin"],

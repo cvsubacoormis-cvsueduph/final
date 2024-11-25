@@ -35,13 +35,14 @@ export default function CreateStudents() {
       email: "",
       phone: "",
       address: "",
-      dob: new Date(),
+      birthday: "",
       password: "",
       confirmPassword: "",
       course: undefined,
+      major: undefined,
       sex: undefined,
       status: undefined,
-      yearLevels: undefined,
+      yearLevel: undefined,
     },
   });
 

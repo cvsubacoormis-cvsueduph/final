@@ -1,6 +1,6 @@
 import { StudentSchema, studentSchema } from "@/lib/formValidationSchemas";
 import prisma from "@/lib/prisma";
-
+import { Courses, Major, Status, UserSex, yearLevels } from "@prisma/client";
 import { NextRequest, NextResponse } from "next/server";
 
 export async function GET() {
@@ -40,20 +40,21 @@ export async function POST(request: NextRequest) {
     const Createstudent = await prisma.student.create({
       data: {
         studentNumber: studentData.studentNumber,
-        username: studentData.username,
+        username: `${studentData.studentNumber}${studentData.firstName}`,
+        password: `cvsubacoor${studentData.firstName}${studentData.studentNumber}`,
+        confirmPassword: `cvsubacoor${studentData.firstName}${studentData.studentNumber}`,
+        status: studentData.status as Status,
+        yearLevel: studentData.yearLevel as yearLevels,
+        course: studentData.course as Courses,
+        major: studentData?.major as Major ?? "",
         firstName: studentData.firstName,
         lastName: studentData.lastName,
-        middleInit: studentData.middleInit,
-        course: studentData.course,
-        email: studentData.email,
+        middleInit: studentData?.middleInit,
+        email: studentData?.email,
+        birthday: studentData.birthday,
         phone: studentData.phone,
         address: studentData.address,
-        sex: studentData.sex,
-        status: studentData.status,
-        birthday: studentData.birthday,
-        yearLevel: studentData.yearLevel,
-        password: studentData.password,
-        confirmPassword: studentData.confirmPassword,
+        sex: studentData.sex as UserSex,
       },
     });
     return NextResponse.json(Createstudent, { status: 201 });
@@ -82,13 +83,13 @@ export async function DELETE(request: NextRequest) {
         id,
       },
     });
-
+  
     if (!deleteTodo) {
       return NextResponse.json(
         { message: "student not found" },
         { status: 404 }
       );
-    }
+    } 
 
     return NextResponse.json(
       {
@@ -135,7 +136,7 @@ export async function PUT(request: NextRequest) {
             course: studentData.course,
             sex: studentData.sex,
             status: studentData.status,
-            yearLevel: studentData.yearLevel,
+            yearLevel: studentData.yearLevel as yearLevels,
           },
       });
 

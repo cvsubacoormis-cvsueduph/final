@@ -78,40 +78,6 @@ export default function StudentForm({
           />
           <FormField
             control={form.control}
-            name="password"
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel>Password</FormLabel>
-                <FormControl>
-                  <Input
-                    type="password"
-                    placeholder="Enter Password"
-                    {...field}
-                  />
-                </FormControl>
-                <FormMessage />
-              </FormItem>
-            )}
-          />
-          <FormField
-            control={form.control}
-            name="confirmPassword"
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel>Confirm Password</FormLabel>
-                <FormControl>
-                  <Input
-                    type="password"
-                    placeholder="Confirm Password"
-                    {...field}
-                  />
-                </FormControl>
-                <FormMessage />
-              </FormItem>
-            )}
-          />
-          <FormField
-            control={form.control}
             name="status"
             render={({ field }) => (
               <FormItem>
@@ -137,7 +103,7 @@ export default function StudentForm({
           />
           <FormField
             control={form.control}
-            name="yearLevels"
+            name="yearLevel"
             render={({ field }) => (
               <FormItem>
                 <FormLabel>Year Level</FormLabel>
@@ -276,7 +242,7 @@ export default function StudentForm({
           />
           <FormField
             control={form.control}
-            name="dob"
+            name="birthday"
             render={({ field }) => (
               <FormItem>
                 <FormLabel>Birthdate</FormLabel>

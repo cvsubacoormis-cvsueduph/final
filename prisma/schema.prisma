@@ -21,7 +21,7 @@ model Admin {
 enum Term {
   FIRST
   SECOND
-  SUMMER
+  MIDYEAR
 }
 
 model Student {
@@ -34,17 +34,49 @@ model Student {
   lastName        String
   middleInit      String?
   email           String?    @unique
-  phone           String    @unique
+  phone           String     @unique
   address         String
   img             String?
   sex             UserSex
   course          Courses
-  major           String?
-  yearLevel       String
+  major           Major?
+  yearLevel       yearLevels
   status          Status
   birthday        String
-  role            Role @default(USER)
+  role            Role       @default(USER)
   createdAt       DateTime   @default(now())
+  grades          Grade[]
+}
+
+model Grade {
+  id            String       @id @default(cuid())
+  studentNumber Int
+  student       Student      @relation(fields: [studentNumber], references: [studentNumber])
+  courseCode   String
+  creditUnit    Int
+  courseTitle   String
+  grade         Float
+  reExam        Float?
+  remarks       String?
+  instructor    String
+  academicYear  AcademicYear
+  semester      Semester
+  createdAt     DateTime     @default(now())
+
+  @@index([studentNumber, academicYear, semester], map: "idx_grade_student_year_sem")
+}
+
+enum AcademicYear {
+  AY_2023_2024
+  AY_2024_2025
+  AY_2025_2026
+  AY_2026_2027
+}
+
+enum Semester {
+  FIRST
+  SECOND
+  MIDYEAR
 }
 
 model Event {
@@ -53,8 +85,7 @@ model Event {
   description String?
   startTime   String
   endTime     String
-
-  createdAt DateTime @default(now())
+  createdAt   DateTime  @default(now())
 }
 
 model Announcement {
@@ -62,8 +93,7 @@ model Announcement {
   title       String
   description String
   date        String
-
-  createdAt DateTime @default(now())
+  createdAt   DateTime  @default(now())
 }
 
 enum UserSex {
