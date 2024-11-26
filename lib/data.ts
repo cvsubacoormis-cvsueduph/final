@@ -1075,6 +1075,7 @@ export const gradeData = [
     finalGrade: 2.50,
     completion: "-",
     teacher: "John Doe",
+    semester: "First Semester",
     academicYear: "2024-2025",
     
   },
@@ -1086,6 +1087,7 @@ export const gradeData = [
     finalGrade: 2.25,
     teacher: "Jane Doe",
     completion: "-",
+    semester: "First Semester",
     academicYear: "2023-2024"
   },
   {
@@ -1096,6 +1098,7 @@ export const gradeData = [
     finalGrade: 2.00,
     teacher: "John Doe",
     completion: "-",
+    semester: "First Semester",
     academicYear: "2023-2024"
   },
   {
@@ -1106,6 +1109,7 @@ export const gradeData = [
     finalGrade: 1.00,
     teacher: "Jane Doe",
     completion: "-",
+    semester: "First Semester",
     academicYear: "2022-2023"
   },
   {
@@ -1116,6 +1120,7 @@ export const gradeData = [
     finalGrade: 1.25,
     teacher: "John Doe",
     completion: "-",
+    semester: "Second Semester",
     academicYear: "2022-2023"
   },
   {
@@ -1126,6 +1131,7 @@ export const gradeData = [
     finalGrade: 1.25,
     teacher: "John Doe",
     completion: "-",
+    semester: "First Semester",
     academicYear: "2022-2023"
   },
 ];

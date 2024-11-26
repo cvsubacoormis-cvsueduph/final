@@ -16,6 +16,7 @@ datasource db {
 model Admin {
   id       String @id @default(uuid()) // Use UUID for id
   username String @unique
+  role     Role   @default(admin)
 }
 
 enum Term {
@@ -43,7 +44,7 @@ model Student {
   yearLevel       yearLevels
   status          Status
   birthday        String
-  role            Role       @default(USER)
+  role            Role       @default(student)
   createdAt       DateTime   @default(now())
   grades          Grade[]
 }
@@ -124,8 +125,8 @@ enum Status {
 }
 
 enum Role {
-  ADMIN
-  USER
+  admin
+  student
 }
 
 enum Major {

@@ -2,7 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { StudentSchema } from "@/lib/formValidationSchemas";
 import prisma from "@/lib/prisma";
 import * as XLSX from "xlsx";
-import { UserSex } from "@prisma/client";
+import { Major, UserSex, yearLevels } from "@prisma/client";
 
 export async function POST(request: NextRequest) {
   try {
@@ -39,8 +39,8 @@ export async function POST(request: NextRequest) {
             address: student.address,
             sex: student.sex as UserSex,
             course: student.course,
-            major: student?.major,
-            yearLevel: student.yearLevel,
+            major: student?.major as Major,
+            yearLevel: student.yearLevel as yearLevels,
             status: student.status,
             birthday: student.birthday,
         }
