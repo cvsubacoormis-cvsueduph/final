@@ -4,6 +4,7 @@ import * as Clerk from "@clerk/elements/common";
 import * as SignIn from "@clerk/elements/sign-in";
 import { useUser } from "@clerk/nextjs";
 import Image from "next/image";
+import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useEffect } from "react";
 
@@ -81,22 +82,16 @@ const Homepage = () => {
               </Clerk.Field>
             </div>
 
-            <div className="flex items-center justify-between mb-4">
-              <div>
-                <input type="checkbox" id="remember-me" className="mr-2" />
-                <label htmlFor="remember-me" className="text-sm">
-                  Remember me
-                </label>
-              </div>
+            <div className="flex items-center justify-between mb-4"> 
               <p className="text-sm text-right">
                 Don’t have an account?
-                <a
+                <Link
                   href="/sign-up"
                   className="text-black-500 hover:text-black-700"
                 >
                   {" "}
                   Create Request
-                </a>
+                </Link>
               </p>
             </div>
 
@@ -106,6 +101,7 @@ const Homepage = () => {
             >
               Login
             </SignIn.Action>
+            <p className="text-xs text-gray-500 text-center">Data Privacy Policy</p>
           </SignIn.Step>
         </SignIn.Root>
       </div>

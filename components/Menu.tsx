@@ -1,8 +1,10 @@
-import { role } from "@/lib/data";
+import { currentUser } from "@clerk/nextjs/server";
 import Image from "next/image";
 import Link from "next/link";
 
-export default function Menu() {
+export default async function Menu() {
+  const user = await currentUser();
+  const role = user?.publicMetadata.role as string;
   const menuItems = [
     {
       title: "MENU",
@@ -29,7 +31,7 @@ export default function Menu() {
           icon: "/student.png",
           label: "Students",
           href: "/list/students",
-          visible: ["admin",],
+          visible: ["admin"],
         },
         // {
         //   icon: "/parent.png",
@@ -49,12 +51,12 @@ export default function Menu() {
           href: "/list/enrolledsubjects",
           visible: ["student"],
         },
-        {
-          icon: "/subject.png",
-          label: "Registration Form",
-          href: "/list/enrolledsubjects",
-          visible: ["admin"],
-        },
+        // {
+        //   icon: "/subject.png",
+        //   label: "Registration Form",
+        //   href: "/list/enrolledsubjects",
+        //   visible: ["student"],
+        // },
         // {
         //   icon: "/class.png",
         //   label: "Classes",
@@ -89,30 +91,24 @@ export default function Menu() {
           icon: "/attendance.png",
           label: "Pre-Registration",
           href: "/list/preregistration",
-          visible: ["admin", "teacher", "student", "parent"],
+          visible: ["student"],
         },
         {
           icon: "/calendar.png",
           label: "Events",
           href: "/list/events",
-          visible: ["admin", "teacher", "student", "parent"],
+          visible: ["admin", "student"],
         },
         {
           icon: "/result.png",
           label: "Grades",
           href: "/list/grades",
-          visible: ["teacher", "student", "parent"],
+          visible: ["student"],
         },
         {
           icon: "/result.png",
           label: "Upload Grades",
           href: "/list/uploading",
-          visible: ["admin"],
-        },
-        {
-          icon: "/result.png",
-          label: "Grades",
-          href: "/list/grades",
           visible: ["admin"],
         },
         {
@@ -136,14 +132,20 @@ export default function Menu() {
           icon: "/profile.png",
           label: "Profile",
           href: "/list/profile",
-          visible: ["admin", "student"],
+          visible: ["student"],
         },
         {
-          icon: "/setting.png",
-          label: "Settings",
-          href: "/list/settings",
-          visible: ["admin", "teacher", "student", "parent"],
+          icon: "/profile.png",
+          label: "Admin Profile",
+          href: "/list/adminprofile",
+          visible: ["admin"],
         },
+        // {
+        //   icon: "/setting.png",
+        //   label: "Settings",
+        //   href: "/list/settings",
+        //   visible: ["student"],
+        // },
         // {
         //   icon: "/logout.png",
         //   label: "Logout",

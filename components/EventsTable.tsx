@@ -9,16 +9,20 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
-import { role } from "@/lib/data";
 import { Event } from "@prisma/client";
 
 import useSWR from "swr";
 import DeleteEvent from "./events/delete-event";
 import UpdateEvent from "./events/update-event";
+import { useUser } from "@clerk/nextjs";
 
 const fetcher = (url: string) => fetch(url).then((res) => res.json());
 
 export default function EventsTable() {
+  const { user, isLoaded } = useUser();
+
+  // Ensure the user is loaded and fetch the role from public or private metadata
+  const role = isLoaded ? user?.publicMetadata?.role : undefined;
   const {
     data: eventsData,
     error,

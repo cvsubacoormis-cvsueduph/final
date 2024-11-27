@@ -9,16 +9,21 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
-import { role } from "@/lib/data";
 import { Announcement } from "@prisma/client";
-
 import useSWR from "swr";
 import DeleteAnnouncements from "./announcements/delete-announcements";
 import UpdateAnnouncements from "./announcements/update-announcements";
+import { useUser } from "@clerk/nextjs";
 
 const fetcher = (url: string) => fetch(url).then((res) => res.json());
 
 export default function AnnouncementsTable() {
+
+  const { user, isLoaded } = useUser();
+
+  // Ensure the user is loaded and fetch the role from public or private metadata
+  const role = isLoaded ? user?.publicMetadata?.role : undefined;
+
   const {
     data: announcementsData,
     error,

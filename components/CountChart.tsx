@@ -1,36 +1,34 @@
 "use client";
 
 import Image from "next/image";
-import React from "react";
-
+import React, { useEffect, useState } from "react";
 import { RadialBarChart, RadialBar, ResponsiveContainer } from "recharts";
 
-const data = [
-  {
-    name: "Girls",
-    count: 50,
-    fill: "#FAE27C",
-  },
-  {
-    name: "Boys",
-    count: 50,
-    fill: "#C3EBFA",
-  },
-  {
-    name: "Total",
-    count: 100,
-    fill: "white",
-  },
-];
-
-// const style = {
-//   top: "50%",
-//   right: 0,
-//   transform: "translate(0, -50%)",
-//   lineHeight: "24px",
-// };
-
 export default function CountChart() {
+  const [chartData, setChartData] = useState([
+    { name: "Boys", count: 0, fill: "#C3EBFA" },
+    { name: "Girls", count: 0, fill: "#FAE27C" },
+    { name: "Total", count: 0, fill: "white" },
+  ]);
+
+  useEffect(() => {
+    async function fetchGenderCounts() {
+      try {
+        const response = await fetch("/api/total-students-male-female");
+        const data = await response.json();
+        setChartData([
+          { name: "Boys", count: data.maleCount, fill: "#C3EBFA" },
+          { name: "Girls", count: data.femaleCount, fill: "#FAE27C" },
+          { name: "Total", count: data.total, fill: "white" },
+        ]);
+      } catch (error) {
+        console.error("Error fetching gender counts:", error);
+      }
+    }
+
+    fetchGenderCounts();
+  }, []);
+
   return (
     <div className="bg-white rounded-xl w-full h-full p-4">
       {/* TITLE */}
@@ -47,7 +45,7 @@ export default function CountChart() {
             innerRadius="40%"
             outerRadius="100%"
             barSize={32}
-            data={data}
+            data={chartData}
           >
             <RadialBar background dataKey="count" />
           </RadialBarChart>
@@ -55,8 +53,8 @@ export default function CountChart() {
         <Image
           src="/maleFemale.png"
           alt=""
-          width={50}
-          height={50}
+          width={200}
+          height={200}
           className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2"
         />
       </div>
@@ -64,13 +62,17 @@ export default function CountChart() {
       <div className="flex justify-center gap-16">
         <div className="flex flex-col gap-1">
           <div className="w-5 h-5 bg-lamaSky rounded-full" />
-          <h1 className="font-bold">6,000</h1>
-          <h2 className="text-xs text-gray-300">Boys (50%)</h2>
+          <h1 className="font-bold">{chartData[0].count}</h1>
+          <h2 className="text-xs text-gray-300">
+            Boys ({Math.round((chartData[0].count / chartData[2].count) * 100) || 0}%)
+          </h2>
         </div>
         <div className="flex flex-col gap-1">
           <div className="w-5 h-5 bg-lamaYellow rounded-full" />
-          <h1 className="font-bold">6,000</h1>
-          <h2 className="text-xs text-gray-300">Girls (50%)</h2>
+          <h1 className="font-bold">{chartData[1].count}</h1>
+          <h2 className="text-xs text-gray-300">
+            Girls ({Math.round((chartData[1].count / chartData[2].count) * 100) || 0}%)
+          </h2>
         </div>
       </div>
     </div>

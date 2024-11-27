@@ -35,3 +35,5 @@ export default function DeleteAnnouncements({ id }: { id: number }) {
     </Button>
   );
 }
+
+
