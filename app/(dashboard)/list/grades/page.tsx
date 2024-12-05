@@ -1,190 +1,133 @@
 "use client";
 
-import React, { useState } from "react";
-import Table from "@/components/Table";
-import { gradeData } from "@/lib/data";
-import Link from "next/link";
-import Image from "next/image";
+import { useState, useEffect, useCallback } from "react";
 
-export type Grade = {
+export interface Grade {
   studentNumber: number;
   courseCode: string;
   creditUnit: number;
   courseTitle: string;
   grade: number;
   reExam?: number;
-  remarks: string;
+  remarks?: string;
   instructor: string;
-  academicYear?: string;
-  semester?: string;
-};
+  academicYear: string;
+  semester: string;
+}
 
-const columns = [
-  {
-    header: "Course Code",
-    accessor: "courseCode",
-    className: "text-center",
-  },
-  {
-    header: "Course Title",
-    accessor: "courseTitle",
-    className: "hidden md:table-cell text-center",
-  },
-  {
-    header: "Credit Unit",
-    accessor: "creditUnit",
-    className: "hidden md:table-cell text-center",
-  },
-  {
-    header: "Final Grade",
-    accessor: "finalGrade",
-    className: "text-center",
-  },
-  {
-    header: "Completion",
-    accessor: "completion",
-    className: "hidden md:table-cell text-center",
-  },
-  {
-    header: "Instructor",
-    accessor: "instructor",
-    className: "hidden md:table-cell text-center",
-  },
-];
+const GradesPage = () => {
+  const [grades, setGrades] = useState<Grade[]>([]);
+  const [academicYear, setAcademicYear] = useState<string>("AY_2023_2024");
+  const [semester, setSemester] = useState<string>("FIRST");
+  const [studentNumber, setStudentNumber] = useState<string>("20011100");
+  const [error, setError] = useState<string | null>(null);
 
-export default function GradesPage() {
-  const currentYear = new Date().getFullYear();
-  const [academicYear, setAcademicYear] = useState(
-    `${currentYear - 1}-${currentYear}`
-  );
-  const [semester, setSemester] = useState<string>("First Semester");
+  // Fetch grades based on selected academic year and semester
+  const fetchGrades = useCallback(async () => {
+    setError(null);
+    try {
+      const response = await fetch(
+        `/api/grades/${studentNumber}?academicYear=${academicYear}&semester=${semester}`
+      );
+      const data = await response.json();
 
-  const semesters = ["First Semester", "Second Semester", "Mid Year"];
+      if (response.ok) {
+        setGrades(data.grades);
+      } else {
+        setError(data.error || "An error occurred while fetching grades.");
+      }
+    } catch {
+      setError("Failed to fetch grades");
+    }
+  }, [academicYear, semester, studentNumber, setError, setGrades]);
 
-  const filteredGrades = gradeData.filter(
-    (grade) =>
-      grade.academicYear === academicYear && grade.semester === semester
-  );
-
-  const renderrow = (item: Grade) => (
-    <tr
-      key={item.studentNumber}
-      className="border-b border-gray-200 even:bg-slate-50 text-sm hover:bg-lamaPurpleLight"
-    >
-      <td className="gap-4 p-4 text-center">{item.courseCode}</td>
-      <td className="hidden md:table-cell text-center">{item.courseTitle}</td>
-
-      <td className="hidden md:table-cell text-center">{item.creditUnit}</td>
-      <td className="text-center">{item.grade}</td>
-      <td className="hidden md:table-cell text-center">{item.reExam || ""}</td>
-      <td className="hidden md:table-cell text-center">{item.instructor}</td>
-      <td></td>
-    </tr>
-  );
-
-  const convertGradeToRowData = (grade: {
-    id: number;
-    courseCode: string;
-    courseTitle: string;
-    creditUnit: number;
-    finalGrade: number;
-    completion: string;
-    teacher: string;
-    academicYear: string;
-    semester: string;
-  }): Grade => ({
-    studentNumber: grade.id,
-    courseCode: grade.courseCode,
-    creditUnit: grade.creditUnit,
-    courseTitle: grade.courseTitle,
-    grade: grade.finalGrade,
-    reExam: undefined,
-    remarks: grade.completion,
-    instructor: grade.teacher,
-    academicYear: grade.academicYear,
-    semester: grade.semester,
-  });
-
-  const rowData = filteredGrades.map(convertGradeToRowData);
+  useEffect(() => {
+    fetchGrades();
+  }, [academicYear, semester, fetchGrades]);
 
   return (
-    <div className="bg-white p-4 rounded-md flex-1 m-4 mt-0">
-      <div className="flex items-center justify-between">
-        <h1 className="hidden md:block text-lg font-semibold">Grades </h1>
-        <Link href="/printgrades">
-          <Image
-            src="/print.png"
-            alt="Print"
-            className="inline-block w-5 h-5"
-            width={5}
-            height={5}
-          />
-        </Link>
-      </div>
-      <div className="mt-4">
-        <label
-          htmlFor="academicYear"
-          className="block mb-2 text-sm font-medium text-gray-900 dark:text-gray-400"
-        >
-          Select Academic Year
-        </label>
+    <div className="container mx-auto p-4">
+      <h1 className="text-2xl font-bold mb-4">Student Grades</h1>
+
+      {/* Dropdowns for academic year and semester */}
+      <div className="mb-4">
+        <label className="mr-2">Academic Year:</label>
         <select
-          id="academicYear"
-          className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-max p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"
           value={academicYear}
           onChange={(e) => setAcademicYear(e.target.value)}
+          className="border p-2"
         >
-          {gradeData
-            .map((grade) => grade.academicYear)
-            .filter(
-              (academicYear, index, self) =>
-                self.indexOf(academicYear) === index
-            )
-            .map((academicYear) => (
-              <option key={academicYear} value={academicYear}>
-                Academic year {academicYear}
-              </option>
-            ))}
+          <option value="AY_2023_2024">AY 2023-2024</option>
+          <option value="AY_2024_2025">AY 2024-2025</option>
+          <option value="AY_2025_2026">AY 2025-2026</option>
         </select>
       </div>
 
-      <div className="mt-4">
-        <label
-          htmlFor="semester"
-          className="block mb-2 text-sm font-medium text-gray-900 dark:text-gray-400"
-        >
-          Select Semester
-        </label>
+      <div className="mb-4">
+        <label className="mr-2">Semester:</label>
         <select
-          id="semester"
-          className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-max p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"
           value={semester}
           onChange={(e) => setSemester(e.target.value)}
+          className="border p-2"
         >
-          {semesters.map((sem) => (
-            <option key={sem} value={sem}>
-              {sem}
-            </option>
-          ))}
+          <option value="FIRST">First Semester</option>
+          <option value="SECOND">Second Semester</option>
+          <option value="MIDYEAR">Midyear</option>
         </select>
       </div>
 
-      {/* LIST */}
-      <Table columns={columns} renderRow={renderrow} data={rowData} />
+      {/* Display error if exists */}
+      {error && <div className="text-red-500 mb-4">{error}</div>}
 
-      <div className="mt-4 text-sm font-medium flex items-center justify-center">
-        {filteredGrades.length > 0 ? (
-          <p className="text-gray-900 dark:text-black">
-            Average Grade:{" "}
-            {(
-              filteredGrades.reduce((total, grade) => total + grade.finalGrade, 0) /
-              filteredGrades.length
-            ).toFixed(2)}
-          </p>
-        ) : (
-          <p>No grades available for the selected Academic Year and Semester.</p>
-        )}
-      </div>
+      {/* Display grades table */}
+      <table className="table-auto w-full border border-gray-300">
+        <thead>
+          <tr>
+            <th className="border px-4 py-2 text-center">Course Code</th>
+            <th className="border px-4 py-2 text-center">Course Title</th>
+            <th className="border px-4 py-2 text-center">Credits</th>
+            <th className="border px-4 py-2 text-center">Grade</th>
+            <th className="border px-4 py-2 text-center">Re-exam</th>
+            <th className="border px-4 py-2 text-center">Remarks</th>
+            <th className="border px-4 py-2 text-center">Instructor</th>
+          </tr>
+        </thead>
+        <tbody>
+          {grades.length === 0 ? (
+            <tr>
+              <td colSpan={7} className="border px-4 py-2 text-center">
+                No grades available for the selected criteria.
+              </td>
+            </tr>
+          ) : (
+            grades.map((grade) => (
+              <tr key={grade.courseCode}>
+                <td className="border px-4 py-2 text-center">
+                  {grade.courseCode}
+                </td>
+                <td className="border px-4 py-2 text-center">
+                  {grade.courseTitle}
+                </td>
+                <td className="border px-4 py-2 text-center">
+                  {grade.creditUnit}
+                </td>
+                <td className="border px-4 py-2 text-center">{grade.grade}</td>
+                <td className="border px-4 py-2 text-center">
+                  {grade.reExam || "N/A"}
+                </td>
+                <td className="border px-4 py-2 text-center">
+                  {grade.remarks || "N/A"}
+                </td>
+                <td className="border px-4 py-2 text-center">
+                  {grade.instructor}
+                </td>
+              </tr>
+            ))
+          )}
+        </tbody>
+      </table>
     </div>
   );
-}
+};
+
+export default GradesPage;

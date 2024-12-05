@@ -42,7 +42,6 @@ export async function POST(request: NextRequest) {
         studentNumber: studentData.studentNumber,
         username: `${studentData.studentNumber}${studentData.firstName}`,
         password: `cvsubacoor${studentData.firstName}${studentData.studentNumber}`,
-        confirmPassword: `cvsubacoor${studentData.firstName}${studentData.studentNumber}`,
         status: studentData.status as Status,
         yearLevel: studentData.yearLevel as yearLevels,
         course: studentData.course as Courses,

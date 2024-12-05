@@ -4,6 +4,7 @@ import { Input } from "@/components/ui/input";
 import { useState } from "react";
 import Swal from "sweetalert2";
 import * as XLSX from "xlsx";
+import ClipLoader from "react-spinners/ClipLoader";
 
 interface Grade {
   studentNumber: number;
@@ -24,7 +25,15 @@ export default function UploadGradesPreview() {
   const [semester, setSemester] = useState<string>("");
   const [academicYear, setAcademicYear] = useState<string>("");
   const [isUploading, setIsUploading] = useState(false);
+  const [isParsing, setIsParsing] = useState(false);
   const [error, setError] = useState<string>("");
+
+  // Generate academic year options dynamically
+  const generateAcademicYears = (startYear: number, count: number) =>
+    Array.from(
+      { length: count },
+      (_, i) => `AY_${startYear + i}_${startYear + i + 1}`
+    );
 
   // Handle file input change
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -42,6 +51,7 @@ export default function UploadGradesPreview() {
 
   // Parse Excel file and update grades state
   const parseExcel = (file: File) => {
+    setIsParsing(true);
     const reader = new FileReader();
     reader.onload = (event) => {
       const data = event.target?.result;
@@ -54,10 +64,11 @@ export default function UploadGradesPreview() {
 
       if (!validateGrades(json)) {
         setError("Invalid file format. Please check the Excel columns.");
-        return;
+        setGrades([]);
+      } else {
+        setGrades(json);
       }
-
-      setGrades(json);
+      setIsParsing(false);
     };
     reader.readAsBinaryString(file);
   };
@@ -82,8 +93,10 @@ export default function UploadGradesPreview() {
   };
 
   // Handle semester and academic year changes
-  const handleSemesterChange = (e: React.ChangeEvent<HTMLSelectElement>) => setSemester(e.target.value);
-  const handleAcademicYearChange = (e: React.ChangeEvent<HTMLSelectElement>) => setAcademicYear(e.target.value);
+  const handleSemesterChange = (e: React.ChangeEvent<HTMLSelectElement>) =>
+    setSemester(e.target.value);
+  const handleAcademicYearChange = (e: React.ChangeEvent<HTMLSelectElement>) =>
+    setAcademicYear(e.target.value);
 
   // Handle file upload to the server
   const handleUpload = async () => {
@@ -99,6 +112,7 @@ export default function UploadGradesPreview() {
     setIsUploading(true);
     setError("");
 
+    // Prepare FormData for the file upload
     const formData = new FormData();
     formData.append("file", file);
     formData.append("semester", semester);
@@ -117,7 +131,7 @@ export default function UploadGradesPreview() {
           icon: "success",
           confirmButtonText: "Close",
         });
-        setGrades([]);
+        setGrades([]); // Clear grades preview after upload
         setFile(null);
         setSemester("");
         setAcademicYear("");
@@ -125,13 +139,13 @@ export default function UploadGradesPreview() {
         const errorData = await response.json();
         Swal.fire({
           title: "Error!",
-          text: `Error: ${errorData.error}`,
+          text: `Error: ${errorData.error || "Something went wrong."}`,
           icon: "error",
           confirmButtonText: "Close",
         });
       }
     } catch (error) {
-      console.error("Upload failed", error);
+      console.error("Error uploading grades:", error);
       Swal.fire({
         title: "Error!",
         text: "Failed to upload grades. Please try again.",
@@ -145,8 +159,8 @@ export default function UploadGradesPreview() {
 
   return (
     <div className="p-4">
-      <h1 className="text- font-bold mb-4">Upload Grades</h1>
-      <div className="flex items-center gap-4 mb-4">
+      <h1 className="text-xl font-bold mb-4">Upload Grades</h1>
+      <div className="flex flex-col gap-4 mb-4">
         <Input
           type="file"
           accept=".xlsx"
@@ -158,7 +172,9 @@ export default function UploadGradesPreview() {
           onChange={handleSemesterChange}
           className="border p-2"
         >
-          <option value="" disabled>Select Semester</option>
+          <option value="" disabled>
+            Select Semester
+          </option>
           <option value="FIRST">First Semester</option>
           <option value="SECOND">Second Semester</option>
           <option value="MIDYEAR">Mid Year</option>
@@ -168,15 +184,20 @@ export default function UploadGradesPreview() {
           onChange={handleAcademicYearChange}
           className="border p-2"
         >
-          <option value="" disabled>Select Academic Year</option>
-          <option value="AY_2024_2025">2024-2025</option>
-          <option value="AY_2025_2026" disabled>2025-2026</option>
-          <option value="AY_2026_2027" disabled>2026-2027</option>
-          <option value="AY_2027_2028" disabled>2027-2028</option>
+          <option value="" disabled>
+            Select Academic Year
+          </option>
+          {generateAcademicYears(2024, 5).map((year) => (
+            <option key={year} value={year}>
+              {year.replace("_", "-").replace("_", "/")}
+            </option>
+          ))}
         </select>
       </div>
 
       {error && <div className="text-red-500 mb-4">{error}</div>}
+
+      {isParsing && <ClipLoader />}
 
       {grades.length > 0 && (
         <div className="mb-4">
@@ -184,27 +205,43 @@ export default function UploadGradesPreview() {
           <table className="table-auto w-full border">
             <thead>
               <tr>
-                <th className="border px-4 py-2">Student No.</th>
-                <th className="border px-4 py-2">Course Code</th>
-                <th className="border px-4 py-2">Credit Unit</th>
-                <th className="border px-4 py-2">Course Title</th>
-                <th className="border px-4 py-2">Grade</th>
-                <th className="border px-4 py-2">Re-exam</th>
-                <th className="border px-4 py-2">Remarks</th>
-                <th className="border px-4 py-2">Instructor</th>
+                <th className="border px-4 py-2 text-center">Student No.</th>
+                <th className="border px-4 py-2 text-center">Course Code</th>
+                <th className="border px-4 py-2 text-center">Credit Unit</th>
+                <th className="border px-4 py-2 text-center">Course Title</th>
+                <th className="border px-4 py-2 text-center">Grade</th>
+                <th className="border px-4 py-2 text-center">Re-exam</th>
+                <th className="border px-4 py-2 text-center">Remarks</th>
+                <th className="border px-4 py-2 text-center">Instructor</th>
               </tr>
             </thead>
             <tbody>
               {grades.map((grade, index) => (
                 <tr key={index}>
-                  <td className="border px-4 py-2">{grade.studentNumber}</td>
-                  <td className="border px-4 py-2">{grade.courseCode}</td>
-                  <td className="border px-4 py-2">{grade.creditUnit}</td>
-                  <td className="border px-4 py-2">{grade.courseTitle}</td>
-                  <td className="border px-4 py-2">{grade.grade}</td>
-                  <td className="border px-4 py-2">{grade.reExam ?? ""}</td>
-                  <td className="border px-4 py-2">{grade.remarks}</td>
-                  <td className="border px-4 py-2">{grade.instructor}</td>
+                  <td className="border px-4 py-2 text-center">
+                    {grade.studentNumber}
+                  </td>
+                  <td className="border px-4 py-2 text-center">
+                    {grade.courseCode}
+                  </td>
+                  <td className="border px-4 py-2 text-center">
+                    {grade.creditUnit}
+                  </td>
+                  <td className="border px-4 py-2 text-center">
+                    {grade.courseTitle}
+                  </td>
+                  <td className="border px-4 py-2 text-center">
+                    {grade.grade}
+                  </td>
+                  <td className="border px-4 py-2 text-center">
+                    {grade.reExam ?? ""}
+                  </td>
+                  <td className="border px-4 py-2 text-center">
+                    {grade.remarks}
+                  </td>
+                  <td className="border px-4 py-2 text-center">
+                    {grade.instructor}
+                  </td>
                 </tr>
               ))}
             </tbody>
@@ -214,9 +251,9 @@ export default function UploadGradesPreview() {
 
       <button
         onClick={handleUpload}
-        disabled={isUploading}
+        disabled={isUploading || isParsing}
         className={`p-2 text-white rounded ${
-          isUploading ? "bg-gray-500" : "bg-blue-500"
+          isUploading ? "bg-gray-500" : "bg-gray-800 text-sm"
         }`}
       >
         {isUploading ? "Uploading..." : "Upload Grades"}

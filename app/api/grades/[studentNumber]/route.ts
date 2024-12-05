@@ -1,79 +1,50 @@
-import { NextResponse } from "next/server";
 import prisma from "@/lib/prisma";
-import { Grade } from "@/app/(dashboard)/list/grades/page";
+import { AcademicYear, Semester } from "@prisma/client";
+import { NextRequest, NextResponse } from "next/server";
 
 export async function GET(
-  req: Request,
-  { params }: { params: { studentNumber: number } }
+  req: NextRequest,
+  { params }: { params: { studentNumber: string } }
 ) {
+  const { searchParams } = new URL(req.url);
+  const academicYear = searchParams.get("academicYear");
+  const semester = searchParams.get("semester");
+  const studentNumber = params.studentNumber;
+
+  if (!academicYear || !semester) {
+    return NextResponse.json(
+      { error: "Academic year and semester are required" },
+      { status: 400 }
+    );
+  }
+
   try {
-    const studentNumber = Number(params.studentNumber);
-
-    if (!studentNumber) {
-      return NextResponse.json(
-        { error: "Student number is required." },
-        { status: 400 }
-      );
-    }
-
-    // Fetch student grades
     const grades = await prisma.grade.findMany({
       where: {
-        student: {
-          studentNumber,
-        },
+        studentNumber: parseInt(studentNumber), // Ensure studentNumber is a number
+        academicYear: academicYear as AcademicYear,
+        semester: semester as Semester,
       },
-      select: {
-        studentNumber: true,
-        courseCode: true,
-        courseTitle: true,
-        creditUnit: true,
-        grade: true,
-        reExam: true,
-        remarks: true,
-        instructor: true,
-        academicYear: true,
-        semester: true,
+      include: {
+        student: true,
       },
-      orderBy: [
-        { academicYear: "asc" },
-        { semester: "asc" },
-        { courseCode: "asc" },
-      ],
     });
 
     if (grades.length === 0) {
       return NextResponse.json(
-        { message: "No grades found for this student." },
+        { message: "No grades found for the selected filters." },
         { status: 404 }
       );
     }
 
-    // Group grades by academic year and semester
-    const groupedGrades = grades.reduce(
-      (
-        acc: { [academicYear: string]: { [semester: string]: Grade[] } },
-        grade
-      ) => {
-        const { academicYear, semester } = grade;
-        if (!acc[academicYear]) {
-          acc[academicYear] = {};
-        }
-        if (!acc[academicYear][semester]) {
-          acc[academicYear][semester] = [];
-        }
-        acc[academicYear][semester].push(grade as Grade);
-        return acc;
-      },
-      {}
-    );
-
-    return NextResponse.json(groupedGrades);
+    return NextResponse.json({ grades }, { status: 200 });
   } catch (error) {
     console.error("Error fetching grades:", error);
     return NextResponse.json(
-      { error: "Internal Server Error" },
+      { error: "Failed to fetch grades" },
       { status: 500 }
     );
+  } finally {
+    await prisma.$disconnect();
   }
 }
