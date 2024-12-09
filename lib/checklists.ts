@@ -3317,7 +3317,7 @@ export const subjectChecklists = {
         },
       ],
     },
-    midYear1: {
+    midYear: {
       midSem: [
         {
           id: 1,

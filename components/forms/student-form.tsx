@@ -65,19 +65,6 @@ export default function StudentForm({
           />
           <FormField
             control={form.control}
-            name="username"
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel>Username</FormLabel>
-                <FormControl>
-                  <Input placeholder="Enter Username" {...field} />
-                </FormControl>
-                <FormMessage />
-              </FormItem>
-            )}
-          />
-          <FormField
-            control={form.control}
             name="status"
             render={({ field }) => (
               <FormItem>
@@ -171,7 +158,7 @@ export default function StudentForm({
                     defaultValue={field.value}
                   >
                     <SelectTrigger className="w-[190px]">
-                      <SelectValue placeholder="HR" />
+                      <SelectValue placeholder="" />
                     </SelectTrigger>
                     <SelectContent>
                       <SelectItem value="MATH">MATH</SelectItem>

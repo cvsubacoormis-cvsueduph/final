@@ -64,14 +64,14 @@ export default function CountChart() {
           <div className="w-5 h-5 bg-lamaSky rounded-full" />
           <h1 className="font-bold">{chartData[0].count}</h1>
           <h2 className="text-xs text-gray-300">
-            Boys ({Math.round((chartData[0].count / chartData[2].count) * 100) || 0}%)
+            Male ({Math.round((chartData[0].count / chartData[2].count) * 100) || 0}%)
           </h2>
         </div>
         <div className="flex flex-col gap-1">
           <div className="w-5 h-5 bg-lamaYellow rounded-full" />
           <h1 className="font-bold">{chartData[1].count}</h1>
           <h2 className="text-xs text-gray-300">
-            Girls ({Math.round((chartData[1].count / chartData[2].count) * 100) || 0}%)
+            Female ({Math.round((chartData[1].count / chartData[2].count) * 100) || 0}%)
           </h2>
         </div>
       </div>

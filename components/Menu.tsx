@@ -11,13 +11,13 @@ export default async function Menu() {
       items: [
         {
           icon: "/home.png",
-          label: "Home",
+          label: "Dashboard",
           href: "/admin",
           visible: ["admin"],
         },
         {
           icon: "/home.png",
-          label: "Home",
+          label: "Dashboard",
           href: "/student",
           visible: ["student"],
         },
@@ -138,6 +138,12 @@ export default async function Menu() {
           icon: "/profile.png",
           label: "Admin Profile",
           href: "/list/adminprofile",
+          visible: ["admin"],
+        },
+        {
+          icon: "/profile.png",
+          label: "Create Admin",
+          href: "/list/create-admin",
           visible: ["admin"],
         },
         // {

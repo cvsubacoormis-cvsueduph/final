@@ -36,8 +36,6 @@ export default function CreateStudents() {
       phone: "",
       address: "",
       birthday: "",
-      password: "",
-      confirmPassword: "",
       course: undefined,
       major: undefined,
       sex: undefined,

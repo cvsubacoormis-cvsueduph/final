@@ -3,6 +3,7 @@ import { StudentSchema } from "@/lib/formValidationSchemas";
 import prisma from "@/lib/prisma";
 import * as XLSX from "xlsx";
 import { Major, UserSex, yearLevels } from "@prisma/client";
+import { clerkClient } from "@clerk/nextjs/server";
 
 export async function POST(request: NextRequest) {
   try {
@@ -25,30 +26,45 @@ export async function POST(request: NextRequest) {
     });
 
     for (const student of students) {
+      const clerk = await clerkClient();
+      const user = await clerk.users.createUser({
+        username: `${student.studentNumber}${student.firstName}`,
+        password: `cvsubacoor${student.firstName}${student.studentNumber}`,
+        firstName: student.firstName,
+        lastName: student.lastName,
+        publicMetadata: {
+          role: "student",
+          course: `${student.course}`,
+          major: student.major ? `${student.major}` : "",
+        },
+      });
       await prisma.student.create({
         data: {
-            studentNumber: student.studentNumber,
-            username: `${student.studentNumber}${student.firstName}`,
-            password: `cvsubacoor${student.studentNumber}${student.lastName}`,
-            firstName: student.firstName,
-            lastName: student.lastName,
-            middleInit: student?.middleInit || "",
-            email: student?.email,
-            phone: student.phone,
-            address: student.address,
-            sex: student.sex as UserSex,
-            course: student.course,
-            major: student?.major as Major,
-            yearLevel: student.yearLevel as yearLevels,
-            status: student.status,
-            birthday: student.birthday,
-        }
+          id: user.id,
+          studentNumber: student.studentNumber,
+          username: `${student.studentNumber}${student.firstName}`,
+          firstName: student.firstName,
+          lastName: student.lastName,
+          middleInit: student?.middleInit || "",
+          email: student?.email,
+          phone: student.phone,
+          address: student.address,
+          sex: student.sex as UserSex,
+          course: student.course,
+          major: student?.major as Major,
+          yearLevel: student.yearLevel as yearLevels,
+          status: student.status,
+          birthday: student.birthday,
+        },
       });
     }
 
     return NextResponse.json({ message: "Students uploaded successfully" });
   } catch (error) {
     console.error("Error uploading students:", error);
-    return NextResponse.json({ error: "Failed to upload students" }, { status: 500 });
+    return NextResponse.json(
+      { error: "Failed to upload students" },
+      { status: 500 }
+    );
   }
 }

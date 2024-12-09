@@ -1,5 +1,6 @@
 import { StudentSchema, studentSchema } from "@/lib/formValidationSchemas";
 import prisma from "@/lib/prisma";
+import { clerkClient } from "@clerk/nextjs/server";
 import { Courses, Major, Status, UserSex, yearLevels } from "@prisma/client";
 import { NextRequest, NextResponse } from "next/server";
 
@@ -37,15 +38,24 @@ export async function POST(request: NextRequest) {
 
     const studentData = result.data;
 
+    const clerk = await clerkClient();
+    const user = await clerk.users.createUser({
+      username: `${studentData.studentNumber}${studentData.firstName}`,
+      password: `cvsubacoor${studentData.firstName}${studentData.studentNumber}`,
+      firstName: studentData.firstName,
+      lastName: studentData.lastName,
+      publicMetadata: { role: "student" },
+    });
+
     const Createstudent = await prisma.student.create({
       data: {
+        id: user.id,
         studentNumber: studentData.studentNumber,
         username: `${studentData.studentNumber}${studentData.firstName}`,
-        password: `cvsubacoor${studentData.firstName}${studentData.studentNumber}`,
         status: studentData.status as Status,
         yearLevel: studentData.yearLevel as yearLevels,
         course: studentData.course as Courses,
-        major: studentData?.major as Major ?? "",
+        major: (studentData?.major as Major) ?? "",
         firstName: studentData.firstName,
         lastName: studentData.lastName,
         middleInit: studentData?.middleInit,
@@ -77,18 +87,21 @@ export async function DELETE(request: NextRequest) {
       );
     }
 
+    const clerk = await clerkClient();
+    await clerk.users.deleteUser(id);
+
     const deleteTodo = await prisma.student.delete({
       where: {
         id,
       },
     });
-  
+
     if (!deleteTodo) {
       return NextResponse.json(
         { message: "student not found" },
         { status: 404 }
       );
-    } 
+    }
 
     return NextResponse.json(
       {
@@ -106,48 +119,55 @@ export async function DELETE(request: NextRequest) {
 }
 export async function PUT(request: NextRequest) {
   try {
-      const body = await request.json();
-      const { id, ...rest } = body;
-      const result = studentSchema.safeParse(rest);
+    const body = await request.json();
+    const { id, ...rest } = body;
+    const result = studentSchema.safeParse(rest);
 
-      if (!result.success) {
-          return NextResponse.json({ message: 'Invalid input', errors: result.error.errors }, { status: 400 });
-      }
+    if (!result.success) {
+      return NextResponse.json(
+        { message: "Invalid input", errors: result.error.errors },
+        { status: 400 }
+      );
+    }
 
-      const studentData = result.data as StudentSchema;
+    const studentData = result.data as StudentSchema;
 
-      if (!id) {
-          return NextResponse.json({ message: 'id is required' }, { status: 400 });
-      }
+    if (!id) {
+      return NextResponse.json({ message: "id is required" }, { status: 400 });
+    }
 
-      const updateStudent = await prisma.student.update({
-          where: { id },
-          data: {
-            studentNumber: studentData.studentNumber,
-            username: studentData.username,
-            firstName: studentData.firstName,
-            lastName: studentData.lastName,
-            middleInit: studentData.middleInit || "",
-            email: studentData.email || "",
-            phone: studentData.phone || "",
-            address: studentData.address,
-            birthday: studentData.birthday,
-            course: studentData.course,
-            sex: studentData.sex,
-            status: studentData.status,
-            yearLevel: studentData.yearLevel as yearLevels,
-          },
-      });
+    const updateStudent = await prisma.student.update({
+      where: { id },
+      data: {
+        studentNumber: studentData.studentNumber,
+        username: studentData.username,
+        firstName: studentData.firstName,
+        lastName: studentData.lastName,
+        middleInit: studentData.middleInit || "",
+        email: studentData.email || "",
+        phone: studentData.phone || "",
+        address: studentData.address,
+        birthday: studentData.birthday,
+        course: studentData.course,
+        sex: studentData.sex,
+        status: studentData.status,
+        yearLevel: studentData.yearLevel as yearLevels,
+      },
+    });
 
-      if (!updateStudent) {
-          return NextResponse.json({ message: 'Student not found' }, { status: 404 });
-      }
+    if (!updateStudent) {
+      return NextResponse.json(
+        { message: "Student not found" },
+        { status: 404 }
+      );
+    }
 
-      return NextResponse.json(updateStudent, { status: 200 });
+    return NextResponse.json(updateStudent, { status: 200 });
   } catch (error) {
-      console.error('Error updating student:', error);
-      return NextResponse.json({ message: 'An unexpected error occurred' }, { status: 500 });
+    console.error("Error updating student:", error);
+    return NextResponse.json(
+      { message: "An unexpected error occurred" },
+      { status: 500 }
+    );
   }
 }
-
-

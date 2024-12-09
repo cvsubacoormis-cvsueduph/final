@@ -2288,8 +2288,8 @@ export const BSEDMATHchecklistData = [
   { id: 17, yearLevel: 'First Year', semester: 'Second Semester', courseCode: 'NSTP 2', courseTitle: 'CWTS / LTS / ROTC', creditUnit: { lec: 3, lab: 0 }, contactHrs: { lec: 3, lab: 0 }, preRequisite: 'NSTP 1', grade: '', completion: '', remarks: '' },
 
   //Midyear
-  { id: 18, yearLevel: 'First Year', semester: 'Midyear', courseCode: 'BSEM 21', courseTitle: 'History of Mathematics', creditUnit: { lec: 3, lab: 0 }, contactHrs: { lec: 3, lab: 0 }, preRequisite: '', grade: '', completion: '', remarks: '' },
-  { id: 19, yearLevel: 'First Year', semester: 'Midyear', courseCode: 'BSEM 22', courseTitle: 'College and Advanced Algebra', creditUnit: { lec: 3, lab: 0 }, contactHrs: { lec: 3, lab: 0 }, preRequisite: '', grade: '', completion: '', remarks: '' },
+  { id: 18, yearLevel: 'First Year', semester: 'Mid-year', courseCode: 'BSEM 21', courseTitle: 'History of Mathematics', creditUnit: { lec: 3, lab: 0 }, contactHrs: { lec: 3, lab: 0 }, preRequisite: '', grade: '', completion: '', remarks: '' },
+  { id: 19, yearLevel: 'First Year', semester: 'Mid-year', courseCode: 'BSEM 22', courseTitle: 'College and Advanced Algebra', creditUnit: { lec: 3, lab: 0 }, contactHrs: { lec: 3, lab: 0 }, preRequisite: '', grade: '', completion: '', remarks: '' },
 
   //Second Year
   //First Semester
@@ -2340,13 +2340,13 @@ export const BSEDMATHchecklistData = [
   { id: 50, yearLevel: 'Fourth Year', semester: 'First Semester', courseCode: 'EDFS 23', courseTitle: 'Teaching Internship (40/wk)', creditUnit: { lec: 6, lab: 0 }, contactHrs: { lec: 0, lab: 0 }, preRequisite: 'EDFS 21', grade: '', completion: '', remarks: '' },
 
   //Second Semester
-  { id: 51, yearLevel: 'Fourth Year', semester: 'First Semester', courseCode: 'GNED 01', courseTitle: 'Art Appreciation', creditUnit: { lec: 3, lab: 0 }, contactHrs: { lec: 3, lab: 0 }, preRequisite: '', grade: '', completion: '', remarks: '' },
-  { id: 52, yearLevel: 'Fourth Year', semester: 'First Semester', courseCode: 'GNED 02', courseTitle: 'Ethics', creditUnit: { lec: 3, lab: 0 }, contactHrs: { lec: 3, lab: 0 }, preRequisite: '', grade: '', completion: '', remarks: '' },
-  { id: 53, yearLevel: 'Fourth Year', semester: 'First Semester', courseCode: 'GNED 07', courseTitle: 'Contemporary World', creditUnit: { lec: 3, lab: 0 }, contactHrs: { lec: 3, lab: 0 }, preRequisite: '', grade: '', completion: '', remarks: '' },
-  { id: 54, yearLevel: 'Fourth Year', semester: 'First Semester', courseCode: 'GNED 09', courseTitle: 'Life and Works of Rizal', creditUnit: { lec: 3, lab: 0 }, contactHrs: { lec: 3, lab: 0 }, preRequisite: 'GNED 04', grade: '', completion: '', remarks: '' },
-  { id: 55, yearLevel: 'Fourth Year', semester: 'First Semester', courseCode: 'GNED 10', courseTitle: 'Gender and Society', creditUnit: { lec: 3, lab: 0 }, contactHrs: { lec: 3, lab: 0 }, preRequisite: '', grade: '', completion: '', remarks: '' },
-  { id: 56, yearLevel: 'Fourth Year', semester: 'First Semester', courseCode: 'GNED 13', courseTitle: 'Retorika/Masining na Pagpapahayag', creditUnit: { lec: 3, lab: 0 }, contactHrs: { lec: 3, lab: 0 }, preRequisite: 'GNED 11, GNED 12', grade: '', completion: '', remarks: '' },
-  { id: 57, yearLevel: 'Fourth Year', semester: 'First Semester', courseCode: 'EDUC 198', courseTitle: 'Competency Appraisal 2', creditUnit: { lec: 3, lab: 0 }, contactHrs: { lec: 3, lab: 0 }, preRequisite: '', grade: '', completion: '', remarks: '' },
+  { id: 51, yearLevel: 'Fourth Year', semester: 'Second Semester', courseCode: 'GNED 01', courseTitle: 'Art Appreciation', creditUnit: { lec: 3, lab: 0 }, contactHrs: { lec: 3, lab: 0 }, preRequisite: '', grade: '', completion: '', remarks: '' },
+  { id: 52, yearLevel: 'Fourth Year', semester: 'Second Semester', courseCode: 'GNED 02', courseTitle: 'Ethics', creditUnit: { lec: 3, lab: 0 }, contactHrs: { lec: 3, lab: 0 }, preRequisite: '', grade: '', completion: '', remarks: '' },
+  { id: 53, yearLevel: 'Fourth Year', semester: 'Second Semester', courseCode: 'GNED 07', courseTitle: 'Contemporary World', creditUnit: { lec: 3, lab: 0 }, contactHrs: { lec: 3, lab: 0 }, preRequisite: '', grade: '', completion: '', remarks: '' },
+  { id: 54, yearLevel: 'Fourth Year', semester: 'Second Semester', courseCode: 'GNED 09', courseTitle: 'Life and Works of Rizal', creditUnit: { lec: 3, lab: 0 }, contactHrs: { lec: 3, lab: 0 }, preRequisite: 'GNED 04', grade: '', completion: '', remarks: '' },
+  { id: 55, yearLevel: 'Fourth Year', semester: 'Second Semester', courseCode: 'GNED 10', courseTitle: 'Gender and Society', creditUnit: { lec: 3, lab: 0 }, contactHrs: { lec: 3, lab: 0 }, preRequisite: '', grade: '', completion: '', remarks: '' },
+  { id: 56, yearLevel: 'Fourth Year', semester: 'Second Semester', courseCode: 'GNED 13', courseTitle: 'Retorika/Masining na Pagpapahayag', creditUnit: { lec: 3, lab: 0 }, contactHrs: { lec: 3, lab: 0 }, preRequisite: 'GNED 11, GNED 12', grade: '', completion: '', remarks: '' },
+  { id: 57, yearLevel: 'Fourth Year', semester: 'Second Semester', courseCode: 'EDUC 198', courseTitle: 'Competency Appraisal 2', creditUnit: { lec: 3, lab: 0 }, contactHrs: { lec: 3, lab: 0 }, preRequisite: '', grade: '', completion: '', remarks: '' },
 ];
 
 export const BSEDENGData = [
@@ -2373,25 +2373,36 @@ export const BSEDENGData = [
   { id: 17, yearLevel: 'First Year', semester: 'Second Semester', courseCode: 'NSTP 2', courseTitle: 'CWTS / LTS / ROTC', creditUnit: { lec: 3, lab: 0 }, contactHrs: { lec: 3, lab: 0 }, preRequisite: 'NSTP 1', grade: '', completion: '', remarks: '' },
   
   //Mid Year
-  { id: 18, yearLevel: 'First Year', semester: 'Midyear', courseCode: 'EDUC 50', courseTitle: 'Child and Adolescent Learner and Learning Principles', creditUnit: { lec: 3, lab: 0 }, contactHrs: { lec: 3, lab: 0 }, preRequisite: '', grade: '', completion: '', remarks: '' },
-  { id: 19, yearLevel: 'First Year', semester: 'Midyear', courseCode: 'EDUC 70', courseTitle: 'Facilitating Learner-Centered Teaching', creditUnit: { lec: 3, lab: 0 }, contactHrs: { lec: 3, lab: 0 }, preRequisite: '', grade: '', completion: '', remarks: '' },
+  { id: 18, yearLevel: 'First Year', semester: 'Mid-year', courseCode: 'EDUC 50', courseTitle: 'Child and Adolescent Learner and Learning Principles', creditUnit: { lec: 3, lab: 0 }, contactHrs: { lec: 3, lab: 0 }, preRequisite: '', grade: '', completion: '', remarks: '' },
+  { id: 19, yearLevel: 'First Year', semester: 'Mid-year', courseCode: 'EDUC 70', courseTitle: 'Facilitating Learner-Centered Teaching', creditUnit: { lec: 3, lab: 0 }, contactHrs: { lec: 3, lab: 0 }, preRequisite: '', grade: '', completion: '', remarks: '' },
 
 // Second Year
+
+// First Semester
+{ id: 21, yearLevel: 'Second Year', semester: 'First Semester', courseCode: 'EDUC 75', courseTitle: 'Assessment in Learning 1', creditUnit: { lec: 3, lab: 0 }, contactHrs: { lec: 3, lab: 0 }, preRequisite: '', grade: '', completion: '', remarks: '' },
+{ id: 22, yearLevel: 'Second Year', semester: 'First Semester', courseCode: 'EDUC 90', courseTitle: 'The Teacher and The School Curriculum', creditUnit: { lec: 3, lab: 0 }, contactHrs: { lec: 3, lab: 0 }, preRequisite: '', grade: '', completion: '', remarks: '' },
+{ id: 23, yearLevel: 'Second Year', semester: 'First Semester', courseCode: 'BSEE 23', courseTitle: 'Structure of English', creditUnit: { lec: 3, lab: 0 }, contactHrs: { lec: 3, lab: 0 }, preRequisite: 'BSEE 21', grade: '', completion: '', remarks: '' },
+{ id: 24, yearLevel: 'Second Year', semester: 'First Semester', courseCode: 'BSEE 24', courseTitle: 'Principles and Theories of Language Acquisition and Learning', creditUnit: { lec: 3, lab: 0 }, contactHrs: { lec: 3, lab: 0 }, preRequisite: 'BSEE 22', grade: '', completion: '', remarks: '' },
+{ id: 25, yearLevel: 'Second Year', semester: 'First Semester', courseCode: 'BSEE 33', courseTitle: 'Mythology and Folklore', creditUnit: { lec: 3, lab: 0 }, contactHrs: { lec: 3, lab: 0 }, preRequisite: 'BSEE 22', grade: '', completion: '', remarks: '' },
+{ id: 26, yearLevel: 'Second Year', semester: 'First Semester', courseCode: 'BSEE 110', courseTitle: 'Stylistics and Discourse Analysis', creditUnit: { lec: 3, lab: 0 }, contactHrs: { lec: 3, lab: 0 }, preRequisite: '', grade: '', completion: '', remarks: '' },
+{ id: 27, yearLevel: 'Second Year', semester: 'First Semester', courseCode: 'GNED 04', courseTitle: 'Mga Babasahin Hinggil sa Kasaysayan ng Pilipinas', creditUnit: { lec: 3, lab: 0 }, contactHrs: { lec: 3, lab: 0 }, preRequisite: '', grade: '', completion: '', remarks: '' },
+{ id: 28, yearLevel: 'Second Year', semester: 'First Semester', courseCode: 'FITT 3', courseTitle: 'Physical Activities towards Health and Fitness I', creditUnit: { lec: 2, lab: 0 }, contactHrs: { lec: 2, lab: 0 }, preRequisite: 'FITT 1', grade: '', completion: '', remarks: '' },
+
 // Second Semester
-{ id: 18, yearLevel: 'Second Year', semester: 'Second Semester', courseCode: 'EDUC 80', courseTitle: 'Assessment in Learning 2', creditUnit: { lec: 3, lab: 0 }, contactHrs: { lec: 3, lab: 0 }, preRequisite: '', grade: '', completion: '', remarks: '' },
-{ id: 19, yearLevel: 'Second Year', semester: 'Second Semester', courseCode: 'EDUC 95', courseTitle: 'Building and Enhancing New Literacies Across the Curriculum', creditUnit: { lec: 3, lab: 0 }, contactHrs: { lec: 3, lab: 0 }, preRequisite: '', grade: '', completion: '', remarks: '' },
-{ id: 20, yearLevel: 'Second Year', semester: 'Second Semester', courseCode: 'BSEE 25', courseTitle: 'Language Programs and Policies in Multilingual Society', creditUnit: { lec: 3, lab: 0 }, contactHrs: { lec: 3, lab: 0 }, preRequisite: 'BSEE 24', grade: '', completion: '', remarks: '' },
-{ id: 21, yearLevel: 'Second Year', semester: 'Second Semester', courseCode: 'BSEE 26', courseTitle: 'Language Learning Materials Development', creditUnit: { lec: 3, lab: 0 }, contactHrs: { lec: 3, lab: 0 }, preRequisite: 'BSEE 24, EDUC 85', grade: '', completion: '', remarks: '' },
-{ id: 22, yearLevel: 'Second Year', semester: 'Second Semester', courseCode: 'BSEE 32', courseTitle: 'Children and Adolescent Literature', creditUnit: { lec: 3, lab: 0 }, contactHrs: { lec: 3, lab: 0 }, preRequisite: 'BSEE 24', grade: '', completion: '', remarks: '' },
-{ id: 23, yearLevel: 'Second Year', semester: 'Second Semester', courseCode: 'BSEE 39', courseTitle: 'Technical Writing', creditUnit: { lec: 3, lab: 0 }, contactHrs: { lec: 3, lab: 0 }, preRequisite: 'BSEE 23', grade: '', completion: '', remarks: '' },
-{ id: 24, yearLevel: 'Second Year', semester: 'Second Semester', courseCode: 'GNED 15', courseTitle: 'World Literature', creditUnit: { lec: 3, lab: 0 }, contactHrs: { lec: 3, lab: 0 }, preRequisite: '', grade: '', completion: '', remarks: '' },
-{ id: 25, yearLevel: 'Second Year', semester: 'Second Semester', courseCode: 'FITT 4', courseTitle: 'Physical Activities towards Health and Fitness II', creditUnit: { lec: 2, lab: 0 }, contactHrs: { lec: 2, lab: 0 }, preRequisite: 'FITT 1', grade: '', completion: '', remarks: '' },
+{ id: 29, yearLevel: 'Second Year', semester: 'Second Semester', courseCode: 'EDUC 80', courseTitle: 'Assessment in Learning 2', creditUnit: { lec: 3, lab: 0 }, contactHrs: { lec: 3, lab: 0 }, preRequisite: '', grade: '', completion: '', remarks: '' },
+{ id: 30, yearLevel: 'Second Year', semester: 'Second Semester', courseCode: 'EDUC 95', courseTitle: 'Building and Enhancing New Literacies Across the Curriculum', creditUnit: { lec: 3, lab: 0 }, contactHrs: { lec: 3, lab: 0 }, preRequisite: '', grade: '', completion: '', remarks: '' },
+{ id: 31, yearLevel: 'Second Year', semester: 'Second Semester', courseCode: 'BSEE 25', courseTitle: 'Language Programs and Policies in Multilingual Society', creditUnit: { lec: 3, lab: 0 }, contactHrs: { lec: 3, lab: 0 }, preRequisite: 'BSEE 24', grade: '', completion: '', remarks: '' },
+{ id: 32, yearLevel: 'Second Year', semester: 'Second Semester', courseCode: 'BSEE 26', courseTitle: 'Language Learning Materials Development', creditUnit: { lec: 3, lab: 0 }, contactHrs: { lec: 3, lab: 0 }, preRequisite: 'BSEE 24, EDUC 85', grade: '', completion: '', remarks: '' },
+{ id: 33, yearLevel: 'Second Year', semester: 'Second Semester', courseCode: 'BSEE 32', courseTitle: 'Children and Adolescent Literature', creditUnit: { lec: 3, lab: 0 }, contactHrs: { lec: 3, lab: 0 }, preRequisite: 'BSEE 24', grade: '', completion: '', remarks: '' },
+{ id: 34, yearLevel: 'Second Year', semester: 'Second Semester', courseCode: 'BSEE 39', courseTitle: 'Technical Writing', creditUnit: { lec: 3, lab: 0 }, contactHrs: { lec: 3, lab: 0 }, preRequisite: 'BSEE 23', grade: '', completion: '', remarks: '' },
+{ id: 35, yearLevel: 'Second Year', semester: 'Second Semester', courseCode: 'GNED 15', courseTitle: 'World Literature', creditUnit: { lec: 3, lab: 0 }, contactHrs: { lec: 3, lab: 0 }, preRequisite: '', grade: '', completion: '', remarks: '' },
+{ id: 36, yearLevel: 'Second Year', semester: 'Second Semester', courseCode: 'FITT 4', courseTitle: 'Physical Activities towards Health and Fitness II', creditUnit: { lec: 2, lab: 0 }, contactHrs: { lec: 2, lab: 0 }, preRequisite: 'FITT 1', grade: '', completion: '', remarks: '' },
 
 //Midyear
 {
-  id: 26,
+  id: 37,
   yearLevel: 'Second Year',
-  semester: 'Midyear',
+  semester: 'Mid-year',
   courseCode: 'BSEE 30',
   courseTitle: 'Speech and Theater Arts',
   creditUnit: { lec: 3, lab: 0 },
@@ -2402,9 +2413,9 @@ export const BSEDENGData = [
   remarks: ''
 },
 {
-  id: 27,
+  id: 38,
   yearLevel: 'Second Year',
-  semester: 'Midyear',
+  semester: 'Mid-year',
   courseCode: 'BSEE 34',
   courseTitle: 'Survey of Philippine Literature in English',
   creditUnit: { lec: 3, lab: 0 },
@@ -2415,9 +2426,9 @@ export const BSEDENGData = [
   remarks: ''
 },
 {
-  id: 28,
+  id: 39,
   yearLevel: 'Second Year',
-  semester: 'Midyear',
+  semester: 'Mid-year',
   courseCode: 'BSEE 35',
   courseTitle: 'Survey of Afro-Asian Literature',
   creditUnit: { lec: 3, lab: 0 },
@@ -2430,7 +2441,7 @@ export const BSEDENGData = [
 //Third Year
 //First Semester
 {
-  id: 29,
+  id: 40,
   yearLevel: 'Third Year',
   semester: 'First Semester',
   courseCode: 'EDFS 21',
@@ -2443,7 +2454,7 @@ export const BSEDENGData = [
   remarks: ''
 },
 {
-  id: 30,
+  id: 41,
   yearLevel: 'Third Year',
   semester: 'First Semester',
   courseCode: 'BSEE 28',
@@ -2456,7 +2467,7 @@ export const BSEDENGData = [
   remarks: ''
 },
 {
-  id: 31,
+  id: 42,
   yearLevel: 'Third Year',
   semester: 'First Semester',
   courseCode: 'BSEE 29',
@@ -2469,7 +2480,7 @@ export const BSEDENGData = [
   remarks: ''
 },
 {
-  id: 32,
+  id: 43,
   yearLevel: 'Third Year',
   semester: 'First Semester',
   courseCode: 'BSEE 36',
@@ -2482,7 +2493,7 @@ export const BSEDENGData = [
   remarks: ''
 },
 {
-  id: 33,
+  id: 44,
   yearLevel: 'Third Year',
   semester: 'First Semester',
   courseCode: 'BSEE 37',
@@ -2495,7 +2506,7 @@ export const BSEDENGData = [
   remarks: ''
 },
 {
-  id: 34,
+  id: 45,
   yearLevel: 'Third Year',
   semester: 'First Semester',
   courseCode: 'BSEE 111',
@@ -2508,7 +2519,7 @@ export const BSEDENGData = [
   remarks: ''
 },
 {
-  id: 35,
+  id: 46,
   yearLevel: 'Third Year',
   semester: 'First Semester',
   courseCode: 'GNED 12',
@@ -2522,7 +2533,7 @@ export const BSEDENGData = [
 },
 //Second Semester
 {
-  id: 36,
+  id: 47,
   yearLevel: 'Third Year',
   semester: 'Second Semester',
   courseCode: 'EDFS 22',
@@ -2535,7 +2546,7 @@ export const BSEDENGData = [
   remarks: ''
 },
 {
-  id: 37,
+  id: 48,
   yearLevel: 'Third Year',
   semester: 'Second Semester',
   courseCode: 'BSEE 27',
@@ -2548,7 +2559,7 @@ export const BSEDENGData = [
   remarks: ''
 },
 {
-  id: 38,
+  id: 49,
   yearLevel: 'Third Year',
   semester: 'Second Semester',
   courseCode: 'BSEE 31',
@@ -2561,7 +2572,7 @@ export const BSEDENGData = [
   remarks: ''
 },
 {
-  id: 39,
+  id: 50,
   yearLevel: 'Third Year',
   semester: 'Second Semester',
   courseCode: 'BSEE 38',
@@ -2574,7 +2585,7 @@ export const BSEDENGData = [
   remarks: ''
 },
 {
-  id: 40,
+  id: 51,
   yearLevel: 'Third Year',
   semester: 'Second Semester',
   courseCode: 'BSEE 40',
@@ -2587,7 +2598,7 @@ export const BSEDENGData = [
   remarks: ''
 },
 {
-  id: 41,
+  id: 52,
   yearLevel: 'Third Year',
   semester: 'Second Semester',
   courseCode: 'BSEE 41',
@@ -2600,7 +2611,7 @@ export const BSEDENGData = [
   remarks: ''
 },
 {
-  id: 42,
+  id: 53,
   yearLevel: 'Third Year',
   semester: 'Second Semester',
   courseCode: 'EDUC 197',
@@ -2616,7 +2627,7 @@ export const BSEDENGData = [
 //Fourth Year
 //First Semester
 {
-  id: 56,
+  id: 54,
   yearLevel: 'Fourth Year',
   semester: 'First Semester',
   courseCode: 'EDFS 23',
@@ -2630,7 +2641,7 @@ export const BSEDENGData = [
 },
 //Second Semester
 {
-  id: 57,
+  id: 55,
   yearLevel: 'Fourth Year',
   semester: 'Second Semester',
   courseCode: 'GNED 01',
@@ -2643,7 +2654,7 @@ export const BSEDENGData = [
   remarks: ''
 },
 {
-  id: 58,
+  id: 56,
   yearLevel: 'Fourth Year',
   semester: 'Second Semester',
   courseCode: 'GNED 02',
@@ -2656,7 +2667,7 @@ export const BSEDENGData = [
   remarks: ''
 },
 {
-  id: 59,
+  id: 57,
   yearLevel: 'Fourth Year',
   semester: 'Second Semester',
   courseCode: 'GNED 07',
@@ -2669,7 +2680,7 @@ export const BSEDENGData = [
   remarks: ''
 },
 {
-  id: 60,
+  id: 58,
   yearLevel: 'Fourth Year',
   semester: 'Second Semester',
   courseCode: 'GNED 09',
@@ -2682,7 +2693,7 @@ export const BSEDENGData = [
   remarks: ''
 },
 {
-  id: 61,
+  id: 59,
   yearLevel: 'Fourth Year',
   semester: 'Second Semester',
   courseCode: 'GNED 10',
@@ -2695,7 +2706,7 @@ export const BSEDENGData = [
   remarks: ''
 },
 {
-  id: 62,
+  id: 60,
   yearLevel: 'Fourth Year',
   semester: 'Second Semester',
   courseCode: 'GNED 13',
@@ -2708,7 +2719,7 @@ export const BSEDENGData = [
   remarks: ''
 },
 {
-  id: 63,
+  id: 61,
   yearLevel: 'Fourth Year',
   semester: 'Second Semester',
   courseCode: 'EDUC 198',

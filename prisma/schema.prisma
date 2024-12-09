@@ -23,7 +23,6 @@ model Student {
   id            String     @id @default(cuid())
   studentNumber Int        @unique
   username      String     @unique
-  password      String
   firstName     String
   lastName      String
   middleInit    String?
@@ -133,8 +132,8 @@ enum Role {
 }
 
 enum Major {
-  HR
-  MM
-  ENG
+  HUMAN_RESOURCE_MANAGEMENT
+  MARKETING_MANAGEMENT
+  ENGLISH
   MATH
 }
