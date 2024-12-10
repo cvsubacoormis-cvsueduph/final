@@ -11,8 +11,6 @@ export async function createStudentAction(data: StudentSchema) {
       data: {
         studentNumber: data.studentNumber,
         username: `${data.studentNumber}${data.firstName}`,
-        password: `cvsubacoor${data.firstName}${data.studentNumber}`,
-        confirmPassword: `cvsubacoor${data.firstName}${data.studentNumber}`,
         status: data.status as Status,
         yearLevel: data.yearLevel as yearLevels,
         course: data.course as Courses,

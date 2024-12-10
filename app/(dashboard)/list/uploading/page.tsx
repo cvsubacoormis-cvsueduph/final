@@ -202,50 +202,52 @@ export default function UploadGradesPreview() {
       {grades.length > 0 && (
         <div className="mb-4">
           <h2 className="text-lg font-bold mb-2">Preview Grades</h2>
-          <table className="table-auto w-full border">
-            <thead>
-              <tr>
-                <th className="border px-4 py-2 text-center">Student No.</th>
-                <th className="border px-4 py-2 text-center">Course Code</th>
-                <th className="border px-4 py-2 text-center">Credit Unit</th>
-                <th className="border px-4 py-2 text-center">Course Title</th>
-                <th className="border px-4 py-2 text-center">Grade</th>
-                <th className="border px-4 py-2 text-center">Re-exam</th>
-                <th className="border px-4 py-2 text-center">Remarks</th>
-                <th className="border px-4 py-2 text-center">Instructor</th>
-              </tr>
-            </thead>
-            <tbody>
-              {grades.map((grade, index) => (
-                <tr key={index}>
-                  <td className="border px-4 py-2 text-center">
-                    {grade.studentNumber}
-                  </td>
-                  <td className="border px-4 py-2 text-center">
-                    {grade.courseCode}
-                  </td>
-                  <td className="border px-4 py-2 text-center">
-                    {grade.creditUnit}
-                  </td>
-                  <td className="border px-4 py-2 text-center">
-                    {grade.courseTitle}
-                  </td>
-                  <td className="border px-4 py-2 text-center">
-                    {grade.grade}
-                  </td>
-                  <td className="border px-4 py-2 text-center">
-                    {grade.reExam ?? ""}
-                  </td>
-                  <td className="border px-4 py-2 text-center">
-                    {grade.remarks}
-                  </td>
-                  <td className="border px-4 py-2 text-center">
-                    {grade.instructor}
-                  </td>
+          <div className="max-h-[50vh] overflow-y-scroll border">
+            <table className="table-auto w-full border-collapse">
+              <thead>
+                <tr>
+                  <th className="border px-4 py-2 text-center">Student No.</th>
+                  <th className="border px-4 py-2 text-center">Course Code</th>
+                  <th className="border px-4 py-2 text-center">Credit Unit</th>
+                  <th className="border px-4 py-2 text-center">Course Title</th>
+                  <th className="border px-4 py-2 text-center">Grade</th>
+                  <th className="border px-4 py-2 text-center">Re-exam</th>
+                  <th className="border px-4 py-2 text-center">Remarks</th>
+                  <th className="border px-4 py-2 text-center">Instructor</th>
                 </tr>
-              ))}
-            </tbody>
-          </table>
+              </thead>
+              <tbody>
+                {grades.map((grade, index) => (
+                  <tr key={index}>
+                    <td className="border px-4 py-2 text-center">
+                      {grade.studentNumber}
+                    </td>
+                    <td className="border px-4 py-2 text-center">
+                      {grade.courseCode}
+                    </td>
+                    <td className="border px-4 py-2 text-center">
+                      {grade.creditUnit}
+                    </td>
+                    <td className="border px-4 py-2 text-center">
+                      {grade.courseTitle}
+                    </td>
+                    <td className="border px-4 py-2 text-center">
+                      {grade.grade}
+                    </td>
+                    <td className="border px-4 py-2 text-center">
+                      {grade.reExam ?? ""}
+                    </td>
+                    <td className="border px-4 py-2 text-center">
+                      {grade.remarks}
+                    </td>
+                    <td className="border px-4 py-2 text-center">
+                      {grade.instructor}
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
         </div>
       )}
 
@@ -253,7 +255,7 @@ export default function UploadGradesPreview() {
         onClick={handleUpload}
         disabled={isUploading || isParsing}
         className={`p-2 text-white rounded ${
-          isUploading ? "bg-gray-500" : "bg-gray-800 text-sm"
+          isUploading ? "bg-gray-500" : "bg-blue-500 text-sm hover:bg-blue-700"
         }`}
       >
         {isUploading ? "Uploading..." : "Upload Grades"}

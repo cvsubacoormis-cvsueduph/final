@@ -14,9 +14,17 @@ datasource db {
 }
 
 model Admin {
-  id       String @id @default(uuid()) // Use UUID for id
-  username String @unique
-  role     Role   @default(admin)
+  id         String @id @default(uuid()) // Use UUID for id
+  firstName  String
+  middleName String?
+  lastName   String
+  address    String
+  phone      String?
+  email      String
+  birthday   DateTime
+  sex        UserSex
+  username   String @unique
+  role       Role   @default(admin)
 }
 
 model Student {
