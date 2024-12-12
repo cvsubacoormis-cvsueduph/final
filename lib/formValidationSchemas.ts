@@ -15,20 +15,9 @@ export const studentSchema = z
       message: "Last Name is required",
     }),
     middleInit: z.string().optional(),
-    course: z.enum(
-      [
-        "BSIT",
-        "BSCS",
-        "BSCRIM",
-        "BSP",
-        "BSHM",
-        "BSED",
-        "BSBM",
-      ],
-      {
-        message: "Course is required",
-      }
-    ),
+    course: z.enum(["BSIT", "BSCS", "BSCRIM", "BSP", "BSHM", "BSED", "BSBM"], {
+      message: "Course is required",
+    }),
     major: z.string().optional(),
     email: z.string().email(),
     birthday: z.string().min(1, {
@@ -88,3 +77,20 @@ export const announcementSchema = z.object({
 });
 
 export type AnnouncementSchema = z.infer<typeof announcementSchema>;
+
+export const createAdminSchema = z.object({
+  firstName: z.string().min(1, "First Name is required"),
+  middleName: z.string().min(1, "Middle Name is required"),
+  lastName: z.string().min(1, "Last Name is required"),
+  email: z.string().min(1, "Email is required"),
+  address: z.string().min(1, "Address is required"),
+  phone: z.string().min(1, "Phone is required"),
+  birthday: z.coerce.date().min(new Date("1900-01-01"), "Birthday is required"),
+  sex: z.enum(["MALE", "FEMALE"], {
+    message: "Sex is required",
+  }),
+  username: z.string().min(1, "Username is required"),
+  password: z.string().min(1, "Password is required"),
+});
+
+export type CreateAdminSchema = z.infer<typeof createAdminSchema>;

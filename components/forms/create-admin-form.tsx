@@ -15,29 +15,15 @@ import {
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
 import toast from "react-hot-toast";
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import { mutate } from "swr";
-
-export const createAdminSchema = z.object({
-  firstName: z.string().min(1, "First Name is required"),
-  middleName: z.string().min(1, "Middle Name is required"),
-  lastName: z.string().min(1, "Last Name is required"),
-  email: z.string().min(1, "Email is required"),
-  address: z.string().min(1, "Address is required"),
-  phone: z.string().min(1, "Phone is required"),
-  birthday: z.string().min(1, "Birthday is required"),
-  sex: z.enum(["MALE", "FEMALE"], {
-    message: "Sex is required",
-  }),
-  username: z.string().min(1, "Username is required"),
-  password: z.string().min(1, "Password is required"),
-});
+import { createAdminSchema } from "@/lib/formValidationSchemas";
 
 export default function CreateAdminForm() {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [errorMessage, setErrorMessage] = useState("");
 
-  const createAdminForm = useForm<createAdminSchema>({
+  const createAdminForm = useForm<z.infer<typeof createAdminSchema>>({
     resolver: zodResolver(createAdminSchema),
     defaultValues: {
       firstName: "",
@@ -46,14 +32,14 @@ export default function CreateAdminForm() {
       email: "",
       address: "",
       phone: "",
-      birthday: "",
+      birthday: new Date(),
       sex: "MALE",
       username: "",
       password: "",
     },
   });
 
-  const onSubmit = async (data: createAdminSchema) => {
+  const onSubmit = async (data: z.infer<typeof createAdminSchema>) => {
     setIsSubmitting(true);
     try {
       const response = await fetch("/api/create-admin", {
@@ -249,10 +235,14 @@ export default function CreateAdminForm() {
             />
           </div>
         </fieldset>
+        <div className="mt-4">
+          {errorMessage && <p className="text-red-500">{errorMessage}</p>}
+        </div>
         <div className="flex justify-end">
           <Button
             type="submit"
             className="bg-blue-600 text-white px-4 py-2 rounded-md hover:bg-blue-800"
+            disabled={isSubmitting}
           >
             Submit
           </Button>

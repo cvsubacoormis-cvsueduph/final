@@ -33,6 +33,12 @@ export default async function Menu() {
           href: "/list/students",
           visible: ["admin"],
         },
+        {
+          icon: "/profile.png",
+          label: "Admins",
+          href: "/list/admin-lists",
+          visible: ["admin"],
+        },
         // {
         //   icon: "/parent.png",
         //   label: "Parents",

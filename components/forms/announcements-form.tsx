@@ -15,7 +15,11 @@ import {
 } from "../ui/form";
 import { Input } from "../ui/input";
 
-import { announcementSchema, AnnouncementSchema } from "@/lib/formValidationSchemas";
+import {
+  announcementSchema,
+  AnnouncementSchema,
+} from "@/lib/formValidationSchemas";
+import { Textarea } from "../ui/textarea";
 
 type AnnouncementsFormProps = {
   defaultValues: AnnouncementSchema;
@@ -62,7 +66,7 @@ export default function AnnouncementsForm({
               <FormItem>
                 <FormLabel>Description</FormLabel>
                 <FormControl>
-                  <Input placeholder="Enter Description" {...field} />
+                  <Textarea placeholder="Enter Description" {...field} className="resize-none ml-2" />
                 </FormControl>
                 <FormMessage />
               </FormItem>
@@ -75,11 +79,7 @@ export default function AnnouncementsForm({
               <FormItem>
                 <FormLabel>Date</FormLabel>
                 <FormControl>
-                  <Input
-                    type="date"
-                    {...field}
-                    className="mr-9"
-                  />
+                  <Input type="date" {...field} className="mr-9" />
                 </FormControl>
                 <FormMessage />
               </FormItem>

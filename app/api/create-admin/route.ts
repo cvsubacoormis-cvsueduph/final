@@ -1,4 +1,4 @@
-import { createAdminSchema } from "@/components/forms/create-admin-form";
+import { createAdminSchema } from "@/lib/formValidationSchemas";
 import prisma from "@/lib/prisma";
 import { clerkClient } from "@clerk/nextjs/server";
 import { UserSex } from "@prisma/client";

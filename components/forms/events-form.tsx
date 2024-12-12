@@ -14,6 +14,7 @@ import {
   FormMessage,
 } from "../ui/form";
 import { Input } from "../ui/input";
+import { Textarea } from "@/components/ui/textarea";
 
 import { eventSchema, EventSchema } from "@/lib/formValidationSchemas";
 
@@ -62,7 +63,7 @@ export default function EventForm({
               <FormItem>
                 <FormLabel>Description</FormLabel>
                 <FormControl>
-                  <Input placeholder="Enter Description" {...field} />
+                <Textarea placeholder="Enter Description" {...field} className="resize-none ml-2" />
                 </FormControl>
                 <FormMessage />
               </FormItem>
