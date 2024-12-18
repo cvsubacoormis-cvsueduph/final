@@ -18,7 +18,6 @@ import { useUser } from "@clerk/nextjs";
 const fetcher = (url: string) => fetch(url).then((res) => res.json());
 
 export default function AnnouncementsTable() {
-
   const { user, isLoaded } = useUser();
 
   // Ensure the user is loaded and fetch the role from public or private metadata
@@ -82,12 +81,13 @@ export default function AnnouncementsTable() {
                     {announcements.date}
                   </TableCell>
                   <TableCell className="text-right">
-                    {role === "admin" && (
-                      <div className="flex items-center gap-2 justify-center">
-                        <DeleteAnnouncements id={announcements.id} />
-                        <UpdateAnnouncements announcement={announcements} />
-                      </div>
-                    )}
+                    {role === "admin" ||
+                      (role === "superuser" && (
+                        <div className="flex items-center gap-2 justify-center">
+                          <DeleteAnnouncements id={announcements.id} />
+                          <UpdateAnnouncements announcement={announcements} />
+                        </div>
+                      ))}
                   </TableCell>
                 </TableRow>
               ))}

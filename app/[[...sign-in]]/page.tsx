@@ -15,8 +15,14 @@ const Homepage = () => {
 
   useEffect(() => {
     const role = user?.publicMetadata.role;
-    if (role) {
-      router.push(`/${role}`);
+    if (role === "admin") {
+      router.push("/admin");
+    }
+    if (role === "superuser") {
+      router.push("/admin");
+    }
+    if (role === "student") {
+      router.push("/student");
     }
   }, [user, router]);
   return (
@@ -82,7 +88,7 @@ const Homepage = () => {
               </Clerk.Field>
             </div>
 
-            <div className="flex items-center justify-between mb-4"> 
+            <div className="flex items-center justify-between mb-4">
               <p className="text-sm text-right">
                 Don’t have an account?
                 <Link
@@ -101,12 +107,14 @@ const Homepage = () => {
             >
               Login
             </SignIn.Action>
-            <p className="text-xs text-gray-500 text-center">Data Privacy Policy</p>
+            <p className="text-xs text-gray-500 text-center">
+              Data Privacy Policy
+            </p>
           </SignIn.Step>
         </SignIn.Root>
       </div>
     </div>
   );
-}
+};
 
 export default Homepage;

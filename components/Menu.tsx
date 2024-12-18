@@ -18,6 +18,12 @@ export default async function Menu() {
         {
           icon: "/home.png",
           label: "Dashboard",
+          href: "/admin",
+          visible: ["superuser"],
+        },
+        {
+          icon: "/home.png",
+          label: "Dashboard",
           href: "/student",
           visible: ["student"],
         },
@@ -31,13 +37,13 @@ export default async function Menu() {
           icon: "/student.png",
           label: "Students",
           href: "/list/students",
-          visible: ["admin"],
+          visible: ["admin", "superuser"],
         },
         {
           icon: "/profile.png",
           label: "Admins",
           href: "/list/admin-lists",
-          visible: ["admin"],
+          visible: ["admin", "superuser"],
         },
         // {
         //   icon: "/parent.png",
@@ -103,7 +109,7 @@ export default async function Menu() {
           icon: "/calendar.png",
           label: "Events",
           href: "/list/events",
-          visible: ["admin", "student"],
+          visible: ["admin", "student", "superuser"],
         },
         {
           icon: "/result.png",
@@ -115,7 +121,7 @@ export default async function Menu() {
           icon: "/result.png",
           label: "Upload Grades",
           href: "/list/uploading",
-          visible: ["admin"],
+          visible: ["admin", "superuser"],
         },
         {
           icon: "/assignment.png",
@@ -127,7 +133,7 @@ export default async function Menu() {
           icon: "/announcement.png",
           label: "Announcements",
           href: "/list/announcements",
-          visible: ["admin", "student"],
+          visible: ["admin", "student", "superuser"],
         },
       ],
     },
@@ -144,13 +150,13 @@ export default async function Menu() {
           icon: "/profile.png",
           label: "Admin Profile",
           href: "/list/adminprofile",
-          visible: ["admin"],
+          visible: ["admin", "superuser"],
         },
         {
           icon: "/profile.png",
           label: "Create Admin",
           href: "/list/create-admin",
-          visible: ["admin"],
+          visible: ["superuser"],
         },
         // {
         //   icon: "/setting.png",

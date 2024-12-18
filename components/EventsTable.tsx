@@ -80,12 +80,13 @@ export default function EventsTable() {
                 </TableCell>
                 <TableCell className="text-center">{events.endTime}</TableCell>
                 <TableCell className="text-right">
-                  {role === "admin" && (
-                    <div className="flex items-center gap-2 justify-center">
-                      <DeleteEvent id={events.id} />
-                      <UpdateEvent event={events} />
-                    </div>
-                  )}
+                  {role === "admin" ||
+                    (role === "superuser" && (
+                      <div className="flex items-center gap-2 justify-center">
+                        <DeleteEvent id={events.id} />
+                        <UpdateEvent event={events} />
+                      </div>
+                    ))}
                 </TableCell>
               </TableRow>
             ))}

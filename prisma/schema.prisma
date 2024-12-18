@@ -137,6 +137,7 @@ enum Status {
 enum Role {
   admin
   student
+  superuser
 }
 
 enum Major {

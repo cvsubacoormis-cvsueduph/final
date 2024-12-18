@@ -1,5 +1,4 @@
 "use server";
-import { role } from "@/lib/data";
 import Image from "next/image";
 import StudentsTable from "@/components/StudentsTable";
 import CreateStudents from "@/components/students/create-students";
@@ -7,6 +6,7 @@ import UploadStudents from "@/components/students/upload-students";
 import SearchStudent from "@/components/students/search-students";
 import { Suspense } from "react";
 import Spinner from "@/components/Spinner";
+import { currentUser } from "@clerk/nextjs/server";
 
 export type PageProps = {
   params: { [key: string]: string | string[] | undefined };
@@ -18,6 +18,10 @@ export type PageProps = {
 };
 
 export default async function StudentLists(props: PageProps) {
+
+  const user = await currentUser();
+  const role = user?.publicMetadata?.role as string;
+
   const { query = "" } = (await props.searchParams) ?? {};
   return (
     <>
@@ -36,7 +40,7 @@ export default async function StudentLists(props: PageProps) {
               <button className="w-8 h-8 flex items-center justify-center rounded-full bg-lamaYellow">
                 <Image src="/sort.png" alt="" width={14} height={14} />
               </button>
-              {role === "admin" && (
+              {role === "admin" || role === "superuser" && (
                 <>
                   <CreateStudents />
                   <UploadStudents />

@@ -63,7 +63,7 @@ export default function EventForm({
               <FormItem>
                 <FormLabel>Description</FormLabel>
                 <FormControl>
-                <Textarea placeholder="Enter Description" {...field} className="resize-none ml-2" />
+                <Textarea placeholder="Enter Description" {...field} className="ml-2" />
                 </FormControl>
                 <FormMessage />
               </FormItem>

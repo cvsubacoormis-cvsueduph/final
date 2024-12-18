@@ -38,7 +38,7 @@ export default function AnnouncementsLists() {
               <Image src="/sort.png" alt="Sort" width={14} height={14} />
             </button>
             {/* Show CreateAnnouncements only if the user is an admin */}
-            {role === "admin" && <CreateAnnouncements />}
+            {(role === "admin" || role === "superuser" && <CreateAnnouncements />)}
           </div>
         </div>
       </div>

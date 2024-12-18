@@ -8,7 +8,6 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
-import { role } from "@/lib/data";
 import { Student } from "@prisma/client";
 import Image from "next/image";
 
@@ -17,9 +16,13 @@ import UpdateStudent from "./students/update-student";
 import { getStudents } from "@/actions/search-student-action";
 import PaginationStudents from "./students/pagination-students";
 import { PageProps } from "@/app/(dashboard)/list/students/page";
+import { currentUser } from "@clerk/nextjs/server";
 
 export default async function StudentsTable(props: PageProps) {
   const { data } = await getStudents(props.query || "");
+
+  const user = await currentUser();
+  const role = user?.publicMetadata?.role as string;
   return (
     <div>
       <Table className="w-full mt-4">
@@ -59,8 +62,12 @@ export default async function StudentsTable(props: PageProps) {
         <TableBody>
           {data.length === 0 ? (
             <TableRow className="bg-gray-100">
-              <TableCell colSpan={10} className="text-center items-center py-4 text-gray-600">
-                No students found. Please try a different search or add new students.
+              <TableCell
+                colSpan={10}
+                className="text-center items-center py-4 text-gray-600"
+              >
+                No students found. Please try a different search or add new
+                students.
               </TableCell>
             </TableRow>
           ) : (
@@ -104,7 +111,7 @@ export default async function StudentsTable(props: PageProps) {
                   {student.address}
                 </TableCell>
                 <TableCell className="hidden md:table-cell text-right">
-                  {role === "admin" && (
+                  {(role === "admin" || role === "superuser") && (
                     <div className="flex items-center gap-2">
                       <DeleteStudent id={student.id.toString()} />
                       <UpdateStudent student={student} />
