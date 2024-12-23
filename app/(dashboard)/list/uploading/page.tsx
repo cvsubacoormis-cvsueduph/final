@@ -158,8 +158,8 @@ export default function UploadGradesPreview() {
   };
 
   return (
-    <div className="p-4">
-      <h1 className="text-xl font-bold mb-4">Upload Grades</h1>
+    <div className="bg-white p-4 rounded-md flex-1 m-4 mt-0">
+      <h1 className="text-lg font-semibold mb-4">Upload Grades</h1>
       <div className="flex flex-col gap-4 mb-4">
         <Input
           type="file"
@@ -170,7 +170,7 @@ export default function UploadGradesPreview() {
         <select
           value={semester}
           onChange={handleSemesterChange}
-          className="border p-2"
+          className="border p-2 rounded-md"
         >
           <option value="" disabled>
             Select Semester
@@ -182,7 +182,7 @@ export default function UploadGradesPreview() {
         <select
           value={academicYear}
           onChange={handleAcademicYearChange}
-          className="border p-2"
+          className="border p-2 rounded-md"
         >
           <option value="" disabled>
             Select Academic Year

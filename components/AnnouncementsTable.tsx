@@ -81,13 +81,13 @@ export default function AnnouncementsTable() {
                     {announcements.date}
                   </TableCell>
                   <TableCell className="text-right">
-                    {role === "admin" ||
-                      (role === "superuser" && (
+                    {(role === "admin" ||
+                      role === "superuser") && (
                         <div className="flex items-center gap-2 justify-center">
                           <DeleteAnnouncements id={announcements.id} />
                           <UpdateAnnouncements announcement={announcements} />
                         </div>
-                      ))}
+                      )}
                   </TableCell>
                 </TableRow>
               ))}
