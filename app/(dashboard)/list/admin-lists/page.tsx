@@ -1,3 +1,4 @@
+import AdminListsTable from "@/components/AdminListsTable";
 import SearchStudent from "@/components/students/search-students";
 import Image from "next/image";
 import React from "react";
@@ -22,6 +23,8 @@ export default function AdminListsPage() {
           </button>
         </div>
       </div>
+      {/* LIST */}
+      <AdminListsTable />
     </div>
   );
 }
