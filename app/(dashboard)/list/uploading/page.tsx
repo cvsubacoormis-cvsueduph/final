@@ -26,16 +26,15 @@ export default function UploadGradesPreview() {
   const [academicYear, setAcademicYear] = useState<string>("");
   const [isUploading, setIsUploading] = useState(false);
   const [isParsing, setIsParsing] = useState(false);
+  const [progress, setProgress] = useState(0); // Progress state
   const [error, setError] = useState<string>("");
 
-  // Generate academic year options dynamically
   const generateAcademicYears = (startYear: number, count: number) =>
     Array.from(
       { length: count },
       (_, i) => `AY_${startYear + i}_${startYear + i + 1}`
     );
 
-  // Handle file input change
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setError("");
     if (e.target.files && e.target.files[0]) {
@@ -49,7 +48,6 @@ export default function UploadGradesPreview() {
     }
   };
 
-  // Parse Excel file and update grades state
   const parseExcel = (file: File) => {
     setIsParsing(true);
     const reader = new FileReader();
@@ -73,7 +71,6 @@ export default function UploadGradesPreview() {
     reader.readAsBinaryString(file);
   };
 
-  // Validate parsed grades format
   const validateGrades = (grades: Grade[]): grades is Grade[] => {
     if (!grades.length) return false;
 
@@ -92,13 +89,11 @@ export default function UploadGradesPreview() {
     );
   };
 
-  // Handle semester and academic year changes
   const handleSemesterChange = (e: React.ChangeEvent<HTMLSelectElement>) =>
     setSemester(e.target.value);
   const handleAcademicYearChange = (e: React.ChangeEvent<HTMLSelectElement>) =>
     setAcademicYear(e.target.value);
 
-  // Handle file upload to the server
   const handleUpload = async () => {
     if (!file || !semester || !academicYear || grades.length === 0) {
       Swal.fire({
@@ -110,9 +105,9 @@ export default function UploadGradesPreview() {
     }
 
     setIsUploading(true);
+    setProgress(0); // Reset progress
     setError("");
 
-    // Prepare FormData for the file upload
     const formData = new FormData();
     formData.append("file", file);
     formData.append("semester", semester);
@@ -131,10 +126,11 @@ export default function UploadGradesPreview() {
           icon: "success",
           confirmButtonText: "Close",
         });
-        setGrades([]); // Clear grades preview after upload
+        setGrades([]);
         setFile(null);
         setSemester("");
         setAcademicYear("");
+        setProgress(100); // Set progress to 100% on success
       } else {
         const errorData = await response.json();
         Swal.fire({
@@ -260,6 +256,18 @@ export default function UploadGradesPreview() {
       >
         {isUploading ? "Uploading..." : "Upload Grades"}
       </button>
+
+      {isUploading && (
+        <div className="mt-4">
+          <div className="relative h-4 w-full bg-gray-300 rounded">
+            <div
+              className="absolute top-0 left-0 h-full bg-blue-500 rounded"
+              style={{ width: `${progress}%` }}
+            />
+          </div>
+          <p className="text-center mt-2 text-sm">{progress}%</p>
+        </div>
+      )}
     </div>
   );
 }

@@ -1,4 +1,4 @@
-import { Grade } from "@/app/(dashboard)/list/grades/page";
+import { Grade } from "@/app/(dashboard)/list/[grades]/page";
 import React from "react";
 
 const Table = ({
