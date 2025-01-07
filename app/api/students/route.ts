@@ -1,7 +1,7 @@
 import { StudentSchema, studentSchema } from "@/lib/formValidationSchemas";
 import prisma from "@/lib/prisma";
 import { clerkClient } from "@clerk/nextjs/server";
-import { Courses, Major, Status, UserSex, yearLevels } from "@prisma/client";
+import { Courses, Major, Status, UserSex } from "@prisma/client";
 import { NextRequest, NextResponse } from "next/server";
 
 export async function GET() {
@@ -53,7 +53,6 @@ export async function POST(request: NextRequest) {
         studentNumber: studentData.studentNumber,
         username: `${studentData.studentNumber}${studentData.firstName}`,
         status: studentData.status as Status,
-        yearLevel: studentData.yearLevel as yearLevels,
         course: studentData.course as Courses,
         major: (studentData?.major as Major) ?? "",
         firstName: studentData.firstName,
@@ -90,13 +89,13 @@ export async function DELETE(request: NextRequest) {
     const clerk = await clerkClient();
     await clerk.users.deleteUser(id);
 
-    const deleteTodo = await prisma.student.delete({
+    const deleteStudent = await prisma.student.delete({
       where: {
         id,
       },
     });
 
-    if (!deleteTodo) {
+    if (!deleteStudent) {
       return NextResponse.json(
         { message: "student not found" },
         { status: 404 }
@@ -145,13 +144,12 @@ export async function PUT(request: NextRequest) {
         lastName: studentData.lastName,
         middleInit: studentData.middleInit || "",
         email: studentData.email || "",
-        phone: studentData.phone || "",
+        phone: studentData.phone,
         address: studentData.address,
         birthday: studentData.birthday,
         course: studentData.course,
         sex: studentData.sex,
         status: studentData.status,
-        yearLevel: studentData.yearLevel as yearLevels,
       },
     });
 

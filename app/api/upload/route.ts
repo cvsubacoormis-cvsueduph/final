@@ -2,7 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { StudentSchema } from "@/lib/formValidationSchemas";
 import prisma from "@/lib/prisma";
 import * as XLSX from "xlsx";
-import { Major, UserSex, yearLevels } from "@prisma/client";
+import { Major, UserSex } from "@prisma/client";
 import { clerkClient } from "@clerk/nextjs/server";
 
 export async function POST(request: NextRequest) {
@@ -18,6 +18,12 @@ export async function POST(request: NextRequest) {
     const sheetName = workbook.SheetNames[0];
     const workSheet = workbook.Sheets[sheetName];
     const students: StudentSchema[] = XLSX.utils.sheet_to_json(workSheet);
+    const existingStudentNumbers = await prisma.student
+      .findMany({
+        select: { studentNumber: true },
+      })
+      .then((students) => students.map((student) => student.studentNumber));
+
     students.forEach((student) => {
       const date = XLSX.SSF.parse_date_code(student.birthday);
       student.birthday = new Date(
@@ -25,7 +31,11 @@ export async function POST(request: NextRequest) {
       ).toLocaleDateString();
     });
 
-    for (const student of students) {
+    const studentsToCreate = students.filter(
+      (student) => !existingStudentNumbers.includes(student.studentNumber)
+    );
+
+    for (const student of studentsToCreate) {
       const clerk = await clerkClient();
       const user = await clerk.users.createUser({
         username: `${student.studentNumber}${student.firstName}`,
@@ -52,14 +62,15 @@ export async function POST(request: NextRequest) {
           sex: student.sex as UserSex,
           course: student.course,
           major: student?.major as Major,
-          yearLevel: student.yearLevel as yearLevels,
           status: student.status,
           birthday: student.birthday,
         },
       });
     }
 
-    return NextResponse.json({ message: "Students uploaded successfully" });
+    return NextResponse.json({
+      message: `Students uploaded successfully. ${studentsToCreate.length} out of ${students.length} students were created.`,
+    });
   } catch (error) {
     console.error("Error uploading students:", error);
     return NextResponse.json(
@@ -68,3 +79,4 @@ export async function POST(request: NextRequest) {
     );
   }
 }
+

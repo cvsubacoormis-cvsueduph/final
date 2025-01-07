@@ -41,7 +41,6 @@ model Student {
   sex           UserSex
   course        Courses
   major         Major?
-  yearLevel     yearLevels
   status        Status
   birthday      String
   role          Role       @default(student)
@@ -119,7 +118,7 @@ enum Courses {
   BSP
   BSHM
   BSED
-  BSBM
+  BSBA
 }
 
 enum yearLevels {
@@ -144,5 +143,5 @@ enum Major {
   HUMAN_RESOURCE_MANAGEMENT
   MARKETING_MANAGEMENT
   ENGLISH
-  MATH
+  MATHEMATICS
 }

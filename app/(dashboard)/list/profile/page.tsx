@@ -47,6 +47,22 @@ export default async function StudentProfile() {
         />
       </div>
       <div className="mt-4">
+        <label className="text-md font-semibold">Course</label>
+        <Input
+          className="mt-2 border-gray-800 text-black"
+          value={student.course}
+          disabled
+        />
+      </div>
+      <div className="mt-4">
+        <label className="text-md font-semibold">Major</label>
+        <Input
+          className="mt-2 border-gray-800 text-black"
+          value={student.major || "N/A"}
+          disabled
+        />
+      </div>
+      <div className="mt-4">
         <label className="text-md font-semibold">Address</label>
         <Input
           className="mt-2 border-gray-800 text-black"

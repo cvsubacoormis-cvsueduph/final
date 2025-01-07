@@ -15,7 +15,7 @@ export const studentSchema = z
       message: "Last Name is required",
     }),
     middleInit: z.string().optional(),
-    course: z.enum(["BSIT", "BSCS", "BSCRIM", "BSP", "BSHM", "BSED", "BSBM"], {
+    course: z.enum(["BSIT", "BSCS", "BSCRIM", "BSP", "BSHM", "BSED", "BSBA"], {
       message: "Course is required",
     }),
     major: z.string().optional(),
@@ -34,9 +34,6 @@ export const studentSchema = z
     }),
     status: z.enum(["REGULAR", "IRREGULAR"], {
       message: "Status is required",
-    }),
-    yearLevel: z.string().min(1, {
-      message: "Year Level is required",
     }),
     password: z
       .string()
@@ -84,7 +81,7 @@ export const createAdminSchema = z.object({
   lastName: z.string().min(1, "Last Name is required"),
   email: z.string().min(1, "Email is required"),
   address: z.string().min(1, "Address is required"),
-  phone: z.string().min(1, "Phone is required"),
+  phone: z.number().min(1, "Phone is required"),
   birthday: z.coerce.date().min(new Date("1900-01-01"), "Birthday is required"),
   sex: z.enum(["MALE", "FEMALE"], {
     message: "Sex is required",
