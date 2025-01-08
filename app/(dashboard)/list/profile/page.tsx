@@ -19,8 +19,12 @@ export default async function StudentProfile() {
   }
   return (
     <div className="bg-white p-4 rounded-md flex-1 m-4 mt-0">
-      <h1 className="text-lg font-semibold">Student Profile</h1>
-      <p className="text-xs text-gray-500">Student Profile Information</p>
+      <h1 className="text-lg font-semibold">
+        Student Profile{" "}
+        <span className="text-xs flex text-gray-500">
+          Student Profile Information
+        </span>
+      </h1>
 
       <div className="mt-4">
         <label className="text-md font-semibold">First Name</label>

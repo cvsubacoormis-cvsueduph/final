@@ -1,4 +1,4 @@
-'use client';
+"use client";
 
 import {
   Pagination,
@@ -25,8 +25,11 @@ export default function AnnouncementsLists() {
     <div className="bg-white p-4 rounded-md flex-1 m-4 mt-0">
       {/* TOP */}
       <div className="flex items-center justify-between">
-        <h1 className="hidden md:block text-lg font-semibold">
-          All Announcements
+        <h1 className="text-lg font-semibold">
+          All Announcements{" "}
+          <span className=" flex text-xs text-gray-500">
+            Lists of Announcements
+          </span>
         </h1>
         <div className="flex flex-col md:flex-row items-center gap-4 w-full md:w-auto">
           <TableSearch />
@@ -38,7 +41,8 @@ export default function AnnouncementsLists() {
               <Image src="/sort.png" alt="Sort" width={14} height={14} />
             </button>
             {/* Show CreateAnnouncements only if the user is an admin */}
-            {(role === "admin" || role === "superuser" && <CreateAnnouncements />)}
+            {role === "admin" ||
+              (role === "superuser" && <CreateAnnouncements />)}
           </div>
         </div>
       </div>

@@ -1,30 +1,47 @@
 "use client";
 
+import DataPrivacy from "@/components/DataPrivacy";
+import {
+  AlertDialogContent,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from "@/components/ui/alert-dialog";
+import { Button } from "@/components/ui/button";
 import * as Clerk from "@clerk/elements/common";
 import * as SignIn from "@clerk/elements/sign-in";
 import { useUser } from "@clerk/nextjs";
+import { AlertDialog } from "@radix-ui/react-alert-dialog";
 import Image from "next/image";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 
 const Homepage = () => {
-  const { user } = useUser();
+  const [isDialogOpen, setIsDialogOpen] = useState(false);
+  const [hasAgreedToPrivacy, setHasAgreedToPrivacy] = useState(false);
 
+  const { user } = useUser();
   const router = useRouter();
 
   useEffect(() => {
-    const role = user?.publicMetadata.role;
-    if (role === "admin") {
-      router.push("/admin");
+    if (user && !hasAgreedToPrivacy) {
+      setIsDialogOpen(true);
     }
-    if (role === "superuser") {
-      router.push("/admin");
+  }, [user, hasAgreedToPrivacy]);
+
+  useEffect(() => {
+    if (user && hasAgreedToPrivacy) {
+      const role = user?.publicMetadata.role;
+      if (role === "admin") {
+        router.push("/admin");
+      } else if (role === "superuser") {
+        router.push("/admin");
+      } else if (role === "student") {
+        router.push("/student");
+      }
     }
-    if (role === "student") {
-      router.push("/student");
-    }
-  }, [user, router]);
+  }, [user, hasAgreedToPrivacy, router]);
+
   return (
     <div className="flex items-center justify-center h-screen">
       <div className="flex-1 hidden md:flex items-center justify-center bg-gradient-to-b from-yellow-300 to-blue-700 h-full">
@@ -107,11 +124,28 @@ const Homepage = () => {
             >
               Login
             </SignIn.Action>
-            <p className="text-xs text-gray-500 text-center">
-              Data Privacy Policy
-            </p>
           </SignIn.Step>
         </SignIn.Root>
+
+        <AlertDialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
+          <AlertDialogContent className="max-w-lg w-full bg-white p-6 rounded-lg shadow-lg max-h-[90vh] overflow-y-auto">
+            <AlertDialogHeader>
+              <AlertDialogTitle className="text-lg text-center font-semibold">
+                Data Privacy Policy
+              </AlertDialogTitle>
+            </AlertDialogHeader>
+            <DataPrivacy />
+            <Button
+              className="w-full bg-blue-600 hover:bg-blue-500"
+              onClick={() => {
+                setHasAgreedToPrivacy(true);
+                setIsDialogOpen(false);
+              }}
+            >
+              I Agree
+            </Button>
+          </AlertDialogContent>
+        </AlertDialog>
       </div>
     </div>
   );

@@ -90,33 +90,6 @@ export default function StudentForm({
           />
           <FormField
             control={form.control}
-            name="yearLevel"
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel>Year Level</FormLabel>
-                <FormControl>
-                  <Select
-                    {...field}
-                    onValueChange={field.onChange}
-                    defaultValue={field.value}
-                  >
-                    <SelectTrigger className="w-[190px]">
-                      <SelectValue placeholder="FIRST" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="FIRST">FIRST</SelectItem>
-                      <SelectItem value="SECOND">SECOND</SelectItem>
-                      <SelectItem value="THIRD">THIRD</SelectItem>
-                      <SelectItem value="FOURTH">FOURTH</SelectItem>
-                    </SelectContent>
-                  </Select>
-                </FormControl>
-                <FormMessage />
-              </FormItem>
-            )}
-          />
-          <FormField
-            control={form.control}
             name="course"
             render={({ field }) => (
               <FormItem>
@@ -161,10 +134,10 @@ export default function StudentForm({
                       <SelectValue placeholder="" />
                     </SelectTrigger>
                     <SelectContent>
-                      <SelectItem value="MATH">MATH</SelectItem>
-                      <SelectItem value="ENG">ENG</SelectItem>
-                      <SelectItem value="HR">HR</SelectItem>
-                      <SelectItem value="MM">MM</SelectItem>
+                      <SelectItem value="MATHEMATICS">MATHEMATICS</SelectItem>
+                      <SelectItem value="ENGLISH">ENGLISH</SelectItem>
+                      <SelectItem value="HUMAN_RESOURCE_MANAGEMENT">HUMAN_RESOURCE_MANAGEMENT</SelectItem>
+                      <SelectItem value="MARKETING_MANAGEMENT">MARKETING_MANAGEMENT</SelectItem>
                     </SelectContent>
                   </Select>
                 </FormControl>

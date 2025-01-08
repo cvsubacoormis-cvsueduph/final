@@ -40,7 +40,6 @@ export default function CreateStudents() {
       major: undefined,
       sex: undefined,
       status: undefined,
-      yearLevel: undefined,
     },
   });
 
