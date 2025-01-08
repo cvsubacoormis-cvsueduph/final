@@ -18,58 +18,97 @@ export async function POST(request: NextRequest) {
     const sheetName = workbook.SheetNames[0];
     const workSheet = workbook.Sheets[sheetName];
     const students: StudentSchema[] = XLSX.utils.sheet_to_json(workSheet);
+
     const existingStudentNumbers = await prisma.student
       .findMany({
         select: { studentNumber: true },
       })
       .then((students) => students.map((student) => student.studentNumber));
 
-    students.forEach((student) => {
-      const date = XLSX.SSF.parse_date_code(student.birthday);
-      student.birthday = new Date(
-        Date.UTC(date.y, date.m - 1, date.d, 0, 0, 0)
-      ).toLocaleDateString();
+    const duplicates: { studentNumber: string; name: string }[] = [];
+
+    const studentsToCreate = students.filter((student) => {
+      if (existingStudentNumbers.includes(student.studentNumber)) {
+        duplicates.push({
+          studentNumber: student.studentNumber.toString(),
+          name: `${student.firstName} ${student.lastName}`,
+        });
+        return false;
+      }
+      return true;
     });
 
-    const studentsToCreate = students.filter(
-      (student) => !existingStudentNumbers.includes(student.studentNumber)
-    );
-
+    // Create users and save to database
     for (const student of studentsToCreate) {
-      const clerk = await clerkClient();
-      const user = await clerk.users.createUser({
-        username: `${student.studentNumber}${student.firstName}`,
-        password: `cvsubacoor${student.firstName}${student.studentNumber}`,
-        firstName: student.firstName,
-        lastName: student.lastName,
-        publicMetadata: {
-          role: "student",
-          course: `${student.course}`,
-          major: student.major ? `${student.major}` : "",
-        },
-      });
-      await prisma.student.create({
-        data: {
-          id: user.id,
-          studentNumber: student.studentNumber,
-          username: `${student.studentNumber}${student.firstName}`,
+      try {
+        const clerk = await clerkClient();
+        const username = `${student.studentNumber}${student.firstName}`;
+
+        // Create Clerk user
+        const user = await clerk.users.createUser({
+          username,
+          password: `cvsubacoor${student.firstName}${student.studentNumber}`,
           firstName: student.firstName,
           lastName: student.lastName,
-          middleInit: student?.middleInit || "",
-          email: student?.email,
-          phone: student.phone,
-          address: student.address,
-          sex: student.sex as UserSex,
-          course: student.course,
-          major: student?.major as Major,
-          status: student.status,
-          birthday: student.birthday,
+          publicMetadata: {
+            role: "student",
+            course: student.course,
+            major: student.major || "",
+          },
+        });
+
+        // Add to database
+        await prisma.student.create({
+          data: {
+            id: user.id,
+            studentNumber: student.studentNumber,
+            username,
+            firstName: student.firstName,
+            lastName: student.lastName,
+            middleInit: student.middleInit || "",
+            email: student.email || "",
+            phone: student.phone,
+            address: student.address,
+            sex: student.sex as UserSex,
+            course: student.course,
+            major: student.major as Major,
+            status: student.status,
+            birthday: new Date(student.birthday).toISOString(),
+          },
+        });
+      } catch (error) {
+        console.error(
+          `Error creating student ${student.studentNumber}:`,
+          error
+        );
+      }
+    }
+
+    // If there are duplicates, create an Excel file for download
+    if (duplicates.length > 0) {
+      const worksheet = XLSX.utils.json_to_sheet(duplicates);
+      const workbook = XLSX.utils.book_new();
+      XLSX.utils.book_append_sheet(workbook, worksheet, "Duplicates");
+
+      // Convert the workbook to a binary string
+      const fileBuffer = XLSX.write(workbook, {
+        bookType: "xlsx",
+        type: "array",
+      });
+
+      return new NextResponse(fileBuffer, {
+        status: 200,
+        headers: {
+          "Content-Type":
+            "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+          "Content-Disposition": `attachment; filename=duplicates.xlsx`,
         },
       });
     }
 
     return NextResponse.json({
       message: `Students uploaded successfully. ${studentsToCreate.length} out of ${students.length} students were created.`,
+      duplicates,
     });
   } catch (error) {
     console.error("Error uploading students:", error);
@@ -79,4 +118,3 @@ export async function POST(request: NextRequest) {
     );
   }
 }
-

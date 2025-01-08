@@ -109,7 +109,8 @@ const Homepage = () => {
               <p className="text-sm text-right">
                 Don’t have an account?
                 <Link
-                  href="/sign-up"
+                  href="https://forms.gle/5YYZkPbHP1mbQBTLA"
+                  target="_blank"
                   className="text-black-500 hover:text-black-700"
                 >
                   {" "}

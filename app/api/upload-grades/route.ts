@@ -1,8 +1,7 @@
 import { NextResponse } from "next/server";
 import prisma from "@/lib/prisma";
 import * as XLSX from "xlsx";
-import { Grade } from "@/app/(dashboard)/list/[grades]/page";
-import { AcademicYear, Semester } from "@prisma/client";
+import { AcademicYear, Grade, Semester } from "@prisma/client";
 
 // POST handler for uploading grades
 export async function POST(req: Request) {

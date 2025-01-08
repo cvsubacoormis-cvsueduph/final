@@ -14,12 +14,17 @@ import toast from "react-hot-toast";
 import { mutate } from "swr";
 
 import { useState } from "react";
+import { StudentSchema } from "@/lib/formValidationSchemas";
 
 export default function UploadStudents() {
   const [file, setFile] = useState<File | null>(null);
   const [loading, setLoading] = useState(false);
   const [jsonData, setJsonData] = useState("");
   const [DialogOpen, setDialogOpen] = useState(false);
+  const [alertDialogOpen, setAlertDialogOpen] = useState(false);
+  const [duplicateStudents, setDuplicateStudents] = useState<StudentSchema[]>(
+    []
+  );
 
   function previewData() {
     if (file) {
@@ -52,12 +57,32 @@ export default function UploadStudents() {
       }).then(async (res) => {
         const data = await res.json();
         setLoading(false);
+
         if (res.ok) {
           setDialogOpen(false);
           toast.success("Data saved successfully");
+
+          // Debugging log to check if duplicates exist
+          console.log("Response Data:", data);
+          if (data.duplicates && data.duplicates.length > 0) {
+            console.log("Duplicates found:", data.duplicates);
+            setDuplicateStudents(data.duplicates);
+            setAlertDialogOpen(true);
+          }
+
           mutate("/api/students");
         } else {
-          console.log(data.message);
+          console.error(data.message);
+          toast.error("Failed to save data");
+        }
+
+        // If there are duplicates, download the Excel file
+        if (res.status === 200 && data.duplicates.length > 0) {
+          const blob = await res.blob();
+          const link = document.createElement("a");
+          link.href = URL.createObjectURL(blob);
+          link.download = "duplicates.xlsx";
+          link.click();
         }
       });
     }
@@ -96,11 +121,37 @@ export default function UploadStudents() {
             value={jsonData}
             readOnly
           />
-          {loading ? <div className="animate-pulse">Saving Data please wait...</div> : null}
-          <Button onClick={saveData} disabled={loading}>Save Data</Button>
+          {loading ? (
+            <div className="animate-pulse">Saving Data please wait...</div>
+          ) : null}
+          <Button onClick={saveData} disabled={loading}>
+            Save Data
+          </Button>
         </DialogContent>
       </Dialog>
+
+      {/* Alert Dialog for Duplicates */}
+      {alertDialogOpen && (
+        <Dialog open={alertDialogOpen} onOpenChange={setAlertDialogOpen}>
+          <DialogContent>
+            <DialogHeader>
+              <DialogTitle>Duplicate Students Found</DialogTitle>
+            </DialogHeader>
+            <div>
+              <p>The following students already exist and were not added:</p>
+              <ul>
+                {duplicateStudents.map((student, index) => (
+                  <li key={index}>
+                    {student.studentNumber} - {student.firstName}{" "}
+                    {student.lastName}
+                  </li>
+                ))}
+              </ul>
+            </div>
+            <Button onClick={() => setAlertDialogOpen(false)}>Close</Button>
+          </DialogContent>
+        </Dialog>
+      )}
     </div>
   );
 }
-
