@@ -2,7 +2,7 @@
 
 import { StudentSchema } from "@/lib/formValidationSchemas";
 import prisma from "@/lib/prisma";
-import { Courses, Major, Status, UserSex, yearLevels } from "@prisma/client";
+import { Courses, Major, Status, UserSex } from "@prisma/client";
 import { mutate } from "swr";
 
 export async function createStudentAction(data: StudentSchema) {
@@ -12,9 +12,8 @@ export async function createStudentAction(data: StudentSchema) {
         studentNumber: data.studentNumber,
         username: `${data.studentNumber}${data.firstName}`,
         status: data.status as Status,
-        yearLevel: data.yearLevel as yearLevels,
         course: data.course as Courses,
-        major: data?.major as Major ?? "",
+        major: (data?.major as Major) ?? "",
         firstName: data.firstName,
         lastName: data.lastName,
         middleInit: data?.middleInit,
@@ -44,4 +43,3 @@ export async function createBulkStudentsAction(students: StudentSchema[]) {
     console.log(error);
   }
 }
-

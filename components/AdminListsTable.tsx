@@ -9,25 +9,26 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
-import { Announcement } from "@prisma/client";
+import { Admin } from "@prisma/client";
 import useSWR from "swr";
 import { useUser } from "@clerk/nextjs";
-import DeleteAnnouncements from "./announcements/delete-announcements";
-import UpdateAnnouncements from "./announcements/update-announcements";
+import DeleteAdmin from "./admin-lists/delete-admin";
+import UpdateAdmin from "./admin-lists/update-admin";
+import UpdateAdminDialog from "./forms/update-admin-form";
 
 const fetcher = (url: string) => fetch(url).then((res) => res.json());
 
-export default function AnnouncementsTable() {
+export default function AdminListsTable() {
   const { user, isLoaded } = useUser();
 
   // Ensure the user is loaded and fetch the role from public or private metadata
   const role = isLoaded ? user?.publicMetadata?.role : undefined;
 
   const {
-    data: announcementsData,
+    data: adminListsData,
     error,
     isLoading,
-  } = useSWR<Announcement[]>("/api/announcements", fetcher);
+  } = useSWR<Admin[]>("/api/admin-lists", fetcher);
 
   if (isLoading)
     return (
@@ -46,48 +47,52 @@ export default function AnnouncementsTable() {
     );
   }
 
-  const announcementsLists = announcementsData || [];
+  const adminLists = adminListsData || [];
 
   return (
     <div>
-      {announcementsLists.length === 0 ? (
+      {adminLists.length === 0 ? (
         <div className="flex items-center justify-center h-48">
-          <p className="text-gray-500">No announcements available.</p>
+          <p className="text-gray-500">No administrator available.</p>
         </div>
       ) : (
         <Table className="w-full mt-4">
-          <TableCaption>A list of your recent announcements.</TableCaption>
+          <TableCaption>A list of your recent administrators.</TableCaption>
           <TableHeader>
             <TableRow className="text-left text-gray-500 text-sm">
-              <TableHead className="text-left">Title</TableHead>
-              <TableHead className="text-center">Description</TableHead>
-              <TableHead className="text-center">Date</TableHead>
-              {role === "admin" && (
+              <TableHead className="text-left">Name</TableHead>
+              <TableHead className="text-center">Address</TableHead>
+              <TableHead className="text-center">Phone</TableHead>
+              <TableHead className="text-center">Email</TableHead>
+              {role === "superuser" && (
                 <TableHead className="text-center">Actions</TableHead>
               )}
             </TableRow>
           </TableHeader>
           <TableBody>
-            {announcementsData &&
-              announcementsData.map((announcements) => (
-                <TableRow key={announcements.id}>
+            {adminListsData &&
+              adminListsData.map((adminData) => (
+                <TableRow key={adminData.id}>
                   <TableCell className="text-left">
-                    {announcements.title}
+                    {adminData.firstName} {adminData.middleName}{" "}
+                    {adminData.lastName}
                   </TableCell>
                   <TableCell className="text-center">
-                    {announcements.description}
+                    {adminData.address}
                   </TableCell>
                   <TableCell className="text-center">
-                    {announcements.date}
+                    {adminData.phone}
+                  </TableCell>
+                  <TableCell className="text-center">
+                    {adminData.email}
                   </TableCell>
                   <TableCell className="text-right">
-                    {(role === "admin" ||
-                      role === "superuser") && (
-                        <div className="flex items-center gap-2 justify-center">
-                          <DeleteAnnouncements id={announcements.id} />
-                          <UpdateAnnouncements announcement={announcements} />
-                        </div>
-                      )}
+                    {role === "superuser" && (
+                      <div className="flex items-center gap-2 justify-center">
+                        <UpdateAdmin />
+                        <DeleteAdmin id={adminData.id} />
+                      </div>
+                    )}
                   </TableCell>
                 </TableRow>
               ))}

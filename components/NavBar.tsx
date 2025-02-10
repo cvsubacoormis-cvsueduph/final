@@ -28,9 +28,14 @@ export default async function NavBar() {
           </div>
         </div> */}
         <div className="flex flex-col">
-          <span className="text-xs leading-3 font-medium">{user?.firstName} {user?.lastName}</span>
+          <span className="text-xs leading-3 font-medium">
+            {user?.firstName} {user?.lastName}
+          </span>
           <span className="text-[10px] text-gray-500 text-right">
-            {(user?.publicMetadata.role as string).charAt(0).toUpperCase() + (user?.publicMetadata.role as string).slice(1)}
+            {user?.publicMetadata.role
+              ? (user.publicMetadata.role as string).charAt(0).toUpperCase() +
+                (user.publicMetadata.role as string).slice(1)
+              : "No Role"}
           </span>
         </div>
         {/* <Image src="/avatar.png" alt='avatar' width={36} height={36} className="rounded-full" /> */}

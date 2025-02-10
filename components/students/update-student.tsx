@@ -88,9 +88,6 @@ export default function UpdateStudent({ student }: { student: Student }) {
               course: student.course,
               sex: student.sex,
               status: student.status,
-              yearLevel: student.yearLevel,
-              password: student.password || "",
-              confirmPassword: student.confirmPassword || "",
             }}
             onSubmit={onSubmit}
             submitButtonText="Update"

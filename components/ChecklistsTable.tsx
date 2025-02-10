@@ -58,12 +58,12 @@ const Checklist = () => {
         (item) => item.yearLevel === selectedYear && item.semester === semester
       );
     }
-    if (course === "BSBM" && major === "MARKETING_MANAGEMENT") {
+    if (course === "BSBA" && major === "MARKETING_MANAGEMENT") {
       return BMMMchecklistData.filter(
         (item) => item.yearLevel === selectedYear && item.semester === semester
       );
     }
-    if (course === "BSBM" && major === "HUMAN_RESOURCE_MANAGEMENT") {
+    if (course === "BSBA" && major === "HUMAN_RESOURCE_MANAGEMENT") {
       return BMHRchecklistData.filter(
         (item) => item.yearLevel === selectedYear && item.semester === semester
       );
@@ -115,11 +115,11 @@ const Checklist = () => {
             {course === "BSHM" && "Hospitality Management"}
             {course === "BSED" &&
               major === "ENGLISH" &&
-              "Education Major in English"}
-            {course === "BSED" && major === "MATH" && "Education Major in Math"}
+              "Secondary Education Major in English"}
+            {course === "BSED" && major === "MATH" && "Secondary Education Major in Math"}
             {course === "BSP" && "Psychology"}
-            {course === "BSBM" && major === "MARKETING_MANAGEMENT" && "Marketing Management"}
-            {course === "BSBM" && major === "HUMAN_RESOURCE_MANAGEMENT" && "Human Resource Management"}
+            {course === "BSBA" && major === "MARKETING_MANAGEMENT" && "Marketing Management"}
+            {course === "BSBA" && major === "HUMAN_RESOURCE_MANAGEMENT" && "Human Resource Management"}
             <span className="text-right">
               <Link href="/printChecklist">
                 <Printer />

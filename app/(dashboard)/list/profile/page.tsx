@@ -43,7 +43,7 @@ export default async function StudentProfile() {
         />
       </div>
       <div className="mt-4">
-        <label className="text-md font-semibold">Middle Name</label>
+        <label className="text-md font-semibold">Middle Initial</label>
         <Input
           className="mt-2 border-gray-800 text-black"
           value={student.middleInit || ""}
@@ -87,14 +87,6 @@ export default async function StudentProfile() {
         <Input
           className="mt-2 border-gray-800 text-black"
           value={student.email ?? ""}
-          disabled
-        />
-      </div>
-      <div className="mt-4">
-        <label className="text-md font-semibold">Birthday</label>
-        <Input
-          className="mt-2 border-gray-800 text-black"
-          value={new Date(student.birthday).toLocaleDateString()}
           disabled
         />
       </div>

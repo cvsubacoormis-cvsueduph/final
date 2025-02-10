@@ -51,7 +51,7 @@ const Homepage = () => {
             alt="CSU Logo"
             width={300}
             height={300}
-            className="mb-10"
+            className="mb-10 items-center justify-center"
           />
           <div className="flex flex-col items-center">
             <h1 className="text-3xl font-bold text-white">
@@ -74,7 +74,7 @@ const Homepage = () => {
                 Student Portal
               </h1>
             </div>
-            <h1 className="text-2xl font-bold text-left mb-4">Login</h1>
+            <h1 className="text-2xl font-bold text-left mb-4"></h1>
             <Clerk.GlobalError className="block text-sm text-red-400" />
 
             <div className="mb-4">
@@ -121,7 +121,7 @@ const Homepage = () => {
 
             <SignIn.Action
               submit
-              className="w-full px-4 py-2 bg-blue-500 text-white rounded-md"
+              className="w-full px-4 py-2 bg-blue-700 hover:bg-blue-500 text-white rounded-md"
             >
               Login
             </SignIn.Action>

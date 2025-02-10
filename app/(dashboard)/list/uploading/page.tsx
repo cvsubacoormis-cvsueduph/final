@@ -58,20 +58,27 @@ export default function UploadGradesPreview() {
       const workbook = XLSX.read(data, { type: "binary" });
       const sheetName = workbook.SheetNames[0];
       const worksheet = workbook.Sheets[sheetName];
-      const json: Grade[] = XLSX.utils.sheet_to_json(worksheet);
+      const json: any[] = XLSX.utils.sheet_to_json(worksheet);
 
-      if (!validateGrades(json)) {
+      // Ensure all rows have a default value for reExam
+      const transformedData = json.map((row) => ({
+        ...row,
+        reExam:
+          row.reExam !== undefined && row.reExam !== "" ? row.reExam : "N/A",
+      }));
+
+      if (!validateGrades(transformedData)) {
         setError("Invalid file format. Please check the Excel columns.");
         setGrades([]);
       } else {
-        setGrades(json);
+        setGrades(transformedData as Grade[]);
       }
       setIsParsing(false);
     };
     reader.readAsBinaryString(file);
   };
 
-  const validateGrades = (grades: Grade[]): grades is Grade[] => {
+  const validateGrades = (grades: any[]): grades is Grade[] => {
     if (!grades.length) return false;
 
     const requiredFields = [
@@ -82,10 +89,16 @@ export default function UploadGradesPreview() {
       "grade",
       "remarks",
       "instructor",
+      "academicYear",
+      "semester",
     ];
 
+    // Ensure all rows contain the required fields
     return grades.every((grade) =>
-      requiredFields.every((field) => field in grade)
+      requiredFields.every(
+        (field) =>
+          field in grade && grade[field] !== undefined && grade[field] !== ""
+      )
     );
   };
 

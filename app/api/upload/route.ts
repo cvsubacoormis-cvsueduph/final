@@ -5,6 +5,33 @@ import * as XLSX from "xlsx";
 import { Major, UserSex } from "@prisma/client";
 import { clerkClient } from "@clerk/nextjs/server";
 
+// Utility to introduce delay
+const delay = (ms: number) => new Promise((resolve) => setTimeout(resolve, ms));
+
+// Retry function with exponential backoff
+async function withRetry(
+  fn: () => Promise<any>,
+  retries = 3,
+  initialDelay = 1000
+) {
+  let attempt = 0;
+  let delayMs = initialDelay;
+
+  while (attempt < retries) {
+    try {
+      return await fn();
+    } catch (error: any) {
+      if (error.status !== 429 || attempt >= retries - 1) {
+        throw error; // Re-throw if not a rate limit error or retries exhausted
+      }
+      console.warn(`Retrying after ${delayMs}ms due to rate limit...`);
+      await delay(delayMs);
+      delayMs *= 2; // Exponential backoff
+      attempt++;
+    }
+  }
+}
+
 export async function POST(request: NextRequest) {
   try {
     const formData = await request.formData();
@@ -20,15 +47,12 @@ export async function POST(request: NextRequest) {
     const students: StudentSchema[] = XLSX.utils.sheet_to_json(workSheet);
 
     const existingStudentNumbers = await prisma.student
-      .findMany({
-        select: { studentNumber: true },
-      })
-      .then((students) => students.map((student) => student.studentNumber));
+      .findMany({ select: { studentNumber: true } })
+      .then((students) => new Set(students.map((s) => s.studentNumber)));
 
     const duplicates: { studentNumber: string; name: string }[] = [];
-
     const studentsToCreate = students.filter((student) => {
-      if (existingStudentNumbers.includes(student.studentNumber)) {
+      if (existingStudentNumbers.has(student.studentNumber)) {
         duplicates.push({
           studentNumber: student.studentNumber.toString(),
           name: `${student.firstName} ${student.lastName}`,
@@ -38,59 +62,72 @@ export async function POST(request: NextRequest) {
       return true;
     });
 
-    // Create users and save to database
-    for (const student of studentsToCreate) {
-      try {
-        const clerk = await clerkClient();
-        const username = `${student.studentNumber}${student.firstName}`;
+    const batchSize = 5; // Smaller batch size to avoid rate limits
+    for (let i = 0; i < studentsToCreate.length; i += batchSize) {
+      const batch = studentsToCreate.slice(i, i + batchSize);
 
-        // Create Clerk user
-        const user = await clerk.users.createUser({
-          username,
-          password: `cvsubacoor${student.firstName}${student.studentNumber}`,
-          firstName: student.firstName,
-          lastName: student.lastName,
-          publicMetadata: {
-            role: "student",
-            course: student.course,
-            major: student.major || "",
-          },
-        });
+      // Process each batch with a delay
+      await Promise.all(
+        batch.map(async (student) => {
+          try {
+            const username = `${student.studentNumber}${student.firstName}`
+              .toLowerCase()
+              .replace(/[^a-zA-Z0-9_-]/g, "")
+              .toLowerCase();
 
-        // Add to database
-        await prisma.student.create({
-          data: {
-            id: user.id,
-            studentNumber: student.studentNumber,
-            username,
-            firstName: student.firstName,
-            lastName: student.lastName,
-            middleInit: student.middleInit || "",
-            email: student.email || "",
-            phone: student.phone,
-            address: student.address,
-            sex: student.sex as UserSex,
-            course: student.course,
-            major: student.major as Major,
-            status: student.status,
-            birthday: new Date(student.birthday).toISOString(),
-          },
-        });
-      } catch (error) {
-        console.error(
-          `Error creating student ${student.studentNumber}:`,
-          error
-        );
-      }
+            const clerk = await clerkClient();
+            const user = await withRetry(() =>
+              clerk.users.createUser({
+                username,
+                password: `cvsubacoor${student.studentNumber}`,
+                firstName: student.firstName.toUpperCase(),
+                lastName: student.lastName.toUpperCase(),
+                publicMetadata: {
+                  role: "student",
+                  course: student.course,
+                  major: student.major || "",
+                },
+              })
+            );
+
+            await prisma.student.create({
+              data: {
+                id: user.id,
+                studentNumber: student.studentNumber,
+                username,
+                firstName: student.firstName.toUpperCase(),
+                lastName: student.lastName.toUpperCase(),
+                middleInit: student.middleInit
+                  ? student.middleInit[0].toUpperCase()
+                  : "",
+                email: student.email || "",
+                phone: student.phone,
+                address: student.address,
+                sex: student.sex as UserSex,
+                course: student.course,
+                major: student.major as Major,
+                status: student.status,
+                birthday: student.birthday ? new Date(student.birthday) : "",
+              },
+            });
+          } catch (error) {
+            console.error(
+              `Error creating student ${student.studentNumber}:`,
+              error
+            );
+          }
+        })
+      );
+
+      // Add delay between batches to respect rate limits
+      await delay(3000); // Adjust delay based on Clerk's rate limits
     }
 
-    // If there are duplicates, create an Excel file for download
     if (duplicates.length > 0) {
       const worksheet = XLSX.utils.json_to_sheet(duplicates);
       const workbook = XLSX.utils.book_new();
       XLSX.utils.book_append_sheet(workbook, worksheet, "Duplicates");
 
-      // Convert the workbook to a binary string
       const fileBuffer = XLSX.write(workbook, {
         bookType: "xlsx",
         type: "array",
@@ -118,3 +155,4 @@ export async function POST(request: NextRequest) {
     );
   }
 }
+

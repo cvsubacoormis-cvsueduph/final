@@ -25,9 +25,9 @@ export default function Announcements() {
   useEffect(() => {
     async function fetchAnnouncements() {
       try {
-        const response = await fetch("/api/announcements");
+        const response = await fetch("/api/announcements?page=1&limit=5");
         const data = await response.json();
-        setAnnouncements(data);
+        setAnnouncements(data.announcements || []); // Extract announcements array
       } catch (error) {
         console.error("Error fetching announcements:", error);
       } finally {
@@ -59,7 +59,7 @@ export default function Announcements() {
               </DialogTitle>
             </DialogHeader>
             <div className="flex flex-col gap-4">
-              {announcements.length > 0 &&
+              {announcements.length > 0 ? (
                 announcements.map((item) => (
                   <div
                     className="p-5 bg-lamaSkyLight rounded-lg border border-gray-200 shadow-sm hover:shadow-md transition-shadow duration-200 ease-in-out"
@@ -77,13 +77,17 @@ export default function Announcements() {
                       </p>
                     )}
                   </div>
-                ))}
+                ))
+              ) : (
+                <p className="text-gray-500 text-center">
+                  No announcements available.
+                </p>
+              )}
             </div>
           </DialogContent>
         </Dialog>
       </div>
-      <div className="flex flex-col gap-4">
-      </div>
+
       <div className="flex flex-col gap-4 mt-4">
         {loading ? (
           <p className="text-gray-400">Loading announcements...</p>

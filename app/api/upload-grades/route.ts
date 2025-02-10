@@ -57,7 +57,12 @@ export async function POST(req: Request) {
       courseTitle: String(row.courseTitle).trim(),
       creditUnit: Number(row.creditUnit),
       grade: Number(row.grade),
-      reExam: row.reExam !== undefined ? Number(row.reExam) : null,
+      reExam:
+        typeof row.reExam === "string"
+          ? row.reExam === "N/A"
+            ? null
+            : Number(row.reExam)
+          : Number(row.reExam),
       remarks: row.remarks ? String(row.remarks).trim() : null,
       instructor: row.instructor ? String(row.instructor).trim() : null,
       academicYear: row.academicYear,
@@ -157,7 +162,7 @@ export async function POST(req: Request) {
       courseTitle: grade.courseTitle,
       creditUnit: grade.creditUnit,
       grade: grade.grade,
-      reExam: grade.reExam,
+      reExam: grade?.reExam,
       remarks: grade.remarks,
       instructor: grade.instructor ?? "",
       academicYear: grade.academicYear as AcademicYear,
@@ -191,14 +196,16 @@ export async function POST(req: Request) {
         },
         update: {
           ...grade,
+          grade: grade.grade.toString(),
+          reExam: grade.reExam?.toString() ?? null,
         },
         create: {
           studentNumber: Number(grade.studentNumber),
           courseCode: grade.courseCode,
           courseTitle: grade.courseTitle,
           creditUnit: grade.creditUnit,
-          grade: grade.grade,
-          reExam: grade.reExam,
+          grade: grade.grade.toString(),
+          reExam: grade.reExam?.toString(),
           remarks: grade.remarks,
           instructor: grade.instructor,
           academicYear: grade.academicYear,

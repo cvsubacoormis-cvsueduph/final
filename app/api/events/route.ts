@@ -3,14 +3,24 @@ import prisma from "@/lib/prisma";
 
 import { NextRequest, NextResponse } from "next/server";
 
-export async function GET() {
+export async function GET(request: NextRequest) {
   try {
+    const url = new URL(request.nextUrl);
+    const page = Number(url.searchParams.get("page")) || 1;
+    const limit = Number(url.searchParams.get("limit")) || 10;
+    const skip = (page - 1) * limit;
+
     const events = await prisma.event.findMany({
+      skip,
+      take: limit,
       orderBy: {
         createdAt: "desc",
       },
     });
-    return NextResponse.json(events);
+
+    const totalEvents = await prisma.event.count();
+
+    return NextResponse.json({ events, totalEvents });
   } catch (error) {
     console.error("Error fetching events:", error);
     return NextResponse.json(
@@ -73,10 +83,7 @@ export async function DELETE(request: NextRequest) {
     });
 
     if (!deleteTodo) {
-      return NextResponse.json(
-        { message: "event not found" },
-        { status: 404 }
-      );
+      return NextResponse.json({ message: "event not found" }, { status: 404 });
     }
 
     return NextResponse.json(
@@ -124,10 +131,7 @@ export async function PUT(request: NextRequest) {
     });
 
     if (!updateEvent) {
-      return NextResponse.json(
-        { message: "Event not found" },
-        { status: 404 }
-      );
+      return NextResponse.json({ message: "Event not found" }, { status: 404 });
     }
 
     return NextResponse.json(updateEvent, { status: 200 });

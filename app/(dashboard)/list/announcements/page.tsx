@@ -1,16 +1,4 @@
 "use client";
-
-import {
-  Pagination,
-  PaginationContent,
-  PaginationEllipsis,
-  PaginationItem,
-  PaginationLink,
-  PaginationNext,
-  PaginationPrevious,
-} from "@/components/ui/pagination";
-import Image from "next/image";
-import TableSearch from "@/components/TableSearch";
 import AnnouncementsTable from "@/components/AnnouncementsTable";
 import CreateAnnouncements from "@/components/announcements/create-announcement";
 import { useUser } from "@clerk/nextjs";
@@ -32,39 +20,14 @@ export default function AnnouncementsLists() {
           </span>
         </h1>
         <div className="flex flex-col md:flex-row items-center gap-4 w-full md:w-auto">
-          <TableSearch />
           <div className="flex items-center gap-4 self-end">
-            <button className="w-8 h-8 flex items-center justify-center rounded-full bg-lamaYellow">
-              <Image src="/filter.png" alt="Filter" width={14} height={14} />
-            </button>
-            <button className="w-8 h-8 flex items-center justify-center rounded-full bg-lamaYellow">
-              <Image src="/sort.png" alt="Sort" width={14} height={14} />
-            </button>
             {/* Show CreateAnnouncements only if the user is an admin */}
-            {role === "admin" ||
-              (role === "superuser" && <CreateAnnouncements />)}
+            {role === "admin" && "superuser" && <CreateAnnouncements />}
           </div>
         </div>
       </div>
       {/* LIST */}
       <AnnouncementsTable />
-      {/* PAGINATION */}
-      <Pagination>
-        <PaginationContent>
-          <PaginationItem>
-            <PaginationPrevious href="#" />
-          </PaginationItem>
-          <PaginationItem>
-            <PaginationLink href="#">1</PaginationLink>
-          </PaginationItem>
-          <PaginationItem>
-            <PaginationEllipsis />
-          </PaginationItem>
-          <PaginationItem>
-            <PaginationNext href="#" />
-          </PaginationItem>
-        </PaginationContent>
-      </Pagination>
     </div>
   );
 }

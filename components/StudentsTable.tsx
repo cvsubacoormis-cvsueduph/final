@@ -9,20 +9,33 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import { Student } from "@prisma/client";
-import Image from "next/image";
+
+import {
+  Pagination,
+  PaginationContent,
+  PaginationEllipsis,
+  PaginationItem,
+  PaginationLink,
+  PaginationNext,
+  PaginationPrevious,
+} from "@/components/ui/pagination";
 
 import DeleteStudent from "./DeleteStudent";
 import UpdateStudent from "./students/update-student";
 import { getStudents } from "@/actions/search-student-action";
-import PaginationStudents from "./students/pagination-students";
 import { PageProps } from "@/app/(dashboard)/list/students/page";
 import { currentUser } from "@clerk/nextjs/server";
 
 export default async function StudentsTable(props: PageProps) {
-  const { data } = await getStudents(props.query || "");
-
+  const { query = "", page = 1 } = (await props.searchParams) ?? {};
+  const pageNumber = parseInt(page as string, 10); // Convert page to a number
+  const { data, totalPages, currentPage } = await getStudents(
+    query,
+    pageNumber
+  );
   const user = await currentUser();
   const role = user?.publicMetadata?.role as string;
+
   return (
     <div>
       <Table className="w-full mt-4">
@@ -32,17 +45,11 @@ export default async function StudentsTable(props: PageProps) {
             <TableHead className="hidden md:table-cell text-left">
               No.
             </TableHead>
-            <TableHead className="hidden md:table-cell text-left">
-              Picture
-            </TableHead>
             <TableHead className="hidden md:table-cell text-center">
               Name
             </TableHead>
             <TableHead className="hidden md:table-cell text-center">
               Student Number
-            </TableHead>
-            <TableHead className="hidden md:table-cell text-center">
-              Year Level
             </TableHead>
             <TableHead className="hidden md:table-cell text-center">
               Course
@@ -71,19 +78,10 @@ export default async function StudentsTable(props: PageProps) {
               </TableCell>
             </TableRow>
           ) : (
-            data.slice(0, 10).map((student: Student, index: number) => (
+            data.map((student: Student, index: number) => (
               <TableRow key={student.id}>
                 <TableCell className="hidden md:table-cell text-center">
-                  {index + 1}
-                </TableCell>
-                <TableCell className="hidden md:table-cell text-center">
-                  <Image
-                    src="/Noavatar.png"
-                    alt="avatar"
-                    width={40}
-                    height={40}
-                    className="hidden md:table-cell text-center"
-                  />
+                  {(currentPage - 1) * 10 + index + 1}
                 </TableCell>
                 <TableCell className="hidden md:table-cell text-center">
                   {student.firstName +
@@ -94,9 +92,6 @@ export default async function StudentsTable(props: PageProps) {
                 </TableCell>
                 <TableCell className="hidden md:table-cell text-center">
                   {student.studentNumber}
-                </TableCell>
-                <TableCell className="hidden md:table-cell text-center">
-                  {student.yearLevel}
                 </TableCell>
                 <TableCell className="hidden md:table-cell text-center">
                   {student.course}
@@ -123,7 +118,39 @@ export default async function StudentsTable(props: PageProps) {
           )}
         </TableBody>
       </Table>
-      <PaginationStudents />
+
+      {/* Pagination */}
+      <Pagination>
+        <PaginationContent>
+          <PaginationItem>
+            <PaginationPrevious
+              href={`?page=${Math.max(currentPage - 1, 1)}`}
+            />
+          </PaginationItem>
+
+          {/* Render page numbers dynamically */}
+          {Array.from({ length: totalPages }, (_, index) => (
+            <PaginationItem key={index + 1}>
+              <PaginationLink
+                href={`?page=${index + 1}`}
+                className={currentPage === index + 1 ? "font-bold" : ""}
+              >
+                {index + 1}
+              </PaginationLink>
+            </PaginationItem>
+          ))}
+
+          <PaginationItem>
+            <PaginationEllipsis />
+          </PaginationItem>
+
+          <PaginationItem>
+            <PaginationNext
+              href={`?page=${Math.min(currentPage + 1, totalPages)}`}
+            />
+          </PaginationItem>
+        </PaginationContent>
+      </Pagination>
     </div>
   );
 }

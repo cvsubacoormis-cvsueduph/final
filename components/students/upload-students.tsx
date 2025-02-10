@@ -15,6 +15,7 @@ import { mutate } from "swr";
 
 import { useState } from "react";
 import { StudentSchema } from "@/lib/formValidationSchemas";
+import { Student } from "@prisma/client";
 
 export default function UploadStudents() {
   const [file, setFile] = useState<File | null>(null);
@@ -116,11 +117,44 @@ export default function UploadStudents() {
             />
           </Button>
           <Button onClick={previewData}>Preview Data</Button>
-          <textarea
-            className="w-full h-96 px-4 py-2 text-sm border border-gray-300 rounded-md"
-            value={jsonData}
-            readOnly
-          />
+          {jsonData && (
+            <div className="overflow-auto max-h-96">
+              <table className="w-full text-sm">
+                <thead>
+                  <tr className="bg-gray-100">
+                    <th className="px-4 py-2">Student Number</th>
+                    <th className="px-4 py-2">Name</th>
+                    <th className="px-4 py-2">Course</th>
+                    <th className="px-4-py-2">Major</th>
+                    <th className="px-4 py-2">Status</th>
+                    <th className="px-4 py-2">Birthday</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {JSON.parse(jsonData).map((student: Student) => (
+                    <tr
+                      key={student.studentNumber}
+                      className="hover:bg-gray-50"
+                    >
+                      <td className="px-4 py-2">{student.studentNumber}</td>
+                      <td className="px-4 py-2">
+                        {student.firstName} {student.middleInit}{" "}
+                        {student.lastName}
+                      </td>
+                      <td className="px-4 py-2">{student.course}</td>
+                      <td className="px-4 py-2">{student?.major || ""}</td>
+                      <td className="px-4 py-2">{student.status}</td>
+                      <td className="px-4 py-2">
+                        {student.birthday
+                          ? new Date(student.birthday).toLocaleDateString()
+                          : ""}
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          )}
           {loading ? (
             <div className="animate-pulse">Saving Data please wait...</div>
           ) : null}

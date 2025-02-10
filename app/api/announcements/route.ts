@@ -6,14 +6,27 @@ import prisma from "@/lib/prisma";
 
 import { NextRequest, NextResponse } from "next/server";
 
-export async function GET() {
+export async function GET(req: NextRequest) {
   try {
+    const { searchParams } = new URL(req.url);
+    const page = parseInt(searchParams.get("page") || "1", 10);
+    const limit = parseInt(searchParams.get("limit") || "5", 10);
+    const skip = (page - 1) * limit;
+
+    const totalAnnouncements = await prisma.announcement.count();
     const announcements = await prisma.announcement.findMany({
+      skip,
+      take: limit,
       orderBy: {
         createdAt: "desc",
       },
     });
-    return NextResponse.json(announcements);
+
+    return NextResponse.json({
+      announcements,
+      totalPages: Math.ceil(totalAnnouncements / limit),
+      currentPage: page,
+    });
   } catch (error) {
     console.error("Error fetching announcements:", error);
     return NextResponse.json(
@@ -58,43 +71,43 @@ export async function POST(request: NextRequest) {
 }
 
 export async function DELETE(request: NextRequest) {
-    try {
-      const id = request.nextUrl.searchParams.get("id");
-  
-      if (!id) {
-        return NextResponse.json(
-          { message: "announcement id is required" },
-          { status: 400 }
-        );
-      }
-  
-      const deleteAnnouncement = await prisma.announcement.delete({
-        where: {
-          id: Number(id),
-        },
-      });
-  
-      if (!deleteAnnouncement) {
-        return NextResponse.json(
-          { message: "announcement not found" },
-          { status: 404 }
-        );
-      }
-  
+  try {
+    const id = request.nextUrl.searchParams.get("id");
+
+    if (!id) {
       return NextResponse.json(
-        {
-          message: "announcement deleted successfully",
-        },
-        { status: 200 }
-      );
-    } catch (error) {
-      console.error("Error deleting announcement:", error);
-      return NextResponse.json(
-        { message: "An unexpected error occurred" },
-        { status: 500 }
+        { message: "announcement id is required" },
+        { status: 400 }
       );
     }
+
+    const deleteAnnouncement = await prisma.announcement.delete({
+      where: {
+        id: Number(id),
+      },
+    });
+
+    if (!deleteAnnouncement) {
+      return NextResponse.json(
+        { message: "announcement not found" },
+        { status: 404 }
+      );
+    }
+
+    return NextResponse.json(
+      {
+        message: "announcement deleted successfully",
+      },
+      { status: 200 }
+    );
+  } catch (error) {
+    console.error("Error deleting announcement:", error);
+    return NextResponse.json(
+      { message: "An unexpected error occurred" },
+      { status: 500 }
+    );
   }
+}
 
 export async function PUT(request: NextRequest) {
   try {
@@ -125,7 +138,10 @@ export async function PUT(request: NextRequest) {
     });
 
     if (!updateAnnouncement) {
-      return NextResponse.json({ message: "Announcement not found" }, { status: 404 });
+      return NextResponse.json(
+        { message: "Announcement not found" },
+        { status: 404 }
+      );
     }
 
     return NextResponse.json(updateAnnouncement, { status: 200 });

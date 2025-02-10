@@ -14,37 +14,37 @@ datasource db {
 }
 
 model Admin {
-  id         String @id @default(uuid()) // Use UUID for id
+  id         String  @id @default(uuid()) // Use UUID for id
   firstName  String
   middleName String?
   lastName   String
   address    String
   phone      String?
   email      String
-  birthday   DateTime
+  birthday   String
   sex        UserSex
-  username   String @unique
-  role       Role   @default(admin)
+  username   String  @unique
+  role       Role    @default(admin)
 }
 
 model Student {
-  id            String     @id @default(cuid())
-  studentNumber Int        @unique
-  username      String     @unique
+  id            String   @id @default(cuid())
+  studentNumber Int      @unique
+  username      String   @unique
   firstName     String
   lastName      String
   middleInit    String?
-  email         String?    @unique
-  phone         String     @unique
+  email         String?  @unique
+  phone         String   @unique
   address       String
   img           String?
   sex           UserSex
   course        Courses
   major         Major?
   status        Status
-  birthday      String
-  role          Role       @default(student)
-  createdAt     DateTime   @default(now())
+  birthday      DateTime
+  role          Role     @default(student)
+  createdAt     DateTime @default(now())
   grades        Grade[]
 }
 
@@ -64,8 +64,8 @@ model Grade {
   courseCode    String
   creditUnit    Int
   courseTitle   String
-  grade         Float
-  reExam        Float?
+  grade         String
+  reExam        String?
   remarks       String?
   instructor    String
   academicYear  AcademicYear
