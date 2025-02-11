@@ -13,8 +13,6 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import { AcademicYear, Semester } from "@prisma/client";
-import Link from "next/link";
-import { Printer } from "lucide-react";
 
 // Manually define enums as constants
 const AcademicYears = ["AY_2024_2025", "AY_2025_2026", "AY_2026_2027"];
@@ -93,11 +91,6 @@ export default async function GradesPage({ searchParams }: GradesPageProps) {
         >
           Filter
         </button>
-        <span className="text-right mt-2">
-          <Link href="/printgrades">
-            <Printer />
-          </Link>
-        </span>
       </form>
 
       {/* Grades Table */}
