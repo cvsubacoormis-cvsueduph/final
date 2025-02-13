@@ -38,6 +38,8 @@ export default function PrintGrades() {
   // Retrieve query parameters from the URL
   const academicYear = searchParams.get("academicYear");
   const semester = searchParams.get("semester");
+  const yearLevel = searchParams.get("yearLevel");
+  const purpose = searchParams.get("purpose");
 
   const [studentData, setStudentData] = useState<Student | null>(null);
 
@@ -46,7 +48,7 @@ export default function PrintGrades() {
       try {
         // Pass the selected academicYear and semester as query parameters to your API
         const res = await fetch(
-          `/api/gradestoprint?academicYear=${academicYear}&semester=${semester}`
+          `/api/gradestoprint?academicYear=${academicYear}&semester=${semester}&yearLevel=${yearLevel}`
         );
         if (!res.ok) {
           console.error("Failed to fetch data");
@@ -59,22 +61,32 @@ export default function PrintGrades() {
       }
     }
     fetchData();
-  }, [academicYear, semester]);
+  }, [academicYear, semester, yearLevel]);
 
   useEffect(() => {
     if (studentData) {
-      // Once data is loaded, trigger print and then navigate back after printing
+      // Set the background graphics to not print
+      const style = document.createElement("style");
+      style.innerHTML =
+        "@media print { body { -webkit-print-color-adjust: exact; print-color-adjust: exact; } }";
+      document.head.appendChild(style);
+
       window.print();
       const handleAfterPrint = () => {
         router.back();
         window.removeEventListener("afterprint", handleAfterPrint);
+        document.head.removeChild(style);
       };
       window.addEventListener("afterprint", handleAfterPrint);
     }
   }, [studentData, router]);
 
   if (!studentData) {
-    return <div>Loading...</div>;
+    return (
+      <div className="flex justify-center items-center h-screen">
+        <div className="animate-spin rounded-full h-32 w-32 border-t-2 border-b-2 border-blue-900"></div>
+      </div>
+    );
   }
 
   return (
@@ -118,7 +130,7 @@ export default function PrintGrades() {
             <p className="font-semibold text-xs text-red-600">Fullname:</p>
             <p className="col-span-2 text-xs font-bold italic underline text-blue-900">
               {studentData.lastName +
-                " " +
+                ", " +
                 studentData.firstName +
                 " " +
                 studentData.middleInit}
@@ -128,7 +140,7 @@ export default function PrintGrades() {
               Year Level:
             </p>
             <p className="col-span-2 mt-2 text-xs italic font-bold text-blue-900">
-              SECOND YEAR
+              {yearLevel}
             </p>
             <p className="font-semibold mt-2 text-xs text-red-600">Degree:</p>
             <p className="col-span-2 mt-2 text-xs font-bold italic text-blue-900">
@@ -168,25 +180,28 @@ export default function PrintGrades() {
       </div>
 
       {/* Grades Table */}
-      <table className="min-w-full bg-white border-l border-r border-b mt-8 border-black border-[1px]">
-        <thead>
+      <table className="min-w-full bg-white border-l border-r border-b mt-4 border-black border-[1px]">
+        <thead className="bg-yellow-200">
           <tr className="border-t border-black border-[1px]">
-            <th className="px-2 border-b border-l border-r font-medium text-gray-900 text-xs border-black border-[1px]">
+            <th className="px-1 border-b border-l border-r font-medium text-gray-900 text-xs border-black border-[1px]">
               CODE
             </th>
-            <th className="px-2 border-b border-r font-medium text-gray-900 text-xs border-black border-[1px]">
+            <th className="px-1 border-b border-r font-medium text-gray-900 text-xs border-black border-[1px]">
               UNITS
             </th>
-            <th className="px-2 border-b border-r font-medium text-gray-900 text-xs border-black border-[1px]">
+            <th className="px-1 border-b border-r font-medium text-gray-900 text-xs border-black border-[1px]">
               COURSE TITLE
             </th>
-            <th className="px-2 border-b border-r font-medium text-gray-900 text-xs border-black border-[1px]">
+            <th className="px-1 border-b border-r font-medium text-gray-900 text-xs border-black border-[1px]">
               GRADE
             </th>
-            <th className="px-2 border-b border-r font-medium text-gray-900 text-xs border-black border-[1px]">
+            <th className="px-1 border-b border-r font-medium text-gray-900 text-xs border-black border-[1px]">
+              RE-EXAM
+            </th>
+            <th className="px-1 border-b border-r font-medium text-gray-900 text-xs border-black border-[1px]">
               REMARKS
             </th>
-            <th className="px-2 border-b border-r font-medium text-gray-900 text-xs border-black border-[1px]">
+            <th className="px-1 border-b border-r font-medium text-gray-900 text-xs border-black border-[1px]">
               FACULTY
             </th>
           </tr>
@@ -194,17 +209,17 @@ export default function PrintGrades() {
         <tbody>
           {studentData.grades.map((course, index) => (
             <tr key={index}>
-              <td className="px-2 border-l border-r text-xs text-center border-black border-[1px]">
+              <td className="px-1 border-l border-r text-xs text-center border-black border-[1px]">
                 {course.courseCode}
               </td>
-              <td className="px-2 border-r text-xs border-black border-[1px] text-center">
+              <td className="px-1 border-r text-xs border-black border-[1px] text-center">
                 {course.creditUnit}
               </td>
-              <td className="px-2 border-r text-xs border-black border-[1px] text-start italic">
+              <td className="px-1 border-r text-xs border-black border-[1px] text-start italic">
                 {course.courseTitle.toUpperCase()}
               </td>
               <td
-                className={`px-2 border-r text-xs border-black border-[1px] text-center ${
+                className={`px-1 border-r text-xs border-black border-[1px] text-center ${
                   ["INC", "DRP", "4.00", "5.00"].includes(course.grade)
                     ? "text-red-600"
                     : "text-blue-900"
@@ -215,13 +230,22 @@ export default function PrintGrades() {
                   : parseFloat(course.grade).toFixed(2)}
               </td>
               <td
-                className={`px-2 border-r text-xs border-black border-[1px] text-center ${
+                className={`px-1 border-r text-xs border-black border-[1px] text-center ${
+                  course.reExam === "3.00" ? "text-blue-900" : "text-red-600"
+                }`}
+              >
+                {!isNaN(parseFloat(course.reExam as string))
+                  ? course.reExam
+                  : " "}
+              </td>
+              <td
+                className={`px-1 border-r text-xs border-black border-[1px] text-center ${
                   course.remarks === "PASSED" ? "text-blue-900" : "text-red-600"
                 }`}
               >
                 {course.remarks}
               </td>
-              <td className="px-2 border-r text-xs border-black border-[1px] text-center">
+              <td className="px-1 border-r text-xs border-black border-[1px] text-center">
                 {course.instructor}
               </td>
             </tr>
@@ -230,23 +254,84 @@ export default function PrintGrades() {
       </table>
 
       <div className="grid grid-cols-2 mt-4 ml-8 items-center">
-        <p className="text-xs font-semibold">Total Subjects Enrolled: 2</p>
-        <p className="text-xs font-semibold ml-16">Total Credits Enrolled: 2</p>
-        <p className="text-xs font-semibold">Total Credits Earned: 2</p>
-
-        <p className="text-xs font-semibold ml-16">Grade Point Average: 2</p>
-
-        <p className="text-xs font-semibold mt-8">
-          REMARKS:{" "}
-          <span className="text-xs underline">
-            For Evaluation/Enrollment purpose only.
+        <p className="text-xs font-semibold">
+          Total Subjects Enrolled:{" "}
+          <span className="text-blue-900 font-semibold">
+            {studentData.grades.length}
           </span>
         </p>
-        <p className="text-xs font-semibold ml-20 mt-8 underline">
-          JIMWELL G. DACANAY
+        <p className="text-xs font-semibold ml-16">
+          Total Credits Enrolled:{" "}
+          <span className="text-blue-900 font-semibold">
+            {studentData.grades.reduce(
+              (total, course) => total + course.creditUnit,
+              0
+            )}
+          </span>
         </p>
+        <p className="text-xs font-semibold">
+          Total Credits Earned:{" "}
+          <span className="text-blue-900 font-semibold">
+            {studentData.grades.reduce((total, course) => {
+              const grade =
+                course.grade === "INC" || course.grade === "DRP"
+                  ? 0
+                  : parseFloat(course.grade);
+              return total + course.creditUnit * grade;
+            }, 0)}
+          </span>
+        </p>
+
+        <p className="text-xs font-semibold ml-16">
+          Grade Point Average:{" "}
+          <span className="text-blue-900 font-semibold">
+            {(
+              studentData.grades.reduce((total, course) => {
+                const grade =
+                  course.grade === "INC" || course.grade === "4.00"
+                    ? parseFloat(course.reExam as string) || 0
+                    : parseFloat(course.grade);
+                return total + course.creditUnit * grade;
+              }, 0) /
+              studentData.grades.reduce(
+                (total, course) => total + course.creditUnit,
+                0
+              )
+            ).toFixed(2)}
+          </span>
+        </p>
+        <p className="text-xs font-semibold mt-8">PURPOSE: {purpose} </p>
+        {studentData.course === "BSCS" || studentData.course === "BSIT" ? (
+          <p className="text-xs font-semibold ml-20 mt-8 underline">
+            MICHAEL D. ANSUAS
+          </p>
+        ) : studentData.course === "BSP" ? (
+          <p className="text-xs font-semibold ml-20 mt-8 underline">
+            MILDRED VALDEPEÑA
+          </p>
+        ) : studentData.course === "BSHM" ? (
+          <p className="text-xs font-semibold ml-20 mt-8 underline">
+            JOHN CARLO BENJAMIN
+          </p>
+        ) : studentData.course === "BSBA" &&
+          (studentData.major === "MARKETING_MANAGEMENT" ||
+            studentData.major === "HUMAN_RESOURCE_MANAGEMENT") ? (
+          <p className="text-xs font-semibold ml-20 mt-8 underline">
+            BON-ART C. BAGAINDOC
+          </p>
+        ) : (
+          <p className="text-xs font-semibold ml-20 mt-8 underline">
+            JIMWELL G. DACANAY
+          </p>
+        )}
         <p className="text-xs font-semibold"></p>
-        <p className="text-xs font-semibold ml-24">Campus Registrar</p>
+        {studentData.course === "BSCRIM" ||
+        (studentData.course === "BSED" &&
+          (studentData.major === "MATH" || studentData.major === "ENGLISH")) ? (
+          <p className="text-xs font-semibold ml-24">Campus Registrar</p>
+        ) : (
+          <p className="text-xs font-semibold ml-28">Registrar Clerk</p>
+        )}
       </div>
       <div className="text-start mt-4 text-xs ml-4">
         <h1 className="font-semibold">GRADING SYSTEM</h1>
@@ -271,15 +356,15 @@ export default function PrintGrades() {
             <tr>
               <td className="">1.50</td>
               <td className="">Very Superior</td>
-              <td className="">90.01 - 93.3</td>
+              <td className="">90.1 - 93.3</td>
               <td className="">4.00</td>
               <td className="">Conditional Failure</td>
-              <td className="">50.0 - 69.99</td>
+              <td className="">50.0 - 69.9</td>
             </tr>
             <tr>
               <td className="">1.75</td>
               <td className="">Superior</td>
-              <td className="">86.70 - 90.0</td>
+              <td className="">86.7 - 90.0</td>
               <td className="">5.00</td>
               <td className="">Failed</td>
               <td className="">below 50</td>
@@ -295,7 +380,7 @@ export default function PrintGrades() {
             <tr>
               <td className="">2.25</td>
               <td className="">Good</td>
-              <td className="">80.01 - 83.3</td>
+              <td className="">80.1 - 83.3</td>
               <td className="">DRP</td>
               <td className="">Dropped Subject</td>
               <td className=""></td>
@@ -315,8 +400,8 @@ export default function PrintGrades() {
         </p>
       </div>
       {/* Footer */}
-      <div>
-        <p className="text-xs mt-4 ml-4">
+      <div className="flex mt-4 text-xs ml-4">
+        <p className="text-center">
           <span className="font-bold underline">ELECTRONIC COPY</span>
         </p>
       </div>

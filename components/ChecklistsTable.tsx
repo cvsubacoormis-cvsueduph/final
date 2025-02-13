@@ -30,8 +30,8 @@ const Checklist = () => {
   const [selectedYear, setSelectedYear] = useState<string>("First Year");
 
   const { user } = useUser();
-  const course = user?.publicMetadata.course;
-  const major = user?.publicMetadata.major;
+  const course = user?.publicMetadata.course as string;
+  const major = user?.publicMetadata.major as string;
 
   const handleButtonClick = (year: string) => {
     setSelectedYear(year);

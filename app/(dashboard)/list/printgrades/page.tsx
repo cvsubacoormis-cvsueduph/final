@@ -17,6 +17,8 @@ export default function PrintGradesSelector() {
   // State to store the selected academic year and semester
   const [academicYear, setAcademicYear] = useState("");
   const [semester, setSemester] = useState("");
+  const [yearLevel, setYearLevel] = useState("");
+  const [purpose, setPurpose] = useState("");
 
   return (
     <div className="bg-white p-4 rounded-md flex-1 m-4 mt-0">
@@ -57,12 +59,57 @@ export default function PrintGradesSelector() {
           </Select>
         </div>
 
+        <div>
+          <h1 className="text-sm font-semibold mb-2">Select Year Level</h1>
+          <Select onValueChange={(value) => setYearLevel(value)}>
+            <SelectTrigger className="w-[140px]">
+              <SelectValue placeholder="Year Level" />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectGroup>
+                <SelectLabel>Year Level</SelectLabel>
+                <SelectItem value="FIRST YEAR">FIRST</SelectItem>
+                <SelectItem value="SECOND YEAR">SECOND</SelectItem>
+                <SelectItem value="THIRD YEAR">THIRD</SelectItem>
+                <SelectItem value="FOURTH YEAR">FOURTH</SelectItem>
+              </SelectGroup>
+            </SelectContent>
+          </Select>
+        </div>
+
+        <div>
+          <h1 className="text-sm font-semibold mb-2">Select Purpose</h1>
+          <Select onValueChange={(value) => setPurpose(value)}>
+            <SelectTrigger className="w-[140px]">
+              <SelectValue placeholder="Purpose" />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectGroup>
+                <SelectLabel>Purpose</SelectLabel>
+                <SelectItem value="ENROLLMENT/EVALUATION PURPOSES">
+                  ENROLLMENT/EVALUATION PURPOSES
+                </SelectItem>
+                <SelectItem value="WORK PURPOSES">WORK PURPOSES</SelectItem>
+                <SelectItem value="SCHOLARSHIP">THIRD</SelectItem>
+                <SelectItem value="FOURTH YEAR">FOURTH</SelectItem>
+              </SelectGroup>
+            </SelectContent>
+          </Select>
+        </div>
+
         {/* Only enable the button when both values are selected */}
-        <Button className="w-[120px] mt-7" disabled={!academicYear || !semester}>
+        <Button
+          className="w-[120px] mt-7"
+          disabled={!academicYear || !semester || !yearLevel || !purpose}
+        >
           <Link
             href={`/printgrades?academicYear=${encodeURIComponent(
               academicYear
-            )}&semester=${encodeURIComponent(semester)}`}
+            )}&semester=${encodeURIComponent(
+              semester
+            )}&yearLevel=${encodeURIComponent(
+              yearLevel
+            )}&purpose=${encodeURIComponent(purpose)}`}
           >
             Print Grades
           </Link>
