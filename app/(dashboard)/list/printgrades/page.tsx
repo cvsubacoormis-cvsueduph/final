@@ -90,8 +90,8 @@ export default function PrintGradesSelector() {
                   ENROLLMENT/EVALUATION PURPOSES
                 </SelectItem>
                 <SelectItem value="WORK PURPOSES">WORK PURPOSES</SelectItem>
-                <SelectItem value="SCHOLARSHIP">THIRD</SelectItem>
-                <SelectItem value="FOURTH YEAR">FOURTH</SelectItem>
+                <SelectItem value="SCHOLARSHIP">SCHOLARSHIP</SelectItem>
+                <SelectItem value="PERSONAL COPY">PERSONAL COPY</SelectItem>
               </SelectGroup>
             </SelectContent>
           </Select>

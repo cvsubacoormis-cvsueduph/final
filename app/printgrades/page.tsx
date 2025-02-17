@@ -165,7 +165,7 @@ export default function PrintGrades() {
               Academic Year:
             </p>
             <p className="col-span-2 mt-2 text-xs italic font-bold text-blue-900">
-              {semester}-SEM {academicYear}
+              {semester}-SEM {" "}{academicYear?.replace(/_/g, "-")}
             </p>
             <p className="font-semibold mt-2 text-xs text-red-600">Date:</p>
             <p className="col-span-2 mt-2 text-xs italic font-bold text-blue-900">

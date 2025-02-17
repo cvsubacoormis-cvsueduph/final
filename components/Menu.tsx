@@ -45,60 +45,12 @@ export default async function Menu() {
           href: "/list/admin-lists",
           visible: ["admin", "superuser"],
         },
-        // {
-        //   icon: "/parent.png",
-        //   label: "Parents",
-        //   href: "/list/parents",
-        //   visible: ["teacher"],
-        // },
-        // {
-        //   icon: "/subject.png",
-        //   label: "Subjects",
-        //   href: "/list/subjects",
-        //   visible: ["admin"],
-        // },
         {
           icon: "/subject.png",
           label: "Enrolled Subjects",
           href: "/list/enrolledsubjects",
           visible: ["student"],
         },
-        // {
-        //   icon: "/subject.png",
-        //   label: "Registration Form",
-        //   href: "/list/enrolledsubjects",
-        //   visible: ["student"],
-        // },
-        // {
-        //   icon: "/class.png",
-        //   label: "Classes",
-        //   href: "/list/classes",
-        //   visible: ["admin", "teacher"],
-        // },
-        // {
-        //   icon: "/lesson.png",
-        //   label: "Lessons",
-        //   href: "/list/lessons",
-        //   visible: ["admin", "teacher"],
-        // },
-        // {
-        //   icon: "/exam.png",
-        //   label: "Exams",
-        //   href: "/list/exams",
-        //   visible: ["teacher", "parent"],
-        // },
-        // {
-        //   icon: "/assignment.png",
-        //   label: "Assignments",
-        //   href: "/list/assignments",
-        //   visible: ["admin", "teacher",  "parent"],
-        // },
-        // {
-        //   icon: "/result.png",
-        //   label: "Results",
-        //   href: "/list/results",
-        //   visible: ["admin", "teacher",  "parent"],
-        // },
         {
           icon: "/attendance.png",
           label: "Pre-Registration",
@@ -121,6 +73,12 @@ export default async function Menu() {
           icon: "/result.png",
           label: "Upload Grades",
           href: "/list/uploading",
+          visible: ["admin", "superuser"],
+        },
+        {
+          icon: "/calendar.png",
+          label: "Grades Lists",
+          href: "/list/grades-lists",
           visible: ["admin", "superuser"],
         },
         {
