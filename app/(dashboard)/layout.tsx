@@ -11,8 +11,7 @@ export default function DashboardLayout({
     <div className="h-screen flex">
       {/* LEFT */}
       <div className="w-[14%] md:w-[8%] lg:w-[16%] xl:w-[14%] p-4">
-        <Image src={"/logo.png"} alt="logo" width={45} height={45} className="ml-20 mb-2" />
-        <span className="hidden lg:block font-bold ml-12">Student Portal</span>
+        <div className="mb-2 flex items-center"><Image src={"/logo.png"} alt="logo" width={40} height={40} /><span className="hidden lg:block font-semibold ml-5">Student Portal</span></div>
         <Menu />
       </div>
       {/* RIGHT */}
