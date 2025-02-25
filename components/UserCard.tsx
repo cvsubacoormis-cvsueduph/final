@@ -1,10 +1,11 @@
 "use client";
 
 import React, { useEffect, useState } from "react";
-import Image from "next/image";
+import { SyncLoader } from "react-spinners";
 
 export default function UserCard({ type }: { type: string }) {
   const [total, setTotal] = useState<number | null>(null);
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     async function fetchData() {
@@ -16,8 +17,10 @@ export default function UserCard({ type }: { type: string }) {
         } else if (type === "admin") {
           setTotal(data.totalAdmins);
         }
+        setLoading(false);
       } catch (error) {
         console.error("Error fetching totals:", error);
+        setLoading(false);
       }
     }
 
@@ -30,12 +33,15 @@ export default function UserCard({ type }: { type: string }) {
         <span className="text-[10px] bg-white px-2 py-1 rounded-full text-green-600">
           {`${new Date().getFullYear()}/${new Date().getFullYear() + 1}`}
         </span>
-        <Image src="/more.png" alt="" width={20} height={20} />
       </div>
-      <h1 className="text-2xl font-semibold my-4">
-        {total !== null ? total : "Loading..."}
-      </h1>
+      <div className="flex">
+        {loading ? <SyncLoader color="#111542" size={10} /> : null}
+        <h1 className="text-2xl font-semibold my-4">
+          {total !== null ? total : ""}
+        </h1>
+      </div>
       <h2 className="capitalize text-sm font-medium text-gray-500">{type}s</h2>
     </div>
   );
 }
+

@@ -50,7 +50,7 @@
     "react-loader-spinner": "^6.1.6",
     "react-spinners": "^0.14.1",
     "react-toastify": "^10.0.6",
-    "recharts": "^2.13.0",
+    "recharts": "^2.15.1",
     "sweetalert2": "^11.14.4",
     "swr": "^2.2.5",
     "tailwind-merge": "^2.5.4",

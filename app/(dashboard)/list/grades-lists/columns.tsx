@@ -14,7 +14,7 @@ export type Grades = {
   firstName: string;
   lastName: string;
   middleInit: string;
-  email: string;
+  email: string | null;
   phone: string;
   address: string;
   course: "BSIT" | "BSCS" | "BSBA" | "BSHM" | "BSP" | "BSCRIM" | "BSED";
@@ -140,8 +140,8 @@ export const columns: ColumnDef<Grades>[] = [
 
       return (
         <div className="flex items-center space-x-2">
-          <PreviewGrades />
-          <SelectToPrint />
+          <PreviewGrades studentNumber={student.studentNumber} firstName={student.firstName} lastName={student.lastName} />
+          <SelectToPrint   />
         </div>
       );
     },

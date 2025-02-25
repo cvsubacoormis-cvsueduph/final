@@ -22,6 +22,7 @@ export const routeAccessMap: RouteAccessMap = {
   "/list/uploading(.*)": ["admin","superuser"],
   "/list/adminprofile(.*)": ["admin", "superuser"],
   "/printChecklist(.*)": ["student"],
-  "/printgrades(.*)": ["student"],
+  "/printgrades(.*)": ["student",],
+  "/printgrades-list(.*)": ["admin"],
 };
 

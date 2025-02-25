@@ -1,80 +1,166 @@
 "use client";
 
-import Image from "next/image";
-import React, { useEffect, useState } from "react";
-import { RadialBarChart, RadialBar, ResponsiveContainer } from "recharts";
+import * as React from "react";
+import { useMemo } from "react";
+import { TrendingUp } from "lucide-react";
+import { Label, Legend, Pie, PieChart } from "recharts";
 
-export default function CountChart() {
-  const [chartData, setChartData] = useState([
-    { name: "Boys", count: 0, fill: "#C3EBFA" },
-    { name: "Girls", count: 0, fill: "#FAE27C" },
-    { name: "Total", count: 0, fill: "white" },
-  ]);
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardFooter,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
+import {
+  ChartConfig,
+  ChartContainer,
+  ChartTooltip,
+  ChartTooltipContent,
+} from "@/components/ui/chart";
+import { SyncLoader } from "react-spinners";
 
-  useEffect(() => {
-    async function fetchGenderCounts() {
+const chartConfig = {
+  male: {
+    label: "Male",
+    color: "hsl(var(--chart-1))",
+  },
+  female: {
+    label: "Female",
+    color: "hsl(var(--chart-2))",
+  },
+} satisfies ChartConfig;
+
+export default function AdminPage() {
+  const [chartData, setChartData] = React.useState<
+    { sex: string; count: number; fill: string }[]
+  >([]);
+  const [totalVisitors, setTotalVisitors] = React.useState(0);
+  const [loading, setLoading] = React.useState(true);
+
+  React.useEffect(() => {
+    async function fetchData() {
       try {
         const response = await fetch("/api/total-students-male-female");
+        if (!response.ok) throw new Error("Failed to fetch data");
+
         const data = await response.json();
         setChartData([
-          { name: "Boys", count: data.maleCount, fill: "#C3EBFA" },
-          { name: "Girls", count: data.femaleCount, fill: "#FAE27C" },
-          { name: "Total", count: data.total, fill: "white" },
+          { sex: "MALE", count: data.maleCount, fill: "hsl(var(--chart-3))" },
+          {
+            sex: "FEMALE",
+            count: data.femaleCount,
+            fill: "hsl(var(--chart-2))",
+          },
         ]);
+        setTotalVisitors(data.total);
       } catch (error) {
-        console.error("Error fetching gender counts:", error);
+        console.error("Error fetching student data:", error);
+      } finally {
+        setLoading(false);
       }
     }
 
-    fetchGenderCounts();
+    fetchData();
   }, []);
 
+  const mostStudents = useMemo(() => {
+    if (chartData.length === 0) {
+      return "NONE";
+    }
+
+    if (chartData[0].count === chartData[1].count) {
+      return "EQUAL";
+    }
+
+    return chartData[0].count > chartData[1].count ? "MALE" : "FEMALE";
+  }, [chartData]);
+
   return (
-    <div className="bg-white rounded-xl w-full h-full p-4">
-      {/* TITLE */}
-      <div className="flex justify-between items-center">
-        <h1 className="text-lg font-semibold">Students</h1>
-        <Image src="/moreDark.png" alt="" width={20} height={20} />
-      </div>
-      {/* CHART */}
-      <div className="relative w-full h-[75%]">
-        <ResponsiveContainer>
-          <RadialBarChart
-            cx="50%"
-            cy="50%"
-            innerRadius="40%"
-            outerRadius="100%"
-            barSize={32}
-            data={chartData}
-          >
-            <RadialBar background dataKey="count" />
-          </RadialBarChart>
-        </ResponsiveContainer>
-        <Image
-          src="/maleFemale.png"
-          alt=""
-          width={200}
-          height={200}
-          className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2"
-        />
-      </div>
-      {/* BOTTOM */}
-      <div className="flex justify-center gap-16">
-        <div className="flex flex-col gap-1">
-          <div className="w-5 h-5 bg-lamaSky rounded-full" />
-          <h1 className="font-bold">{chartData[0].count}</h1>
-          <h2 className="text-xs text-gray-300">
-            Male ({Math.round((chartData[0].count / chartData[2].count) * 100) || 0}%)
-          </h2>
-        </div>
-        <div className="flex flex-col gap-1">
-          <div className="w-5 h-5 bg-lamaYellow rounded-full" />
-          <h1 className="font-bold">{chartData[1].count}</h1>
-          <h2 className="text-xs text-gray-300">
-            Female ({Math.round((chartData[1].count / chartData[2].count) * 100) || 0}%)
-          </h2>
-        </div>
-      </div>
+    <div className="w-full">
+      <Card className="flex flex-col">
+        <CardHeader className=" pb-0">
+          <CardTitle className="text-md font-semibold">
+            Total number of students
+          </CardTitle>
+          <CardDescription className="text-start text-xs">
+            Total number of students by gender
+          </CardDescription>
+        </CardHeader>
+        <CardContent className="flex-1 pb-0 mt-28">
+          {loading ? (
+            <div className="flex items-center justify-center mb-8">
+              <SyncLoader color="#111542" size={14} />
+            </div>
+          ) : (
+            <ChartContainer
+              config={chartConfig}
+              className="mx-auto aspect-square max-h-[600px]"
+            >
+              <PieChart>
+                <ChartTooltip
+                  cursor={false}
+                  content={<ChartTooltipContent hideLabel />}
+                />
+                <Pie
+                  data={chartData}
+                  dataKey="count"
+                  nameKey="sex"
+                  innerRadius={60}
+                  strokeWidth={5}
+                >
+                  <Label
+                    content={({ viewBox }) => {
+                      if (viewBox && "cx" in viewBox && "cy" in viewBox) {
+                        return (
+                          <text
+                            x={viewBox.cx}
+                            y={viewBox.cy}
+                            textAnchor="middle"
+                            dominantBaseline="middle"
+                          >
+                            <tspan
+                              x={viewBox.cx}
+                              y={viewBox.cy}
+                              className="fill-foreground text-3xl font-bold"
+                            >
+                              {totalVisitors.toLocaleString()}
+                            </tspan>
+                            <tspan
+                              x={viewBox.cx}
+                              y={(viewBox.cy || 0) + 24}
+                              className="fill-muted-foreground"
+                            >
+                              Students
+                            </tspan>
+                          </text>
+                        );
+                      }
+                    }}
+                  />
+                </Pie>
+                <Legend
+                  layout="horizontal"
+                  verticalAlign="bottom"
+                  align="center"
+                  wrapperStyle={{ marginTop: 8, marginBottom: 8 }}
+                />
+              </PieChart>
+            </ChartContainer>
+          )}
+        </CardContent>
+        <CardFooter className="flex-col gap-2 text-sm">
+          <div className="flex items-start gap-2 font-medium leading-none">
+            Most number of the students is{" "}
+            <span className="underline italic">{mostStudents}</span> <TrendingUp className="h-4 w-4" />
+          </div>
+          <div className="leading-none text-muted-foreground">
+            Showing total students in the database
+          </div>
+        </CardFooter>
+      </Card>
     </div>
   );
 }
+

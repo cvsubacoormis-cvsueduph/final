@@ -1,97 +1,148 @@
 "use client";
-import Image from "next/image";
-import React from "react";
-import {
-  BarChart,
-  Bar,
-  Rectangle,
-  XAxis,
-  YAxis,
-  CartesianGrid,
-  Tooltip,
-  Legend,
-  ResponsiveContainer,
-} from "recharts";
 
-const data = [
-  {
-    name: "Mon",
-    present: 60,
-    absent: 20,
+import { useEffect, useState } from "react";
+import { TrendingUp } from "lucide-react";
+import { Bar, BarChart, CartesianGrid, LabelList, XAxis } from "recharts";
+import { SyncLoader } from "react-spinners";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardFooter,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
+import {
+  ChartConfig,
+  ChartContainer,
+  ChartTooltip,
+  ChartTooltipContent,
+} from "@/components/ui/chart";
+
+const chartConfig = {
+  desktop: {
+    label: "Courses",
+    color: "hsl(var(--chart-2))",
   },
-  {
-    name: "Tues",
-    present: 30,
-    absent: 45,
-  },
-  {
-    name: "Wed",
-    present: 22,
-    absent: 19,
-  },
-  {
-    name: "Thurs",
-    present: 30,
-    absent: 35,
-  },
-  {
-    name: "Fri",
-    present: 60,
-    absent: 10,
-  },
-  {
-    name: "Sat",
-    present: 45,
-    absent: 15,
-  },
-  {
-    name: "Sunday",
-    present: 25,
-    absent: 39,
-  },
-];
+} satisfies ChartConfig;
+
+interface CourseData {
+  course: string;
+  _count: {
+    course: number;
+  };
+}
 
 export default function AttendanceChart() {
+  const [chartData, setChartData] = useState<
+    { course: string; desktop: number }[]
+  >([]);
+  const [popularCourse, setPopularCourse] = useState("N/A");
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    async function fetchChartData() {
+      try {
+        const res = await fetch("/api/courses-total");
+        const json: { data: CourseData[] } = await res.json();
+
+        const allCourses = [
+          "BSCS",
+          "BSIT",
+          "BSCRIM",
+          "BSP",
+          "BSHM",
+          "BSBA",
+          "BSED",
+        ];
+
+        const fetchedMap: { [course: string]: number } = {};
+        json.data.forEach((item) => {
+          fetchedMap[item.course] = item._count.course;
+        });
+
+        const formattedData = allCourses.map((course) => ({
+          course,
+          desktop: fetchedMap[course] || 0,
+        }));
+
+        setChartData(formattedData);
+
+        let maxCount = -1;
+        let maxCourse = "N/A";
+        formattedData.forEach((item) => {
+          if (item.desktop > maxCount) {
+            maxCount = item.desktop;
+            maxCourse = item.course;
+          }
+        });
+        setPopularCourse(maxCourse);
+      } catch (error) {
+        console.error("Error fetching data:", error);
+      } finally {
+        setLoading(false);
+      }
+    }
+
+    fetchChartData();
+  }, []);
+
   return (
-    <div className="bg-white rounded-lg p-4 h-full">
-      <div className="flex justify-between items-center">
-        <h1 className="text-lg font-semibold">Attendance Soon</h1>
-        <Image src="/moreDark.png" alt="" width={20} height={20} />
-      </div>
-      <ResponsiveContainer width="100%" height="90%">
-        <BarChart width={500} height={300} data={data} barSize={20}>
-          <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#ddd" />
-          <XAxis
-            dataKey="name"
-            axisLine={false}
-            tick={{ fill: "#d1d5db" }}
-            tickLine={false}
-          />
-          <YAxis axisLine={false} tick={{ fill: "#d1d5db" }} tickLine={false} />
-          <Tooltip
-            contentStyle={{ borderRadius: "10px", borderColor: "lightgray" }}
-          />
-          <Legend
-            align="left"
-            verticalAlign="top"
-            wrapperStyle={{ paddingTop: "20px", paddingBottom: "40px" }}
-          />
-          <Bar
-            dataKey="present"
-            fill="#FAE27C"
-            activeBar={<Rectangle fill="pink" stroke="blue" />}
-            legendType="circle"
-            radius={[10, 10, 0, 0]}
-          />
-          <Bar
-            dataKey="absent"
-            fill="#C3EBFA"
-            activeBar={<Rectangle fill="gold" stroke="purple" />}
-            legendType="circle"
-            radius={[10, 10, 0, 0]}
-          />
-        </BarChart>
-      </ResponsiveContainer>
+    <div className="w-full">
+      <Card>
+        <CardHeader>
+          <CardTitle className="text-md">Courses</CardTitle>
+          <CardDescription className="text-start text-xs">
+            Total number of students based on courses
+          </CardDescription>
+        </CardHeader>
+        <CardContent>
+          {loading ? (
+            <div className="flex items-center justify-center mb-8">
+              <SyncLoader color="#111542" size={14} />
+            </div>
+          ) : (
+            <ChartContainer config={chartConfig}>
+              <BarChart
+                accessibilityLayer
+                data={chartData}
+                margin={{ top: 20 }}
+              >
+                <CartesianGrid vertical={false} />
+                <XAxis
+                  dataKey="course"
+                  tickLine={false}
+                  tickMargin={10}
+                  axisLine={false}
+                  tickFormatter={(value) => value.slice(0, 6)}
+                />
+                <ChartTooltip
+                  cursor={false}
+                  content={<ChartTooltipContent hideLabel />}
+                />
+                <Bar dataKey="desktop" fill="var(--color-desktop)" radius={8}>
+                  <LabelList
+                    position="top"
+                    offset={12}
+                    className="fill-foreground"
+                    fontSize={12}
+                  />
+                </Bar>
+              </BarChart>
+            </ChartContainer>
+          )}
+        </CardContent>
+        <CardFooter className="flex-col items-start gap-2 text-sm">
+          <div className="flex gap-2 font-medium leading-none">
+            Most Popular Course:{" "}
+            <span className="italic underline">{popularCourse}</span>{" "}
+            <TrendingUp className="h-4 w-4" />
+          </div>
+          <div className="leading-none text-muted-foreground">
+            Showing total number of students per course
+          </div>
+        </CardFooter>
+      </Card>
     </div>
   );
 }

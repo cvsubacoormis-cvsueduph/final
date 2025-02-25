@@ -73,8 +73,7 @@ const Homepage = () => {
               <h1 className="text-3xl font-bold text-black-700">
                 Student Portal
               </h1>
-            </div>
-            <h1 className="text-2xl font-bold text-left mb-4"></h1>
+            </div>-
             <Clerk.GlobalError className="block text-sm text-red-400" />
 
             <div className="mb-4">
