@@ -11,7 +11,7 @@ import {
   DialogTitle,
   DialogTrigger,
 } from "@/components/ui/dialog";
-import { EyeIcon, PencilIcon } from "lucide-react";
+import { EyeIcon, PencilIcon, CheckIcon } from "lucide-react";
 
 import {
   Select,
@@ -31,6 +31,8 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import { SyncLoader } from "react-spinners";
+import { Input } from "./ui/input";
+import toast from "react-hot-toast";
 
 type AcademicTerm = {
   id: string;
@@ -38,8 +40,9 @@ type AcademicTerm = {
   semester: string;
 };
 
-// Extend the Grade type to include student details for filtering.
+// Note: We added an "id" field to the Grade type so it can be used for updates.
 export type Grade = {
+  id: string;
   studentNumber: number;
   firstName: string;
   lastName: string;
@@ -54,7 +57,6 @@ export type Grade = {
   semester: string;
 };
 
-// Accept studentNumber, firstName, and lastName as props.
 export type PreviewGradesProps = {
   studentNumber: number;
   firstName: string;
@@ -70,6 +72,10 @@ export function PreviewGrades({
   const [academicYear, setAcademicYear] = useState<string>("");
   const [semester, setSemester] = useState<string>("");
   const [grades, setGrades] = useState<Grade[]>([]);
+  const [editedGrades, setEditedGrades] = useState<Grade[]>([]);
+  const [editingRows, setEditingRows] = useState<{ [key: number]: boolean }>(
+    {}
+  );
   const [loading, setLoading] = useState<boolean>(false);
   const [error, setError] = useState<string>("");
 
@@ -127,6 +133,8 @@ export function PreviewGrades({
             );
           }
           setGrades(filteredGrades);
+          // Create a separate state copy for editing.
+          setEditedGrades(filteredGrades);
         } catch (err) {
           console.error(err);
           setError("Failed to fetch grades");
@@ -138,6 +146,53 @@ export function PreviewGrades({
     }
   }, [academicYear, semester, studentNumber, firstName, lastName]);
 
+  // Handle changes in the input fields.
+  const handleGradeChange = (
+    index: number,
+    field: keyof Grade,
+    value: string
+  ) => {
+    const updatedGrades = [...editedGrades];
+    updatedGrades[index] = {
+      ...updatedGrades[index],
+      [field]: field === "creditUnit" ? Number(value) : value,
+    };
+    setEditedGrades(updatedGrades);
+  };
+
+  // Toggle edit mode for a given row.
+  const toggleEditRow = (index: number) => {
+    setEditingRows((prev) => ({ ...prev, [index]: !prev[index] }));
+  };
+
+  // Persist the updated grades by sending a PATCH request for each updated row.
+  const handleSaveChanges = async () => {
+    try {
+      const updatePromises = editedGrades.map(async (grade) => {
+        const res = await fetch(`/api/preview-grades?id=${grade.id}`, {
+          method: "PATCH",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify(grade),
+        });
+        if (!res.ok) {
+          throw new Error(`Failed to update grade for ${grade.courseCode}`);
+        }
+        return res.json();
+      });
+      const updatedGrades = await Promise.all(updatePromises);
+      console.log("All grades updated", updatedGrades);
+      // Optionally, update the local state with the updated grades.
+      setGrades(updatedGrades);
+      setEditedGrades(updatedGrades);
+      toast.success("Grades updated successfully");
+    } catch (error) {
+      console.error("Error updating grades", error);
+      toast.error("Failed to update grades");
+    }
+  };
+
   return (
     <div>
       <Dialog>
@@ -146,11 +201,11 @@ export function PreviewGrades({
             <EyeIcon className="w-4 h-4" />
           </Button>
         </DialogTrigger>
-        <DialogContent className="sm:max-w-[925px]">
+        <DialogContent className="sm:max-w-[1125px]">
           <DialogHeader>
             <DialogTitle>Preview Grades</DialogTitle>
             <DialogDescription>
-              Select an academic term to view student grades.
+              Select an academic year and semester to view student grades.
             </DialogDescription>
           </DialogHeader>
           <div className="flex items-start gap-3 mb-4">
@@ -166,7 +221,6 @@ export function PreviewGrades({
               <SelectContent>
                 {uniqueAcademicYears.map((year) => (
                   <SelectItem key={year} value={year}>
-                    {/* Format the academic year if needed */}
                     {year.replace("AY_", "").replace("_", "-")}
                   </SelectItem>
                 ))}
@@ -216,25 +270,134 @@ export function PreviewGrades({
                   <TableHead className="text-sm">Re Exam</TableHead>
                   <TableHead className="text-sm">Remarks</TableHead>
                   <TableHead className="text-sm">Instructor</TableHead>
+                  <TableHead className="text-sm">Edit</TableHead>
                 </TableRow>
               </TableHeader>
               <TableBody>
                 {grades.map((grade, index) => (
                   <TableRow key={index}>
-                    <TableCell>{grade.courseCode}</TableCell>
-                    <TableCell>{grade.creditUnit}</TableCell>
-                    <TableCell>{grade.courseTitle}</TableCell>
-                    <TableCell>{grade.grade}</TableCell>
                     <TableCell>
-                      {isNaN(parseFloat(grade.reExam ?? ""))
-                        ? " "
-                        : parseFloat(grade.reExam ?? "").toFixed(2)}
+                      {editingRows[index] ? (
+                        <Input
+                          value={editedGrades[index].courseCode}
+                          onChange={(e) =>
+                            handleGradeChange(
+                              index,
+                              "courseCode",
+                              e.target.value
+                            )
+                          }
+                          className="border p-1 rounded"
+                        />
+                      ) : (
+                        grade.courseCode
+                      )}
                     </TableCell>
-                    <TableCell>{grade.remarks || "-"}</TableCell>
-                    <TableCell>{grade.instructor}</TableCell>
                     <TableCell>
-                      <Button>
-                        <PencilIcon className="w-4 h-4" />
+                      {editingRows[index] ? (
+                        <Input
+                          type="number"
+                          value={editedGrades[index].creditUnit}
+                          onChange={(e) =>
+                            handleGradeChange(
+                              index,
+                              "creditUnit",
+                              e.target.value
+                            )
+                          }
+                          className="border p-1 rounded"
+                        />
+                      ) : (
+                        grade.creditUnit
+                      )}
+                    </TableCell>
+                    <TableCell>
+                      {editingRows[index] ? (
+                        <Input
+                          type="text"
+                          value={editedGrades[index].courseTitle}
+                          onChange={(e) =>
+                            handleGradeChange(
+                              index,
+                              "courseTitle",
+                              e.target.value
+                            )
+                          }
+                          className="border p-1 rounded"
+                        />
+                      ) : (
+                        grade.courseTitle
+                      )}
+                    </TableCell>
+                    <TableCell>
+                      {editingRows[index] ? (
+                        <Input
+                          type="text"
+                          value={editedGrades[index].grade}
+                          onChange={(e) =>
+                            handleGradeChange(index, "grade", e.target.value)
+                          }
+                          className="border p-1 rounded"
+                        />
+                      ) : (
+                        grade.grade
+                      )}
+                    </TableCell>
+                    <TableCell>
+                      {editingRows[index] ? (
+                        <Input
+                          type="text"
+                          value={editedGrades[index].reExam ?? ""}
+                          onChange={(e) =>
+                            handleGradeChange(index, "reExam", e.target.value)
+                          }
+                          className="border p-1 rounded"
+                        />
+                      ) : isNaN(parseFloat(grade.reExam ?? "")) ? (
+                        " "
+                      ) : (
+                        parseFloat(grade.reExam ?? "").toFixed(2)
+                      )}
+                    </TableCell>
+                    <TableCell>
+                      {editingRows[index] ? (
+                        <Input
+                          type="text"
+                          value={editedGrades[index].remarks ?? ""}
+                          onChange={(e) =>
+                            handleGradeChange(index, "remarks", e.target.value)
+                          }
+                          className="border p-1 rounded"
+                        />
+                      ) : (
+                        grade.remarks || "-"
+                      )}
+                    </TableCell>
+                    <TableCell>
+                      {editingRows[index] ? (
+                        <Input
+                          type="text"
+                          value={editedGrades[index].instructor}
+                          onChange={(e) =>
+                            handleGradeChange(
+                              index,
+                              "instructor",
+                              e.target.value
+                            )
+                          }
+                          className="border p-1 rounded w-auto"
+                        />
+                      ) : (
+                        grade.instructor
+                      )}
+                    </TableCell>
+                    <TableCell>
+                      <Button onClick={() => toggleEditRow(index)}>
+                        {editingRows[index] ? (
+                          <CheckIcon className="w-4 h-4" />
+                        ) : (
+                          <PencilIcon className="w-4 h-4" />
+                        )}
                       </Button>
                     </TableCell>
                   </TableRow>
@@ -243,7 +406,9 @@ export function PreviewGrades({
             </Table>
           )}
           <DialogFooter>
-            <Button type="submit">Save changes</Button>
+            <Button type="submit" onClick={handleSaveChanges}>
+              Save changes
+            </Button>
           </DialogFooter>
         </DialogContent>
       </Dialog>

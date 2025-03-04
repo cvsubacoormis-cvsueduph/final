@@ -58,3 +58,48 @@ export async function GET(request: Request) {
     );
   }
 }
+
+export async function PATCH(request: Request) {
+  const { searchParams } = new URL(request.url);
+  const id = searchParams.get("id");
+  if (!id) {
+    return NextResponse.json({ message: "id is required" }, { status: 400 });
+  }
+
+  try {
+    // Destructure only the updatable fields from the request body.
+    const {
+      courseCode,
+      creditUnit,
+      courseTitle,
+      grade,
+      reExam,
+      remarks,
+      instructor,
+    } = await request.json();
+
+    // Optionally, convert or validate fields here
+    const data = {
+      courseCode,
+      creditUnit,
+      courseTitle,
+      grade,
+      reExam: reExam === "" ? null : reExam, // keep reExam as a string
+      remarks,
+      instructor,
+    };
+
+    const updatedGrade = await prisma.grade.update({
+      where: { id },
+      data,
+    });
+
+    return NextResponse.json(updatedGrade);
+  } catch (error) {
+    console.error("Error updating grade:", error);
+    return NextResponse.json(
+      { message: "Failed to update grade" },
+      { status: 500 }
+    );
+  }
+}

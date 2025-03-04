@@ -116,10 +116,16 @@ const Checklist = () => {
             {course === "BSED" &&
               major === "ENGLISH" &&
               "Secondary Education Major in English"}
-            {course === "BSED" && major === "MATH" && "Secondary Education Major in Math"}
+            {course === "BSED" &&
+              major === "MATH" &&
+              "Secondary Education Major in Math"}
             {course === "BSP" && "Psychology"}
-            {course === "BSBA" && major === "MARKETING_MANAGEMENT" && "Marketing Management"}
-            {course === "BSBA" && major === "HUMAN_RESOURCE_MANAGEMENT" && "Human Resource Management"}
+            {course === "BSBA" &&
+              major === "MARKETING_MANAGEMENT" &&
+              "Marketing Management"}
+            {course === "BSBA" &&
+              major === "HUMAN_RESOURCE_MANAGEMENT" &&
+              "Human Resource Management"}
             <span className="text-right">
               <Link href="/printChecklist">
                 <Printer />
@@ -192,7 +198,7 @@ const Checklist = () => {
       </Card>
 
       {selectedYear && (
-        <Card className="m-4 mt-0 sm:m-0">
+        <Card className="m-2 mt-2 sm:m-0">
           <CardHeader>
             <p className="text-lg font-semibold">Second Semester</p>
           </CardHeader>
