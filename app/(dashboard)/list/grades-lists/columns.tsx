@@ -140,8 +140,12 @@ export const columns: ColumnDef<Grades>[] = [
 
       return (
         <div className="flex items-center space-x-2">
-          <PreviewGrades studentNumber={student.studentNumber} firstName={student.firstName} lastName={student.lastName} />
-          <SelectToPrint   />
+          <PreviewGrades
+            studentNumber={student.studentNumber}
+            firstName={student.firstName}
+            lastName={student.lastName}
+          />
+          <SelectToPrint studentId={student.id} />
         </div>
       );
     },

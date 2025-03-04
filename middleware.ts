@@ -22,7 +22,6 @@ export default clerkMiddleware(async (auth, req) => {
       return NextResponse.redirect(new URL(`/${role}`, req.url));
     }
   }
-  // rest of your code
 });
 
 export const config = {

@@ -11,7 +11,7 @@ import {
   DialogTitle,
   DialogTrigger,
 } from "@/components/ui/dialog";
-import { EyeIcon } from "lucide-react";
+import { EyeIcon, PencilIcon } from "lucide-react";
 
 import {
   Select,
@@ -203,7 +203,10 @@ export function PreviewGrades({
             )}
           {grades.length > 0 && (
             <Table>
-              <TableCaption>Student Grades</TableCaption>
+              <TableCaption>
+                Grades of {firstName} {lastName} for{" "}
+                {academicYear.replaceAll("_", "-")} {semester} SEMESTER
+              </TableCaption>
               <TableHeader>
                 <TableRow>
                   <TableHead className="text-sm">Course Code</TableHead>
@@ -229,6 +232,11 @@ export function PreviewGrades({
                     </TableCell>
                     <TableCell>{grade.remarks || "-"}</TableCell>
                     <TableCell>{grade.instructor}</TableCell>
+                    <TableCell>
+                      <Button>
+                        <PencilIcon className="w-4 h-4" />
+                      </Button>
+                    </TableCell>
                   </TableRow>
                 ))}
               </TableBody>

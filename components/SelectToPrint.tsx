@@ -23,8 +23,12 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { PrinterIcon } from "lucide-react";
 import Link from "next/link";
+// Define the props for SelectToPrint including studentId
+export type SelectToPrintProps = {
+  studentId: string;
+};
 
-export function SelectToPrint() {
+export function SelectToPrint({ studentId }: SelectToPrintProps) {
   const [academicYear, setAcademicYear] = React.useState("");
   const [semester, setSemester] = React.useState("");
   const [yearLevel, setYearLevel] = React.useState("");
@@ -44,10 +48,9 @@ export function SelectToPrint() {
             <DialogDescription>Print student grades.</DialogDescription>
           </DialogHeader>
           <div className="grid gap-4 py-4">
+            {/* Your selection fields for academicYear, semester, yearLevel, and purpose */}
             <div className="grid grid-cols-4 items-center gap-4">
-              <Label htmlFor="name" className="text-right">
-                Academic Year
-              </Label>
+              <Label className="text-right">Academic Year</Label>
               <Select onValueChange={(value) => setAcademicYear(value)}>
                 <SelectTrigger className="w-[180px]">
                   <SelectValue placeholder="Select Academic Year" />
@@ -58,9 +61,7 @@ export function SelectToPrint() {
               </Select>
             </div>
             <div className="grid grid-cols-4 items-center gap-4">
-              <Label htmlFor="username" className="text-right">
-                Semester
-              </Label>
+              <Label className="text-right">Semester</Label>
               <Select onValueChange={(value) => setSemester(value)}>
                 <SelectTrigger className="w-[180px]">
                   <SelectValue placeholder="Select Semester" />
@@ -73,9 +74,7 @@ export function SelectToPrint() {
               </Select>
             </div>
             <div className="grid grid-cols-4 items-center gap-4">
-              <Label htmlFor="username" className="text-right">
-                Year Level
-              </Label>
+              <Label className="text-right">Year Level</Label>
               <Select onValueChange={(value) => setYearLevel(value)}>
                 <SelectTrigger className="w-[180px]">
                   <SelectValue placeholder="Select Year Level" />
@@ -89,12 +88,9 @@ export function SelectToPrint() {
               </Select>
             </div>
             <div className="grid grid-cols-4 items-center gap-4">
-              <Label htmlFor="username" className="text-right">
-                Purpose
-              </Label>
+              <Label className="text-right">Purpose</Label>
               <Input
                 id="purpose"
-                defaultValue=""
                 className="w-[180px] text-sm"
                 placeholder="Enter purpose"
                 onChange={(e) => setPurpose(e.target.value)}
@@ -102,19 +98,18 @@ export function SelectToPrint() {
             </div>
           </div>
           <DialogFooter>
-            {/* Only enable the button when both values are selected */}
             <Button
               className="w-[120px] mt-7"
-              disabled={!academicYear || !semester || !yearLevel || !purpose}
+              disabled={
+                !academicYear ||
+                !semester ||
+                !yearLevel ||
+                !purpose ||
+                !studentId
+              }
             >
               <Link
-                href={`/printgrades-list?academicYear=${encodeURIComponent(
-                  academicYear
-                )}&semester=${encodeURIComponent(
-                  semester
-                )}&yearLevel=${encodeURIComponent(
-                  yearLevel
-                )}&purpose=${encodeURIComponent(purpose)}`}
+                href={`/printgrades-list?academicYear=${academicYear}&semester=${semester}&yearLevel=${yearLevel}&purpose=${purpose}&studentId=${studentId}`}
               >
                 Print Grades
               </Link>

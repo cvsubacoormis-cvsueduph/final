@@ -31,7 +31,7 @@ interface Student {
   grades: Grade[];
 }
 
-export default function PrintGrades() {
+export default function PrintGradesList() {
   const router = useRouter();
   const searchParams = useSearchParams();
 
@@ -40,15 +40,15 @@ export default function PrintGrades() {
   const semester = searchParams.get("semester");
   const yearLevel = searchParams.get("yearLevel");
   const purpose = searchParams.get("purpose");
+  const studentId = searchParams.get("studentId");
 
   const [studentData, setStudentData] = useState<Student | null>(null);
 
   useEffect(() => {
     async function fetchData() {
       try {
-        // Pass the selected academicYear and semester as query parameters to your API
         const res = await fetch(
-          `/api/fetch-to-print-grades?academicYear=${academicYear}&semester=${semester}&yearLevel=${yearLevel}`
+          `/api/fetch-to-print-grades?academicYear=${academicYear}&semester=${semester}&yearLevel=${yearLevel}&studentId=${studentId}`
         );
         if (!res.ok) {
           console.error("Failed to fetch data");
@@ -61,7 +61,7 @@ export default function PrintGrades() {
       }
     }
     fetchData();
-  }, [academicYear, semester, yearLevel]);
+  }, [academicYear, semester, yearLevel, studentId]);
 
   useEffect(() => {
     if (studentData) {
@@ -165,7 +165,7 @@ export default function PrintGrades() {
               Academic Year:
             </p>
             <p className="col-span-2 mt-2 text-xs italic font-bold text-blue-900">
-              {semester}-SEM {" "}{academicYear?.replace(/_/g, "-")}
+              {semester}-SEM {academicYear?.replace(/_/g, "-")}
             </p>
             <p className="font-semibold mt-2 text-xs text-red-600">Date:</p>
             <p className="col-span-2 mt-2 text-xs italic font-bold text-blue-900">

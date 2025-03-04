@@ -1,5 +1,3 @@
-
-
 type RouteAccessMap = {
   [key: string]: string[];
 };
@@ -19,10 +17,9 @@ export const routeAccessMap: RouteAccessMap = {
   "/list/profile(.*)": ["student"],
   "/list/registration(.*)": ["student"],
   "/list/settings(.*)": ["student"],
-  "/list/uploading(.*)": ["admin","superuser"],
+  "/list/uploading(.*)": ["admin", "superuser"],
   "/list/adminprofile(.*)": ["admin", "superuser"],
   "/printChecklist(.*)": ["student"],
-  "/printgrades(.*)": ["student",],
-  "/printgrades-list(.*)": ["admin"],
+  "/printgrades(.*)": ["student", "admin", "superuser"],
+  "/printgrades-list(.*)": ["admin", "superuser"],
 };
-
