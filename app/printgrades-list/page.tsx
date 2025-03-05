@@ -71,13 +71,15 @@ export default function PrintGradesList() {
         "@media print { body { -webkit-print-color-adjust: exact; print-color-adjust: exact; } }";
       document.head.appendChild(style);
 
-      window.print();
-      const handleAfterPrint = () => {
-        router.back();
-        window.removeEventListener("afterprint", handleAfterPrint);
-        document.head.removeChild(style);
-      };
-      window.addEventListener("afterprint", handleAfterPrint);
+      setTimeout(() => {
+        window.print();
+        const handleAfterPrint = () => {
+          router.back();
+          window.removeEventListener("afterprint", handleAfterPrint);
+          document.head.removeChild(style);
+        };
+        window.addEventListener("afterprint", handleAfterPrint);
+      }, 1500);
     }
   }, [studentData, router]);
 

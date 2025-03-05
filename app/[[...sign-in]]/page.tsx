@@ -73,7 +73,7 @@ const Homepage = () => {
               <h1 className="text-3xl font-bold text-black-700">
                 Student Portal
               </h1>
-            </div>-
+            </div>
             <Clerk.GlobalError className="block text-sm text-red-400" />
 
             <div className="mb-4">
@@ -126,7 +126,6 @@ const Homepage = () => {
             </SignIn.Action>
           </SignIn.Step>
         </SignIn.Root>
-
         <AlertDialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
           <AlertDialogContent className="max-w-lg w-full bg-white p-6 rounded-lg shadow-lg max-h-[90vh] overflow-y-auto">
             <AlertDialogHeader>

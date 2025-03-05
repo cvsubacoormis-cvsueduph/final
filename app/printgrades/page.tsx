@@ -70,14 +70,15 @@ export default function PrintGrades() {
       style.innerHTML =
         "@media print { body { -webkit-print-color-adjust: exact; print-color-adjust: exact; } }";
       document.head.appendChild(style);
-
-      window.print();
-      const handleAfterPrint = () => {
-        router.back();
-        window.removeEventListener("afterprint", handleAfterPrint);
-        document.head.removeChild(style);
-      };
-      window.addEventListener("afterprint", handleAfterPrint);
+      setTimeout(() => {
+        window.print();
+        const handleAfterPrint = () => {
+          router.back();
+          window.removeEventListener("afterprint", handleAfterPrint);
+          document.head.removeChild(style);
+        };
+        window.addEventListener("afterprint", handleAfterPrint);
+      }, 1500);
     }
   }, [studentData, router]);
 
@@ -165,7 +166,7 @@ export default function PrintGrades() {
               Academic Year:
             </p>
             <p className="col-span-2 mt-2 text-xs italic font-bold text-blue-900">
-              {semester}-SEM {" "}{academicYear?.replace(/_/g, "-")}
+              {semester}-SEM {academicYear?.replace(/_/g, "-")}
             </p>
             <p className="font-semibold mt-2 text-xs text-red-600">Date:</p>
             <p className="col-span-2 mt-2 text-xs italic font-bold text-blue-900">
