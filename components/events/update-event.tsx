@@ -56,7 +56,7 @@ export default function UpdateEvent({ event }: { event: Event }) {
     <div className="sm:max-w-3xl lg:max-w-5xl">
       <Dialog open={isDialogOpen} onOpenChange={setDialogOpen}>
         <DialogTrigger asChild>
-          <Button className="bg-blue-500 hover:bg-blue-700">
+          <Button>
             <PencilIcon />
             Edit
           </Button>

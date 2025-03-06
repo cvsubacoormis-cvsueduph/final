@@ -4,6 +4,7 @@ import { Button } from "./ui/button";
 import toast from "react-hot-toast";
 import { mutate } from "swr";
 import Swal from "sweetalert2";
+import { Trash2 } from "lucide-react";
 
 export default function BulkDeleteStudent() {
   const [isLoading, setIsLoading] = useState(false);
@@ -36,11 +37,8 @@ export default function BulkDeleteStudent() {
   };
 
   return (
-    <Button
-      onClick={handleBulkDelete}
-      className="bg-lamaYellow rounded-full hover:bg-lamaYellow/90 text-gray-600"
-      disabled={isLoading}
-    >
+    <Button onClick={handleBulkDelete} className="" disabled={isLoading}>
+      <Trash2 />
       {isLoading ? "Deleting..." : "Delete All"}
     </Button>
   );

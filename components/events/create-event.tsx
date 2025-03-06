@@ -18,6 +18,7 @@ import { useState } from "react";
 import { mutate } from "swr";
 import toast from "react-hot-toast";
 import EventForm from "../forms/events-form";
+import { PlusCircleIcon } from "lucide-react";
 
 export default function CreateEvents() {
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -69,8 +70,8 @@ export default function CreateEvents() {
     <div className="sm:max-w-3xl lg:max-w-5xl">
       <Dialog open={DialogOpen} onOpenChange={setDialogOpen}>
         <DialogTrigger asChild>
-          <Button className="bg-lamaYellow rounded-full hover:bg-lamaYellow/90 text-gray-600">
-            Create
+          <Button className="">
+            <PlusCircleIcon className="mr-2 h-4 w-4" /> Create
           </Button>
         </DialogTrigger>
         <DialogContent className="space-y-6 px-6 py-4 lg:px-8 lg:py-6">
@@ -85,7 +86,12 @@ export default function CreateEvents() {
           {errorMessage && (
             <div className="text-red-500 text-sm mb-4">{errorMessage}</div>
           )}
-          <EventForm defaultValues={form.getValues()} onSubmit={onSubmit} isSubmitting={isSubmitting} submitButtonText="Create Event" />
+          <EventForm
+            defaultValues={form.getValues()}
+            onSubmit={onSubmit}
+            isSubmitting={isSubmitting}
+            submitButtonText="Create Event"
+          />
         </DialogContent>
       </Dialog>
     </div>

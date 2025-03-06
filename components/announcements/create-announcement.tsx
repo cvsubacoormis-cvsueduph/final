@@ -10,7 +10,10 @@ import {
   DialogTrigger,
 } from "@/components/ui/dialog";
 
-import { announcementSchema, AnnouncementSchema } from "@/lib/formValidationSchemas";
+import {
+  announcementSchema,
+  AnnouncementSchema,
+} from "@/lib/formValidationSchemas";
 
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
@@ -18,6 +21,7 @@ import { useState } from "react";
 import { mutate } from "swr";
 import toast from "react-hot-toast";
 import AnnouncementsForm from "../forms/announcements-form";
+import { PlusCircleIcon } from "lucide-react";
 
 export default function CreateAnnouncements() {
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -47,7 +51,9 @@ export default function CreateAnnouncements() {
       const responseData = await response.json();
 
       if (!response.ok) {
-        throw new Error(responseData.message || "Failed to create announcements");
+        throw new Error(
+          responseData.message || "Failed to create announcements"
+        );
       }
       form.reset();
       setDialogOpen(false);
@@ -68,8 +74,8 @@ export default function CreateAnnouncements() {
     <div className="sm:max-w-3xl lg:max-w-5xl">
       <Dialog open={DialogOpen} onOpenChange={setDialogOpen}>
         <DialogTrigger asChild>
-          <Button className="bg-lamaYellow rounded-full hover:bg-lamaYellow/90 text-gray-600">
-            Create
+          <Button className="">
+            <PlusCircleIcon className="mr-2 h-4 w-4" /> Create
           </Button>
         </DialogTrigger>
         <DialogContent className="space-y-6 px-6 py-4 lg:px-8 lg:py-6">
@@ -84,7 +90,12 @@ export default function CreateAnnouncements() {
           {errorMessage && (
             <div className="text-red-500 text-sm mb-4">{errorMessage}</div>
           )}
-          <AnnouncementsForm defaultValues={form.getValues()} onSubmit={onSubmit} isSubmitting={isSubmitting} submitButtonText="Create Announcements" />
+          <AnnouncementsForm
+            defaultValues={form.getValues()}
+            onSubmit={onSubmit}
+            isSubmitting={isSubmitting}
+            submitButtonText="Create Announcements"
+          />
         </DialogContent>
       </Dialog>
     </div>

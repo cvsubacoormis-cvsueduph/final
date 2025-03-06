@@ -18,7 +18,11 @@ import { PencilIcon } from "lucide-react";
 import toast from "react-hot-toast";
 import AnnouncementsForm from "../forms/announcements-form";
 
-export default function UpdateAnnouncements({ announcement }: { announcement: Announcement }) {
+export default function UpdateAnnouncements({
+  announcement,
+}: {
+  announcement: Announcement;
+}) {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [errorMessage, setErrorMessage] = useState("");
   const [isDialogOpen, setDialogOpen] = useState(false);
@@ -35,7 +39,9 @@ export default function UpdateAnnouncements({ announcement }: { announcement: An
       });
       const responseData = await response.json();
       if (!response.ok) {
-        throw new Error(responseData.message || "Failed to update announcement");
+        throw new Error(
+          responseData.message || "Failed to update announcement"
+        );
       }
 
       setErrorMessage("");
@@ -56,7 +62,7 @@ export default function UpdateAnnouncements({ announcement }: { announcement: An
     <div className="sm:max-w-3xl lg:max-w-5xl">
       <Dialog open={isDialogOpen} onOpenChange={setDialogOpen}>
         <DialogTrigger asChild>
-          <Button className="bg-blue-500 hover:bg-blue-700">
+          <Button>
             <PencilIcon />
             Edit
           </Button>

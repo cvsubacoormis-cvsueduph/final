@@ -264,7 +264,7 @@ export default function UploadGradesPreview() {
         onClick={handleUpload}
         disabled={isUploading || isParsing}
         className={`p-2 text-white rounded ${
-          isUploading ? "bg-gray-500" : "bg-blue-500 text-sm hover:bg-blue-700"
+          isUploading ? "bg-gray-500" : "bg-gray-800 text-sm hover:bg-gray-700"
         }`}
       >
         {isUploading ? "Uploading..." : "Upload Grades"}
@@ -274,7 +274,7 @@ export default function UploadGradesPreview() {
         <div className="mt-4">
           <div className="relative h-4 w-full bg-gray-300 rounded">
             <div
-              className="absolute top-0 left-0 h-full bg-blue-500 rounded"
+              className="absolute top-0 left-0 h-full bg-slate-950 rounded"
               style={{ width: `${progress}%` }}
             />
           </div>

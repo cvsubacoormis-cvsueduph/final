@@ -18,7 +18,7 @@ export default function PaginationStudents() {
             <PaginationPrevious href="#" />
           </PaginationItem>
           <PaginationItem>
-              <PaginationLink>1</PaginationLink>
+            <PaginationLink>1</PaginationLink>
           </PaginationItem>
           <PaginationItem>
             <PaginationEllipsis />

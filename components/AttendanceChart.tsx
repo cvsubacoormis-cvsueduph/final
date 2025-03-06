@@ -22,7 +22,7 @@ import {
 const chartConfig = {
   desktop: {
     label: "Courses",
-    color: "hsl(var(--chart-2))",
+    color: "#36454F",
   },
 } satisfies ChartConfig;
 

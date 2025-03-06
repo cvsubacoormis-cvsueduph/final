@@ -83,7 +83,7 @@ export default function EventCalendar() {
             <div className="flex flex-col gap-4">
               {events.map((event) => (
                 <div
-                  className="p-5 rounded-md border-2 border-gray-100 border-t-4 odd:border-t-lamaSky even:border-t-lamaPurple transition-shadow duration-200 ease-in-out"
+                  className="p-5 rounded-md border-2 border-gray-100 border-t-4 odd:border-t-gray-700 even:border-t-gray-700 transition-shadow duration-200 ease-in-out"
                   key={event.id}
                 >
                   <div className="flex items-center justify-between">
@@ -111,7 +111,7 @@ export default function EventCalendar() {
         <div className="flex flex-col gap-4">
           {events.map((event) => (
             <div
-              className="p-5 rounded-md border-2 border-gray-100 border-t-4 odd:border-t-lamaSky even:border-t-lamaPurple"
+              className="p-5 rounded-md border-2 border-gray-100 border-t-4 odd:border-t-gray-700 even:border-t-gray-700 transition-shadow duration-200 ease-in-out"
               key={event.id}
             >
               <div className="flex items-center justify-between">

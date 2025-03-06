@@ -18,6 +18,7 @@ import { useState } from "react";
 import { mutate } from "swr";
 import toast from "react-hot-toast";
 import StudentForm from "../forms/student-form";
+import { PlusCircleIcon } from "lucide-react";
 
 export default function CreateStudents() {
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -78,8 +79,8 @@ export default function CreateStudents() {
     <div className="sm:max-w-3xl lg:max-w-5xl">
       <Dialog open={DialogOpen} onOpenChange={setDialogOpen}>
         <DialogTrigger asChild>
-          <Button className="bg-lamaYellow rounded-full hover:bg-lamaYellow/90 text-gray-600">
-            Create
+          <Button>
+            <PlusCircleIcon /> Create
           </Button>
         </DialogTrigger>
         <DialogContent className="space-y-6 px-6 py-4 lg:px-8 lg:py-6">
@@ -94,7 +95,12 @@ export default function CreateStudents() {
           {errorMessage && (
             <div className="text-red-500 text-sm mb-4">{errorMessage}</div>
           )}
-          <StudentForm defaultValues={form.getValues()} onSubmit={onSubmit} submitButtonText="Create" isSubmitting={isSubmitting} />
+          <StudentForm
+            defaultValues={form.getValues()}
+            onSubmit={onSubmit}
+            submitButtonText="Create"
+            isSubmitting={isSubmitting}
+          />
         </DialogContent>
       </Dialog>
     </div>

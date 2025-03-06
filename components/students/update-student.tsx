@@ -57,7 +57,7 @@ export default function UpdateStudent({ student }: { student: Student }) {
     <div className="sm:max-w-3xl lg:max-w-5xl">
       <Dialog open={isDialogOpen} onOpenChange={setDialogOpen}>
         <DialogTrigger asChild>
-          <Button className="bg-blue-500 hover:bg-blue-700">
+          <Button>
             <PencilIcon />
             Edit
           </Button>

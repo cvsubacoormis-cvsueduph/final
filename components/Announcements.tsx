@@ -62,7 +62,7 @@ export default function Announcements() {
               {announcements.length > 0 ? (
                 announcements.map((item) => (
                   <div
-                    className="p-5 bg-lamaSkyLight rounded-lg border border-gray-200 shadow-sm hover:shadow-md transition-shadow duration-200 ease-in-out"
+                    className="p-5 bg-gray-100 rounded-lg border border-gray-200 shadow-sm hover:shadow-md transition-shadow duration-200 ease-in-out"
                     key={item.id}
                   >
                     <div className="flex items-center justify-between">
@@ -95,7 +95,7 @@ export default function Announcements() {
           announcements.slice(0, 3).map((item) => (
             <div
               key={item.id}
-              className="bg-lamaSkyLight rounded-md p-4 shadow-sm"
+              className="bg-gray-100 rounded-md p-4 shadow-sm"
             >
               <div className="flex items-center justify-between">
                 <h2 className="font-medium">{item.title}</h2>
@@ -103,7 +103,7 @@ export default function Announcements() {
                   {item.date}
                 </span>
               </div>
-              <p className="text-sm text-gray-400 mt-1">{item.description}</p>
+              <p className="text-sm text-gray-600 mt-1">{item.description}</p>
             </div>
           ))
         ) : (

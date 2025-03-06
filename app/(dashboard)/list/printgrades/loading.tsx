@@ -1,12 +1,12 @@
 "use client";
 import React from "react";
-import { SyncLoader } from "react-spinners";
+import { HashLoader } from "react-spinners";
 
 export default function loading() {
   return (
     <div>
       <div className="flex items-center justify-center h-screen">
-        <SyncLoader color="#111542" size={15} />
+        <HashLoader color="#111542" size={150} />
       </div>
     </div>
   );

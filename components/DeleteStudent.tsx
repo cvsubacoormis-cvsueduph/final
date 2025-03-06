@@ -31,7 +31,7 @@ export default function DeleteStudent({ id }: { id: string }) {
     }
   };
   return (
-    <Button onClick={handleDelete} variant="destructive" className="hover:bg-red-600">
+    <Button onClick={handleDelete}>
       <TrashIcon className="mr-2 h-4 w-4" />
       Delete
     </Button>

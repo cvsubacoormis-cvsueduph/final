@@ -29,7 +29,7 @@ export default function DeleteEvent({ id }: { id: number }) {
     }
   };
   return (
-    <Button onClick={handleDelete} variant="destructive" className="hover:bg-red-600">
+    <Button onClick={handleDelete} className="">
       <TrashIcon className="mr-2 h-4 w-4" />
       Delete
     </Button>

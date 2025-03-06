@@ -28,9 +28,11 @@ export default function UserCard({ type }: { type: string }) {
   }, [type]);
 
   return (
-    <div className="rounded-2xl odd:bg-blue-200 even:bg-lamaYellow p-4 flex-1 min-w-[130px]">
+    <div
+      className="rounded-2xl border border-gray-200 bg-white p-4 flex-1 min-w-[130px]"
+    >
       <div className="flex justify-between items-center">
-        <span className="text-[10px] bg-white px-2 py-1 rounded-full text-green-600">
+        <span className="text-[10px] bg-white px-2 py-1 rounded-full text-gray-600">
           {`${new Date().getFullYear()}/${new Date().getFullYear() + 1}`}
         </span>
       </div>
@@ -40,8 +42,7 @@ export default function UserCard({ type }: { type: string }) {
           {total !== null ? total : ""}
         </h1>
       </div>
-      <h2 className="capitalize text-sm font-medium text-gray-500">{type}s</h2>
+      <h2 className="capitalize text-sm font-medium text-gray-700">{type}s</h2>
     </div>
   );
 }
-

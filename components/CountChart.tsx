@@ -24,11 +24,11 @@ import { SyncLoader } from "react-spinners";
 const chartConfig = {
   male: {
     label: "Male",
-    color: "hsl(var(--chart-1))",
+    color: "rgb(55, 65, 81)",
   },
   female: {
     label: "Female",
-    color: "hsl(var(--chart-2))",
+    color: "rgb(107, 114, 128)",
   },
 } satisfies ChartConfig;
 
@@ -47,11 +47,11 @@ export default function AdminPage() {
 
         const data = await response.json();
         setChartData([
-          { sex: "MALE", count: data.maleCount, fill: "hsl(var(--chart-3))" },
+          { sex: "MALE", count: data.maleCount, fill: "rgb(55, 65, 81)" },
           {
             sex: "FEMALE",
             count: data.femaleCount,
-            fill: "hsl(var(--chart-2))",
+            fill: "rgb(107, 114, 128)",
           },
         ]);
         setTotalVisitors(data.total);

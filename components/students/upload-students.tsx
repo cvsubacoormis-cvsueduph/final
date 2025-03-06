@@ -16,6 +16,7 @@ import { mutate } from "swr";
 import { useState } from "react";
 import { StudentSchema } from "@/lib/formValidationSchemas";
 import { Student } from "@prisma/client";
+import { UploadCloudIcon } from "lucide-react";
 
 export default function UploadStudents() {
   const [file, setFile] = useState<File | null>(null);
@@ -93,7 +94,8 @@ export default function UploadStudents() {
     <div className="sm:max-w-3xl lg:max-w-5xl">
       <Dialog open={DialogOpen} onOpenChange={setDialogOpen}>
         <DialogTrigger asChild>
-          <Button className="bg-lamaYellow rounded-full hover:bg-lamaYellow/90 text-gray-600">
+          <Button>
+            <UploadCloudIcon />
             Upload
           </Button>
         </DialogTrigger>
