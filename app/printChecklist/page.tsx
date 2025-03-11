@@ -2,30 +2,32 @@
 
 import { CSchecklistData } from "@/lib/data";
 import Image from "next/image";
-import router from "next/router";
 import React, { useEffect } from "react";
 import { useUser } from "@clerk/nextjs";
+import { useRouter } from "next/navigation";
 
 export default function PrintChecklist() {
   const { user } = useUser();
   const course = user?.publicMetadata.course;
   const major = user?.publicMetadata.major;
+  const router = useRouter();
 
   useEffect(() => {
     const handlePrint = () => {
-      window.print();
-
       // Add a listener to handle navigation after printing
-      const handleAfterPrint = () => {
-        router.back();
-        window.removeEventListener("afterprint", handleAfterPrint); // Cleanup
-      };
+      setTimeout(() => {
+        window.print();
+        const handleAfterPrint = () => {
+          router.back();
+          window.removeEventListener("afterprint", handleAfterPrint); // Cleanup
+        };
 
-      window.addEventListener("afterprint", handleAfterPrint);
+        window.addEventListener("afterprint", handleAfterPrint);
+      }, 1500);
     };
 
     handlePrint();
-  }, []);
+  }, [router]);
 
   const hasMidYear = (yearLevel: string) => {
     return CSchecklistData.some(
@@ -89,7 +91,7 @@ export default function PrintChecklist() {
                 <span>Major in English</span>
               </p>
             )}
-             {course === "BSED" && major === "MATH" && (
+            {course === "BSED" && major === "MATH" && (
               <p className="font-semibold text-[12px] uppercase">
                 BACHELOR OF SCIENCE IN SECONDARY EDUCATION
                 <span>Major in Mathematics</span>
