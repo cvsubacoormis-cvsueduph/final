@@ -13,10 +13,14 @@ import { Progress } from "@/components/ui/progress";
 import { Separator } from "@/components/ui/separator";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { auth } from "@clerk/nextjs/server";
+import { formatDistanceToNowStrict } from "date-fns";
 import prisma from "@/lib/prisma";
 import { courseMap, formatMajor } from "@/lib/courses";
+import { currentUser } from "@clerk/nextjs/server";
 
 export default async function StudentProfile() {
+  const user = await currentUser();
+
   const authResult = await auth();
   const { userId } = authResult;
 
@@ -27,6 +31,8 @@ export default async function StudentProfile() {
   const student = await prisma.student.findUnique({
     where: { id: userId },
   });
+
+  const announcement = await prisma.announcement.findMany();
 
   if (!student) {
     return <div>Student not found</div>;
@@ -39,11 +45,11 @@ export default async function StudentProfile() {
           <Card>
             <CardContent className="p-6 flex flex-col items-center text-center">
               <Avatar className="h-24 w-24 border-4 border-background">
-                <AvatarImage
-                  src="/placeholder.svg?height=96&width=96"
-                  alt="Student"
-                />
-                <AvatarFallback>JD</AvatarFallback>
+                <AvatarImage src={user?.imageUrl ?? ""} alt="Student" />
+                <AvatarFallback>
+                  [{student.firstName[0]}
+                  {student.lastName[0]}]
+                </AvatarFallback>
               </Avatar>
               <h2 className="text-2xl font-bold mt-4">
                 {student.firstName} {student.lastName}
@@ -121,41 +127,22 @@ export default async function StudentProfile() {
                 </CardHeader>
                 <CardContent>
                   <ul className="space-y-4">
-                    <li className="flex items-start">
-                      <div className="mr-4 mt-1">
-                        <FileText className="h-5 w-5 text-muted-foreground" />
-                      </div>
-                      <div>
-                        <p className="font-medium">Campus Career Fair</p>
-                        <p className="text-sm text-muted-foreground">
-                          Posted 2 days ago
-                        </p>
-                      </div>
-                    </li>
-                    <li className="flex items-start">
-                      <div className="mr-4 mt-1">
-                        <FileText className="h-5 w-5 text-muted-foreground" />
-                      </div>
-                      <div>
-                        <p className="font-medium">Library Hours Extended</p>
-                        <p className="text-sm text-muted-foreground">
-                          Posted 4 days ago
-                        </p>
-                      </div>
-                    </li>
-                    <li className="flex items-start">
-                      <div className="mr-4 mt-1">
-                        <FileText className="h-5 w-5 text-muted-foreground" />
-                      </div>
-                      <div>
-                        <p className="font-medium">
-                          Registration for Spring 2024
-                        </p>
-                        <p className="text-sm text-muted-foreground">
-                          Posted 1 week ago
-                        </p>
-                      </div>
-                    </li>
+                    {announcement.map((announcement) => (
+                      <li key={announcement.id} className="flex items-start">
+                        <div className="mr-4 mt-1">
+                          <FileText className="h-5 w-5 text-muted-foreground" />
+                        </div>
+                        <div>
+                          <p className="font-medium">{announcement.title}</p>
+                          <p className="text-sm text-muted-foreground">
+                            Posted{" "}
+                            {formatDistanceToNowStrict(
+                              new Date(announcement.createdAt)
+                            )}
+                          </p>
+                        </div>
+                      </li>
+                    ))}
                   </ul>
                 </CardContent>
               </Card>

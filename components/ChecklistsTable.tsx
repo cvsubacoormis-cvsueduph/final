@@ -25,6 +25,7 @@ import {
 import { Printer } from "lucide-react";
 import Link from "next/link";
 import { useUser } from "@clerk/nextjs";
+import { courseMap, formatMajor } from "@/lib/courses";
 
 const Checklist = () => {
   const [selectedYear, setSelectedYear] = useState<string>("First Year");
@@ -109,23 +110,7 @@ const Checklist = () => {
       <Card className="m-4 mt-5 sm:m-3">
         <CardHeader>
           <h1 className="text-xl font-semibold flex justify-between">
-            {course === "BSCRIM" && "Criminology"}
-            {course === "BSIT" && "Information Technology"}
-            {course === "BSCS" && "Computer Science"}
-            {course === "BSHM" && "Hospitality Management"}
-            {course === "BSED" &&
-              major === "ENGLISH" &&
-              "Secondary Education Major in English"}
-            {course === "BSED" &&
-              major === "MATH" &&
-              "Secondary Education Major in Math"}
-            {course === "BSP" && "Psychology"}
-            {course === "BSBA" &&
-              major === "MARKETING_MANAGEMENT" &&
-              "Marketing Management"}
-            {course === "BSBA" &&
-              major === "HUMAN_RESOURCE_MANAGEMENT" &&
-              "Human Resource Management"}
+            {courseMap(course)} {formatMajor(major ?? "")}
             <span className="text-right">
               <Link href="/printChecklist">
                 <Printer />

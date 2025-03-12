@@ -1,22 +1,22 @@
 export function courseMap(courseAbbreviation: string) {
   switch (courseAbbreviation) {
     case "BSBA":
-      return "Bachelor of Science of Business Administration";
+      return "Bachelor of Science in Business Administration";
       break;
     case "BSCS":
-      return "Bachelor of Science of Computer Science";
+      return "Bachelor of Science in Computer Science";
       break;
     case "BSHM":
-      return "Bachelor of Science of Hospitality Management";
+      return "Bachelor of Science in Hospitality Management";
       break;
     case "BSIT":
-      return "Bachelor of Science of Information Technology";
+      return "Bachelor of Science in Information Technology";
       break;
     case "BSP":
-      return "Bachelor of Science of Psychology";
+      return "Bachelor of Science in Psychology";
       break;
     case "BSCRIM":
-      return "Bachelor of Science of Criminology";
+      return "Bachelor of Science in Criminology";
       break;
     case "BSED":
       return "Bachelor of Secondary Education";
