@@ -1,6 +1,7 @@
 "use client";
 
 import DataPrivacy from "@/components/DataPrivacy";
+import DataPrivacyEmployee from "@/components/DataPrivacyEmployee";
 import {
   AlertDialogContent,
   AlertDialogHeader,
@@ -22,6 +23,8 @@ const Homepage = () => {
 
   const { user } = useUser();
   const router = useRouter();
+
+  const role = user?.publicMetadata.role;
 
   useEffect(() => {
     if (user && !hasAgreedToPrivacy) {
@@ -133,7 +136,7 @@ const Homepage = () => {
                 Data Privacy Policy
               </AlertDialogTitle>
             </AlertDialogHeader>
-            <DataPrivacy />
+            {role === "admin" ? <DataPrivacyEmployee /> : <DataPrivacy />}
             <Button
               className="w-full bg-blue-600 hover:bg-blue-500"
               onClick={() => {
