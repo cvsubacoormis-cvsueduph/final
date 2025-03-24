@@ -59,8 +59,6 @@ export default function UploadGradesPreview() {
       const sheetName = workbook.SheetNames[0];
       const worksheet = workbook.Sheets[sheetName];
       const json: any[] = XLSX.utils.sheet_to_json(worksheet);
-
-      // Ensure all rows have a default value for reExam
       const transformedData = json.map((row) => ({
         ...row,
         reExam:
@@ -168,7 +166,10 @@ export default function UploadGradesPreview() {
 
   return (
     <div className="bg-white p-4 rounded-md flex-1 m-4 mt-0">
-      <h1 className="text-lg font-semibold mb-4">Upload Grades</h1>
+      <h1 className="text-lg font-semibold mb-4">
+        Upload Grades <span>(Excel Format Only)</span>{" "}<br />
+        <span className="text-xs text-gray-500">Upload your grades here</span>
+      </h1>
       <div className="flex flex-col gap-4 mb-4">
         <Input
           type="file"
