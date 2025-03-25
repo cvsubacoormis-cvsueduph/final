@@ -1,7 +1,4 @@
 import React from "react";
-import { cn } from "@/lib/utils";
-import { Input } from "./ui/input";
-import { Label } from "./ui/label";
 import Link from "next/link";
 import DataPrivacy from "@/components/DataPrivacy";
 import DataPrivacyEmployee from "@/components/DataPrivacyEmployee";
@@ -17,6 +14,7 @@ import { useUser } from "@clerk/nextjs";
 import { AlertDialog } from "@radix-ui/react-alert-dialog";
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
+import { MoonLoader } from "react-spinners";
 
 export default function LoginForm({
   className,
@@ -29,6 +27,7 @@ export default function LoginForm({
   const router = useRouter();
 
   const role = user?.publicMetadata.role;
+  const [isLoading, setIsLoading] = useState(false);
 
   useEffect(() => {
     if (user && !hasAgreedToPrivacy) {
@@ -74,7 +73,7 @@ export default function LoginForm({
                   id="email"
                   type="text"
                   placeholder="19010825name"
-                  className="text-[#4169E1] p-3 border border-blue-700 rounded-md text-sm"
+                  className="text-[#4169E1] p-3 border border-blue-700 rounded-md text-sm focus:border-blue-900 focus:outline-none focus:ring-0 focus:border-2"
                 />
                 <Clerk.FieldError className="block text-sm text-red-400" />
               </Clerk.Field>
@@ -93,16 +92,27 @@ export default function LoginForm({
                   id="password"
                   type="password"
                   placeholder="•••••••••••"
-                  className="text-[#4169E1] p-3 border border-blue-700 rounded-md text-sm"
+                  className="text-[#4169E1] p-3 border border-blue-700 rounded-md text-sm focus:border-blue-900 focus:outline-none focus:ring-0 focus:border-2"
                 />
                 <Clerk.FieldError className="block text-sm text-red-400" />
               </Clerk.Field>
             </div>
+            <div id="clerk-captcha" />
             <SignIn.Action
               submit
               className="w-full bg-[#4169E1] hover:bg-blue-700 p-2 rounded-md text-white"
             >
-              Login
+              <Clerk.Loading>
+                {(isLoading) =>
+                  isLoading ? (
+                    <div className="flex justify-center">
+                      <MoonLoader size={15} color="white" />
+                    </div>
+                  ) : (
+                    "Submit"
+                  )
+                }
+              </Clerk.Loading>
             </SignIn.Action>
             <a
               href="#"
@@ -130,7 +140,7 @@ export default function LoginForm({
               Data Privacy Policy
             </AlertDialogTitle>
           </AlertDialogHeader>
-          <DataPrivacy />
+          {(role === "student" && <DataPrivacy />) ?? <DataPrivacyEmployee />}
           <Button
             className="w-full bg-blue-600 hover:bg-blue-500"
             onClick={() => {

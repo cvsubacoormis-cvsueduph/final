@@ -1,23 +1,11 @@
 "use client";
 
-import DataPrivacy from "@/components/DataPrivacy";
-import DataPrivacyEmployee from "@/components/DataPrivacyEmployee";
 import LoginForm from "@/components/LoginForm";
-import {
-  AlertDialogContent,
-  AlertDialogHeader,
-  AlertDialogTitle,
-} from "@/components/ui/alert-dialog";
-import { Button } from "@/components/ui/button";
-import * as Clerk from "@clerk/elements/common";
-import * as SignIn from "@clerk/elements/sign-in";
 import { useUser } from "@clerk/nextjs";
-import { AlertDialog } from "@radix-ui/react-alert-dialog";
-import { GalleryVerticalEnd } from "lucide-react";
-import Image from "next/image";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
+import Image from "next/image";
 
 const Homepage = () => {
   const [isDialogOpen, setIsDialogOpen] = useState(false);
