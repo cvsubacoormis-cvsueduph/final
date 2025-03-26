@@ -1,10 +1,10 @@
 // TEMPORARY DATA
 
-export let role = "admin";
+export const role = "admin";
 
-export let selectedCourse = "BSCS";
+export const selectedCourse = "BSCS";
 
-export let major = "";
+export const major = "";
 
 export const teachersData = [
   {
