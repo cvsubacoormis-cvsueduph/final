@@ -140,7 +140,7 @@ export default function LoginForm({
               Data Privacy Policy
             </AlertDialogTitle>
           </AlertDialogHeader>
-          {(role === "student" && <DataPrivacy />) ?? <DataPrivacyEmployee />}
+          {role === "student" ? <DataPrivacy /> : <DataPrivacyEmployee />}
           <Button
             className="w-full bg-blue-600 hover:bg-blue-500"
             onClick={() => {

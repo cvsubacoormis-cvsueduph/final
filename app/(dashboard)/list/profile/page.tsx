@@ -69,7 +69,7 @@ export default async function StudentProfile() {
   return (
     <div className="bg-white p-4 rounded-md flex-1 m-4 mt-0">
       <h1 className="text-lg font-semibold">Student Profile</h1>
-      <p className="text-sm text-gray-500">
+      <p className="text-xs text-gray-500 font-semibold">
         View the student information and grades
       </p>
       <div className="container mx-auto py-6 px-4 md:px-6">

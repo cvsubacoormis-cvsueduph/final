@@ -1,6 +1,16 @@
 "use client";
 
-import { CSchecklistData } from "@/lib/data";
+import {
+  CSchecklistData,
+  ITchecklistData,
+  BMHRchecklistData,
+  BMMMchecklistData,
+  CRIMchecklistData,
+  BSEDENGData,
+  BSEDMATHchecklistData,
+  HMchecklistData,
+  PSYchecklistData,
+} from "@/lib/data";
 import Image from "next/image";
 import React, { useEffect } from "react";
 import { useUser } from "@clerk/nextjs";
@@ -12,14 +22,34 @@ export default function PrintChecklist() {
   const major = user?.publicMetadata.major;
   const router = useRouter();
 
+  const getChecklistData = () => {
+    if (course === "BSIT") return ITchecklistData;
+    if (course === "BSBA" && major === "HUMAN_RESOURCE_MANAGEMENT")
+      return BMHRchecklistData;
+    if (course === "BSBA" && major === "MARKETING_MANAGEMENT")
+      return BMMMchecklistData;
+    if (course === "BSCRIM") return CRIMchecklistData;
+
+    if (course === "BSCS") return CSchecklistData;
+
+    if (course === "BSED" && major === "ENGLISH") return BSEDENGData;
+
+    if (course === "BSED" && major === "MATH") return BSEDMATHchecklistData;
+
+    if (course === "BSHM") return HMchecklistData;
+
+    return PSYchecklistData;
+  };
+
+  const checklistData = getChecklistData();
+
   useEffect(() => {
     const handlePrint = () => {
-      // Add a listener to handle navigation after printing
       setTimeout(() => {
         window.print();
         const handleAfterPrint = () => {
           router.back();
-          window.removeEventListener("afterprint", handleAfterPrint); // Cleanup
+          window.removeEventListener("afterprint", handleAfterPrint);
         };
 
         window.addEventListener("afterprint", handleAfterPrint);
@@ -30,8 +60,10 @@ export default function PrintChecklist() {
   }, [router]);
 
   const hasMidYear = (yearLevel: string) => {
-    return CSchecklistData.some(
-      (item) => item.yearLevel === yearLevel && item.semester === "Mid-year"
+    return checklistData.some(
+      (item) =>
+        (item ?? {}).yearLevel === yearLevel &&
+        (item ?? {}).semester === "Mid-year"
     );
   };
 
@@ -41,7 +73,6 @@ export default function PrintChecklist() {
         id="checklist-container"
         className="pt-[10px] h-[2,480px] w-[3,508px]"
       >
-        {/* Headings */}
         <div className="flex items-center mb-2 justify-center">
           <Image src="/logo.png" alt="CSU Logo" width={50} height={50} />
           <div className="text-center ml-[10px]">
@@ -103,7 +134,6 @@ export default function PrintChecklist() {
           </div>
         </div>
 
-        {/* Student Info */}
         <table className="w-full mb-3">
           <tbody>
             <tr>
@@ -121,7 +151,6 @@ export default function PrintChecklist() {
           </tbody>
         </table>
 
-        {/* Courses Table */}
         <table className="border-collapse w-full">
           <thead>
             <tr>
@@ -208,40 +237,49 @@ export default function PrintChecklist() {
                           {semester}
                         </td>
                       </tr>
-                      {CSchecklistData.filter(
-                        (item) =>
-                          item.yearLevel === yearLevel &&
-                          item.semester === semester
-                      ).map((item) => (
-                        <tr key={item.id}>
-                          <td className="border border-black text-center text-[8px]">
-                            {item.courseCode}
-                          </td>
-                          <td className="border border-black text-[8px]">
-                            {item.courseTitle}
-                          </td>
-                          <td className="border border-black text-center text-[8px]">
-                            {item.creditUnit.lec}
-                          </td>
-                          <td className="border border-black text-center text-[8px]">
-                            {item.creditUnit.lab}
-                          </td>
-                          <td className="border border-black text-center text-[8px]">
-                            {item.contactHrs.lec}
-                          </td>
-                          <td className="border border-black text-center text-[8px]">
-                            {item.contactHrs.lab}
-                          </td>
-                          <td className="border border-black text-center text-[8px]">
-                            {item.preRequisite}
-                          </td>
-                          <td className="border border-black text-center text-[8px]"></td>
-                          <td className="border border-black text-center text-[8px]">
-                            {item.grade}
-                          </td>
-                          <td className="border border-black text-center text-[8px]"></td>
-                        </tr>
-                      ))}
+                      {checklistData
+                        .filter(
+                          (item) =>
+                            item?.yearLevel === yearLevel &&
+                            item.semester === semester
+                        )
+                        .map(
+                          (item) =>
+                            item && (
+                              <tr key={item.id}>
+                                <td className="border border-black text-center text-[8px]">
+                                  {item.courseCode}
+                                </td>
+                                <td className="border border-black text-[8px]">
+                                  {item.courseTitle}
+                                </td>
+                                <td className="border border-black text-center text-[8px]">
+                                  {typeof item.creditUnit === "object"
+                                    ? item.creditUnit.lec
+                                    : item.creditUnit}
+                                </td>
+                                <td className="border border-black text-center text-[8px]">
+                                  {typeof item.creditUnit === "object"
+                                    ? item.creditUnit.lab
+                                    : ""}
+                                </td>
+                                <td className="border border-black text-center text-[8px]">
+                                  {item.contactHrs.lec}
+                                </td>
+                                <td className="border border-black text-center text-[8px]">
+                                  {item.contactHrs.lab}
+                                </td>
+                                <td className="border border-black text-center text-[8px]">
+                                  {item.preRequisite}
+                                </td>
+                                <td className="border border-black text-center text-[8px]"></td>
+                                <td className="border border-black text-center text-[8px]">
+                                  {item.grade}
+                                </td>
+                                <td className="border border-black text-center text-[8px]"></td>
+                              </tr>
+                            )
+                        )}
                     </React.Fragment>
                   ))}
                   {hasMidYear(yearLevel) && (
@@ -251,40 +289,49 @@ export default function PrintChecklist() {
                           Mid-year
                         </td>
                       </tr>
-                      {CSchecklistData.filter(
-                        (item) =>
-                          item.yearLevel === yearLevel &&
-                          item.semester === "Mid-year"
-                      ).map((item) => (
-                        <tr key={item.id}>
-                          <td className="border border-black text-center text-[8px]">
-                            {item.courseCode}
-                          </td>
-                          <td className="border border-black text-[8px]">
-                            {item.courseTitle}
-                          </td>
-                          <td className="border border-black text-center text-[8px]">
-                            {item.creditUnit.lec}
-                          </td>
-                          <td className="border border-black text-center text-[8px]">
-                            {item.creditUnit.lab}
-                          </td>
-                          <td className="border border-black text-center text-[8px]">
-                            {item.contactHrs.lec}
-                          </td>
-                          <td className="border border-black text-center text-[8px]">
-                            {item.contactHrs.lab}
-                          </td>
-                          <td className="border border-black text-center text-[8px]">
-                            {item.preRequisite}
-                          </td>
-                          <td className="border border-black text-center text-[8px]"></td>
-                          <td className="border border-black text-center text-[8px]">
-                            {item.grade}
-                          </td>
-                          <td className="border border-black text-center text-[8px]"></td>
-                        </tr>
-                      ))}
+                      {checklistData
+                        .filter(
+                          (item) =>
+                            item?.yearLevel === yearLevel &&
+                            item.semester === "Mid-year"
+                        )
+                        .map(
+                          (item) =>
+                            item && (
+                              <tr key={item.id}>
+                                <td className="border border-black text-center text-[8px]">
+                                  {item.courseCode}
+                                </td>
+                                <td className="border border-black text-[8px]">
+                                  {item.courseTitle}
+                                </td>
+                                <td className="border border-black text-center text-[8px]">
+                                  {typeof item.creditUnit === "object"
+                                    ? item.creditUnit.lec
+                                    : ""}
+                                </td>
+                                <td className="border border-black text-center text-[8px]">
+                                  {typeof item.creditUnit === "object"
+                                    ? item.creditUnit.lab
+                                    : ""}
+                                </td>
+                                <td className="border border-black text-center text-[8px]">
+                                  {item.contactHrs.lec}
+                                </td>
+                                <td className="border border-black text-center text-[8px]">
+                                  {item.contactHrs.lab}
+                                </td>
+                                <td className="border border-black text-center text-[8px]">
+                                  {item.preRequisite}
+                                </td>
+                                <td className="border border-black text-center text-[8px]"></td>
+                                <td className="border border-black text-center text-[8px]">
+                                  {item.grade}
+                                </td>
+                                <td className="border border-black text-center text-[8px]"></td>
+                              </tr>
+                            )
+                        )}
                     </React.Fragment>
                   )}
                 </React.Fragment>
