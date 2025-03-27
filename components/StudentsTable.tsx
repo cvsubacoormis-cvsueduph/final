@@ -58,11 +58,6 @@ export default function StudentsTable({
       );
 
       const { data, totalPages, currentPage } = await res.json();
-      console.log({
-        data,
-        totalPages,
-        currentPage,
-      });
 
       setData(data);
       setTotalPages(totalPages);

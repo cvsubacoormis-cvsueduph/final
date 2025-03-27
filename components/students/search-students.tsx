@@ -15,9 +15,6 @@ export default function SearchStudent({
   const searchParams = useSearchParams();
 
   function handleSearch(value: string) {
-    console.log({
-      value
-    })
     setSearchQuery(value);
   }
 
