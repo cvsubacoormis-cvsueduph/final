@@ -3,19 +3,22 @@
 import Image from "next/image";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
 
-export default function SearchStudent() {
+export default function SearchStudent({
+  query,
+  setSearchQuery,
+}:{
+  query: string;
+  setSearchQuery: (value:string) => void;
+}) {
   const router = useRouter();
   const pathname = usePathname();
   const searchParams = useSearchParams();
 
   function handleSearch(value: string) {
-    const sp = new URLSearchParams(searchParams);
-    if (value === "") {
-      sp.delete("query");
-    } else {
-      sp.set("query", value);
-    }
-    router.push(`${pathname}?${sp.toString()}`);
+    console.log({
+      value
+    })
+    setSearchQuery(value);
   }
 
   return (
@@ -25,7 +28,7 @@ export default function SearchStudent() {
         placeholder="Search..."
         className="w-[200px] p-2 bg-transparent outline-none"
         onChange={(e) => handleSearch(e.target.value)}
-        defaultValue={searchParams.get("query") || ""}
+        value={query}
       />
       <Image src="/search.png" alt="" width={14} height={14} />
     </div>

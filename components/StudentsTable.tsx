@@ -1,4 +1,4 @@
-"use server";
+"use client";
 
 import {
   Table,
@@ -9,7 +9,7 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
-import { Student } from "@prisma/client";
+import { Prisma } from "@prisma/client";
 
 import {
   Pagination,
@@ -24,18 +24,53 @@ import {
 import DeleteStudent from "./DeleteStudent";
 import UpdateStudent from "./students/update-student";
 import { getStudents } from "@/actions/search-student-action";
-import { PageProps } from "@/app/(dashboard)/list/students/page";
 import { currentUser } from "@clerk/nextjs/server";
+import { useUser } from "@clerk/nextjs";
+import { useEffect, useState } from "react";
 
-export default async function StudentsTable(props: PageProps) {
-  const { query = "", page = 1 } = (await props.searchParams) ?? {};
-  const pageNumber = parseInt(page as string, 10); // Convert page to a number
-  const { data, totalPages, currentPage } = await getStudents(
-    query,
-    pageNumber
-  );
-  const user = await currentUser();
+type Student = Prisma.StudentGetPayload<{}>;
+
+export default function StudentsTable({
+  query,
+  page,
+  setPage,
+}: {
+  query: string;
+  page: number;
+  setPage: (value: number) => void;
+}) {
+  const { user } = useUser();
   const role = user?.publicMetadata?.role as string;
+  const [data, setData] = useState<Student[]>([]);
+  const [totalPages, setTotalPages] = useState(0);
+  const [currentPage, setCurrentPage] = useState(0);
+
+  useEffect(() => {
+    async function initData() {
+      const res = await fetch(
+        `/api/students/get-student?query=${query}&page=${page}`,
+        {
+          method: "GET",
+          headers: {
+            "Content-Type": "application/json",
+          },
+        }
+      );
+
+      const { data, totalPages, currentPage } = await res.json();
+      console.log({
+        data,
+        totalPages,
+        currentPage,
+      });
+
+      setData(data);
+      setTotalPages(totalPages);
+      setCurrentPage(currentPage);
+    }
+
+    initData();
+  }, [page, query]);
 
   return (
     <div>
@@ -125,7 +160,9 @@ export default async function StudentsTable(props: PageProps) {
         <PaginationContent>
           <PaginationItem>
             <PaginationPrevious
-              href={`?page=${Math.max(currentPage - 1, 1)}`}
+              onClick={() => {
+                setPage(Math.max(currentPage - 1, 1));
+              }}
             />
           </PaginationItem>
 
@@ -133,7 +170,9 @@ export default async function StudentsTable(props: PageProps) {
           {Array.from({ length: totalPages }, (_, index) => (
             <PaginationItem key={index + 1}>
               <PaginationLink
-                href={`?page=${index + 1}`}
+                onClick={() => {
+                  setPage(index + 1);
+                }}
                 className={currentPage === index + 1 ? "font-bold" : ""}
               >
                 {index + 1}
@@ -147,7 +186,9 @@ export default async function StudentsTable(props: PageProps) {
 
           <PaginationItem>
             <PaginationNext
-              href={`?page=${Math.min(currentPage + 1, totalPages)}`}
+              onClick={() => {
+                setPage(Math.min(currentPage + 1, totalPages));
+              }}
             />
           </PaginationItem>
         </PaginationContent>

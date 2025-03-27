@@ -63,7 +63,7 @@ export const createAdminSchema = z
     email: z.string().email("Invalid email format").min(1, "Email is required"),
     address: z.string().min(1, "Address is required"),
     phone: z.string().min(1, "Phone is required"),
-    birthday: z.date().min(new Date(1900, 0, 1), "Birthday must be after 1900-01-01"),
+    birthday: z.string(),
     sex: z.enum(["MALE", "FEMALE"], {
       message: "Sex is required",
     }),

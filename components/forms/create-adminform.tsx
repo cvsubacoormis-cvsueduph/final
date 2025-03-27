@@ -34,19 +34,6 @@ export default function CreateAdminForm() {
 
   const form = useForm<z.infer<typeof createAdminSchema>>({
     resolver: zodResolver(createAdminSchema),
-    defaultValues: {
-      firstName: "",
-      middleName: "",
-      lastName: "",
-      username: "",
-      password: "",
-      confirmPassword: "",
-      email: "",
-      address: "",
-      phone: "",
-      birthday: "",
-      sex: "MALE",
-    },
   });
   async function onSubmit(values: z.infer<typeof createAdminSchema>) {
     setIsSubmitting(true);

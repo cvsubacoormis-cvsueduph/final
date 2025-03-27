@@ -19,10 +19,10 @@ const AcademicYears = ["AY_2024_2025", "AY_2025_2026", "AY_2026_2027"];
 const Semesters = ["FIRST", "SECOND", "MIDYEAR"];
 
 interface GradesPageProps {
-  searchParams: {
+  searchParams: Promise<{
     year?: string;
     semester?: string;
-  };
+  }>;
 }
 
 export default async function GradesPage({ searchParams }: GradesPageProps) {
@@ -32,8 +32,7 @@ export default async function GradesPage({ searchParams }: GradesPageProps) {
     return <div>Unauthorized</div>;
   }
 
-  const { year } = await searchParams;
-  const { semester } = await searchParams;
+  const { year, semester } = await searchParams;
 
   // Fetch the student and grades
   const student = await prisma.student.findUnique({
@@ -58,7 +57,6 @@ export default async function GradesPage({ searchParams }: GradesPageProps) {
         Grades{" "}
         <span className=" flex text-xs text-gray-500">Lists of Grades</span>
       </h1>
-
       {/* Filter Dropdowns */}
       <form method="get" className="mb-4 flex gap-4">
         <select

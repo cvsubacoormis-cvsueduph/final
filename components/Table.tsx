@@ -1,5 +1,8 @@
-import { Grade } from "@/app/(dashboard)/list/[grades]/page";
+// import { Grade } from "@/app/(dashboard)/list/[grades]/page";
+import {Prisma} from "@prisma/client";
 import React from "react";
+
+type Grade = Prisma.GradeGetPayload<{}>;
 
 const Table = ({
   columns,

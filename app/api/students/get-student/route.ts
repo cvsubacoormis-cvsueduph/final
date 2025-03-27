@@ -1,12 +1,18 @@
 import prisma from "@/lib/prisma";
+import { NextRequest } from "next/server";
 
+export async function GET(request: NextRequest) {
+  const searchParams = request.nextUrl.searchParams;
+  const query = searchParams.get("query") || "";
+  const page = Number(searchParams.get("page")) || 1;
+  const limit = Number(searchParams.get("limit")) || 10;
 
+  console.log({
+    query,
+    page,
+    limit,
+  });
 
-export const getStudents = async (
-  query: string,
-  page: number = 1,
-  limit: number = 10
-) => {
   try {
     const students = await prisma.student.findMany({
       where: {
@@ -62,13 +68,13 @@ export const getStudents = async (
 
     const totalPages = Math.ceil(totalStudents / limit);
 
-    return {
+    return Response.json({
       data: students,
       totalPages,
       currentPage: page,
-    };
+    });
   } catch (error) {
     console.error("Error fetching students:", error);
     throw error;
   }
-};
+}

@@ -136,8 +136,12 @@ export default function StudentForm({
                     <SelectContent>
                       <SelectItem value="MATHEMATICS">MATHEMATICS</SelectItem>
                       <SelectItem value="ENGLISH">ENGLISH</SelectItem>
-                      <SelectItem value="HUMAN_RESOURCE_MANAGEMENT">HUMAN_RESOURCE_MANAGEMENT</SelectItem>
-                      <SelectItem value="MARKETING_MANAGEMENT">MARKETING_MANAGEMENT</SelectItem>
+                      <SelectItem value="HUMAN_RESOURCE_MANAGEMENT">
+                        HUMAN_RESOURCE_MANAGEMENT
+                      </SelectItem>
+                      <SelectItem value="MARKETING_MANAGEMENT">
+                        MARKETING_MANAGEMENT
+                      </SelectItem>
                     </SelectContent>
                   </Select>
                 </FormControl>

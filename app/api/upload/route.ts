@@ -107,7 +107,7 @@ export async function POST(request: NextRequest) {
                 course: student.course,
                 major: student.major as Major,
                 status: student.status,
-                birthday: student.birthday ? new Date(student.birthday) : "",
+                birthday: student.birthday ? student.birthday.toString() : "",
               },
             });
           } catch (error) {
