@@ -114,12 +114,12 @@ export default function LoginForm({
                 }
               </Clerk.Loading>
             </SignIn.Action>
-            <a
-              href="#"
+            <Link
+              href="/forgot-password"
               className="ml-auto text-sm underline-offset-4 hover:underline text-[#4169E1]"
             >
               Forgot your password?
-            </a>
+            </Link>
           </div>
           <div className="text-center text-sm text-[#4169E1] mt-4">
             Don&apos;t have an account?{" "}
