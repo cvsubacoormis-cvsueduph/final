@@ -273,13 +273,13 @@ export default function PortalGuide() {
                 <Image
                   src="/dash.png"
                   alt="Dashboard"
-                  width={1500}
-                  height={1500}
+                  width={2000}
+                  height={2000}
                 />
               </p>
               <p className="text-xs text-slate-500 dark:text-slate-400">
                 This is where the full-size {previewImage.toLowerCase()} preview
-                image would appear
+                image would appear.
               </p>
             </div>
           </div>
