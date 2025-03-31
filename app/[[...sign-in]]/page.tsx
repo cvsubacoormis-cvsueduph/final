@@ -6,6 +6,7 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 import Image from "next/image";
+import PortalGuide from "@/components/PortalGuide";
 
 const Homepage = () => {
   const [isDialogOpen, setIsDialogOpen] = useState(false);
@@ -49,6 +50,9 @@ const Homepage = () => {
           <div className="w-full max-w-xs">
             <LoginForm />
           </div>
+        </div>
+        <div>
+          <PortalGuide />
         </div>
       </div>
       <div className="relative hidden lg:block">
