@@ -195,7 +195,7 @@ export default function PortalGuide() {
   };
 
   return (
-    <div className="flex items-center justify-center min-h-[400px]">
+    <div className="flex items-center justify-center min-h-[100px]">
       <Dialog open={open} onOpenChange={setOpen}>
         <DialogTrigger asChild>
           <Button size="lg" className="gap-2 bg-[#4169E1] hover:bg-blue-700">
