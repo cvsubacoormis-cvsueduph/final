@@ -198,7 +198,7 @@ export default function PortalGuide() {
     <div className="flex items-center justify-center min-h-[400px]">
       <Dialog open={open} onOpenChange={setOpen}>
         <DialogTrigger asChild>
-          <Button size="lg" className="gap-2 bg-[#4169E1]">
+          <Button size="lg" className="gap-2 bg-[#4169E1] hover:bg-blue-700">
             <GraduationCap className="h-5 w-5" />
             Open Student Portal Guide
           </Button>
