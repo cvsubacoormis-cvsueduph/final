@@ -54,7 +54,7 @@ export default function CreateAdminForm() {
       form.reset();
       setDialogOpen(false);
       mutate("/api/admin-lists");
-      toast.success("Student created successfully");
+      toast.success("Administrator created successfully");
       setErrorMessage("");
     } catch (error) {
       console.error("Error creating student:", error);
