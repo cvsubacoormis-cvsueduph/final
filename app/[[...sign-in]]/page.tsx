@@ -7,6 +7,7 @@ import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 import Image from "next/image";
 import PortalGuide from "@/components/PortalGuide";
+import ForgotPassword from "@/components/ForgotPassword";
 
 const Homepage = () => {
   const [isDialogOpen, setIsDialogOpen] = useState(false);
@@ -49,6 +50,9 @@ const Homepage = () => {
         <div className="flex flex-1 items-center justify-center">
           <div className="w-full max-w-xs">
             <LoginForm />
+            <div className="mt-4 text-center">
+              <ForgotPassword />
+            </div>
           </div>
         </div>
         <div>
