@@ -17,7 +17,7 @@ export function StudentCard() {
         const API_KEY = process.env.NEXT_PUBLIC_WEATHER_MAP_API_KEY;
         console.log(API_KEY);
         const response = await fetch(
-          `http://api.weatherapi.com/v1/current.json?key=${API_KEY}&q=Bacoor, Cavite&aqi=no`
+          `https://api.weatherapi.com/v1/current.json?key=${API_KEY}&q=Bacoor, Cavite&aqi=no`
         );
         const data = await response.json();
         console.log(data);
