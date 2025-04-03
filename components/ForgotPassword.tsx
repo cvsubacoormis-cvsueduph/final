@@ -223,7 +223,9 @@ export default function ForgotPasswordDialog() {
         {currentStep === "email" && (
           <>
             <DialogHeader>
-              <DialogTitle>Reset your password</DialogTitle>
+              <DialogTitle className="text-[#4169E1]">
+                Reset your password
+              </DialogTitle>
               <DialogDescription>
                 Enter your email address and we&apos;ll send you a code to reset
                 your password.
@@ -232,7 +234,9 @@ export default function ForgotPasswordDialog() {
             {renderStepIndicator()}
             <form onSubmit={handleEmailSubmit} className="space-y-4 py-4">
               <div className="space-y-2">
-                <Label htmlFor="email">Email address</Label>
+                <Label htmlFor="email" className="text-[#4169E1]">
+                  Email address
+                </Label>
                 <div className="relative">
                   <Mail className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
                   <Input
@@ -271,7 +275,9 @@ export default function ForgotPasswordDialog() {
         {currentStep === "code" && (
           <>
             <DialogHeader>
-              <DialogTitle>Reset your password</DialogTitle>
+              <DialogTitle className="text-[#4169E1]">
+                Reset your password
+              </DialogTitle>
               <DialogDescription>
                 Enter the code sent to {email} and your new password.
               </DialogDescription>
@@ -279,9 +285,11 @@ export default function ForgotPasswordDialog() {
             {renderStepIndicator()}
             <form onSubmit={handleResetPassword} className="space-y-4 py-4">
               <div className="space-y-2">
-                <Label htmlFor="code">Verification code</Label>
+                <Label htmlFor="code" className="text-[#4169E1]">
+                  Verification code
+                </Label>
                 <div className="relative">
-                  <KeyRound className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
+                  <KeyRound className="absolute left-3 top-3 h-4 w-4 text-muted-foreground text-[#4169E1]" />
                   <Input
                     id="code"
                     type="text"
@@ -390,7 +398,9 @@ export default function ForgotPasswordDialog() {
         {currentStep === "success" && (
           <>
             <DialogHeader>
-              <DialogTitle>Password reset successful</DialogTitle>
+              <DialogTitle className="text-[#4169E1]">
+                Password reset successful
+              </DialogTitle>
               <DialogDescription>
                 Your password has been reset successfully.
               </DialogDescription>
