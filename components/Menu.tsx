@@ -93,6 +93,12 @@ export default async function Menu() {
           href: "/list/announcements",
           visible: ["admin", "student", "superuser"],
         },
+        {
+          icon: "/assignment.png",
+          label: "News",
+          href: "/list/news",
+          visible: ["admin", "superuser"],
+        },
       ],
     },
     {
