@@ -152,7 +152,7 @@ export default function UploadGradesPreview() {
         });
       }
     } catch (error) {
-      console.error("Error uploading grades:", error);
+      console.log("Error uploading grades:", error);
       Swal.fire({
         title: "Error!",
         text: "Failed to upload grades. Please try again.",
@@ -167,7 +167,7 @@ export default function UploadGradesPreview() {
   return (
     <div className="bg-white p-4 rounded-md flex-1 m-4 mt-0">
       <h1 className="text-lg font-semibold mb-4">
-        Upload Grades <span>(Excel Format Only)</span>{" "}<br />
+        Upload Grades <span>(Excel Format Only)</span> <br />
         <span className="text-xs text-gray-500">Upload your grades here</span>
       </h1>
       <div className="flex flex-col gap-4 mb-4">

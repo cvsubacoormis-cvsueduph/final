@@ -1,50 +1,50 @@
 "use client";
-
 import { useState, useEffect } from "react";
 import { LibraryBig, Cloud, Sun, CloudRain } from "lucide-react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-
 export function StudentCard() {
   const [weatherData, setWeatherData] = useState({
     temperature: 0,
     condition: "sunny",
     description: "Loading weather data...",
   });
-
   useEffect(() => {
     const fetchWeather = async () => {
       try {
         const API_KEY = process.env.NEXT_PUBLIC_WEATHER_MAP_API_KEY;
-        console.log(API_KEY);
         const response = await fetch(
           `https://api.weatherapi.com/v1/current.json?key=${API_KEY}&q=Bacoor, Cavite&aqi=no`
         );
         const data = await response.json();
         console.log(data);
-
-        // Map OpenWeather conditions to our icon conditions
-        const mapCondition = (weatherId: number) => {
-          if (weatherId >= 200 && weatherId < 600) return "rainy";
-          if (weatherId >= 800 && weatherId < 803) return "sunny";
+        // Map weather conditions based on temperature and condition code
+        const mapCondition = (temp: number, condition: string) => {
+          if (condition.toLowerCase().includes("rain")) return "rainy";
+          if (temp >= 30) return "cloudy"; // When temperature is 30°C or higher, show cloudy
+          if (
+            condition.toLowerCase().includes("clear") ||
+            condition.toLowerCase().includes("sunny")
+          )
+            return "sunny";
           return "cloudy";
         };
-
         setWeatherData({
           temperature: Math.round(data.current.temp_c),
-          condition: mapCondition(data.current.condition),
+          condition: mapCondition(
+            data.current.temp_c,
+            data.current.condition.text
+          ),
           description: data.current.condition.text,
         });
       } catch (error) {
-        console.error("Error fetching weather data:", error);
+        console.log("Error fetching weather data:", error);
       }
     };
-
     fetchWeather();
     // Refresh weather data every 30 minutes
     const interval = setInterval(fetchWeather, 30 * 60 * 1000);
     return () => clearInterval(interval);
   }, []);
-
   // Get weather icon based on condition
   const getWeatherIcon = (condition: string) => {
     switch (condition) {

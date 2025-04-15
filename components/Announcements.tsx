@@ -29,7 +29,7 @@ export default function Announcements() {
         const data = await response.json();
         setAnnouncements(data.announcements || []); // Extract announcements array
       } catch (error) {
-        console.error("Error fetching announcements:", error);
+        console.log("Error fetching announcements:", error);
       } finally {
         setLoading(false);
       }
@@ -93,10 +93,7 @@ export default function Announcements() {
           <p className="text-gray-400">Loading announcements...</p>
         ) : announcements.length > 0 ? (
           announcements.slice(0, 3).map((item) => (
-            <div
-              key={item.id}
-              className="bg-gray-100 rounded-md p-4 shadow-sm"
-            >
+            <div key={item.id} className="bg-gray-100 rounded-md p-4 shadow-sm">
               <div className="flex items-center justify-between">
                 <h2 className="font-medium">{item.title}</h2>
                 <span className="text-xs text-gray-400 bg-white rounded-md px-1 py-1">

@@ -56,7 +56,7 @@ export default function AdminPage() {
         ]);
         setTotalVisitors(data.total);
       } catch (error) {
-        console.error("Error fetching student data:", error);
+        console.log("Error fetching student data:", error);
       } finally {
         setLoading(false);
       }
@@ -153,7 +153,8 @@ export default function AdminPage() {
         <CardFooter className="flex-col gap-2 text-sm">
           <div className="flex items-start gap-2 font-medium leading-none">
             Most number of the students is{" "}
-            <span className="underline italic">{mostStudents}</span> <TrendingUp className="h-4 w-4" />
+            <span className="underline italic">{mostStudents}</span>{" "}
+            <TrendingUp className="h-4 w-4" />
           </div>
           <div className="leading-none text-muted-foreground">
             Showing total students in the database
@@ -163,4 +164,3 @@ export default function AdminPage() {
     </div>
   );
 }
-

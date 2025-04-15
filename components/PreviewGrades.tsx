@@ -90,7 +90,7 @@ export function PreviewGrades({
         const data = await res.json();
         setAcademicTerms(data);
       } catch (err) {
-        console.error(err);
+        console.log(err);
       }
     }
     fetchAcademicTerms();
@@ -137,6 +137,7 @@ export function PreviewGrades({
           setEditedGrades(filteredGrades);
         } catch (err) {
           console.error(err);
+          toast.error("Failed to fetch grades");
           setError("Failed to fetch grades");
         } finally {
           setLoading(false);
@@ -188,6 +189,7 @@ export function PreviewGrades({
       setEditedGrades(updatedGrades);
       toast.success("Grades updated successfully");
     } catch (error) {
+      toast.error("Failed to update grades");
       console.error("Error updating grades", error);
       toast.error("Failed to update grades");
     }

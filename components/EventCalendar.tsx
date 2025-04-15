@@ -41,7 +41,7 @@ export default function EventCalendar() {
           setEvents([]); // Ensure events is always an array
         }
       } catch (error) {
-        console.error("Error fetching events:", error);
+        console.log("Error fetching events:", error);
         setEvents([]); // Set an empty array on error
       } finally {
         setLoading(false);

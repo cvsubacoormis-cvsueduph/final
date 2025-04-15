@@ -5,6 +5,7 @@ import Image from "next/image";
 import { useRouter, useSearchParams } from "next/navigation";
 import React, { useEffect, useState } from "react";
 import printlogo from "../../public/printlogo.png";
+import toast from "react-hot-toast";
 
 interface Grade {
   id: string;
@@ -43,6 +44,7 @@ export default function PrintGradesList() {
   const studentId = searchParams.get("studentId");
 
   const [studentData, setStudentData] = useState<Student | null>(null);
+  const [hasGrades, setHasGrades] = useState(false);
 
   useEffect(() => {
     async function fetchData() {
@@ -51,20 +53,28 @@ export default function PrintGradesList() {
           `/api/fetch-to-print-grades?academicYear=${academicYear}&semester=${semester}&yearLevel=${yearLevel}&studentId=${studentId}`
         );
         if (!res.ok) {
-          console.error("Failed to fetch data");
+          console.log("Failed to fetch data");
+          toast.error("Failed to fetch data");
           return;
         }
         const data = await res.json();
+        if (!data?.grades?.length) {
+          toast.error("No grades available to print");
+          router.back();
+          return;
+        }
         setStudentData(data);
+        setHasGrades(true);
       } catch (error) {
-        console.error("Error fetching data", error);
+        toast.error("Error fetching data");
+        console.log("Error fetching data", error);
       }
     }
     fetchData();
-  }, [academicYear, semester, yearLevel, studentId]);
+  }, [academicYear, semester, yearLevel, studentId, router]);
 
   useEffect(() => {
-    if (studentData) {
+    if (studentData && hasGrades) {
       // Set the background graphics to not print
       const style = document.createElement("style");
       style.innerHTML =
@@ -81,7 +91,7 @@ export default function PrintGradesList() {
         window.addEventListener("afterprint", handleAfterPrint);
       }, 1500);
     }
-  }, [studentData, router]);
+  }, [studentData, hasGrades, router]);
 
   if (!studentData) {
     return (

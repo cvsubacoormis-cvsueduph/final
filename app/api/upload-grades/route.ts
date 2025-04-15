@@ -27,9 +27,6 @@ export async function POST(req: Request) {
       );
     }
 
-    // Log incoming file data structure for debugging
-    console.log("Parsed Excel Columns:", Object.keys(grades[0] || {}));
-
     // Validate required columns
     const requiredColumns = [
       "studentNumber",
@@ -56,46 +53,59 @@ export async function POST(req: Request) {
       courseCode: String(row.courseCode).trim(),
       courseTitle: String(row.courseTitle).trim(),
       creditUnit: Number(row.creditUnit),
-      grade: Number(row.grade),
+      grade: row.grade.toString(),
       reExam:
         typeof row.reExam === "string"
           ? row.reExam === "N/A"
             ? null
-            : Number(row.reExam)
-          : Number(row.reExam),
+            : row.reExam
+          : row.reExam
+          ? String(row.reExam)
+          : null,
       remarks: row.remarks ? String(row.remarks).trim() : null,
-      instructor: row.instructor ? String(row.instructor).trim() : null,
-      academicYear: row.academicYear,
-      semester: row.semester,
+      instructor: row.instructor ? String(row.instructor).trim() : "",
+      academicYear: row.academicYear as AcademicYear,
+      semester: row.semester as Semester,
     }));
 
-    // Log formatted grades data for debugging
-    console.log("Formatted grades:", formattedGrades);
+    // Batch database operations
+    const [students, academicTerms, existingGrades] = await Promise.all([
+      // Fetch students
+      prisma.student.findMany({
+        where: {
+          studentNumber: {
+            in: [...new Set(formattedGrades.map((g) => g.studentNumber))],
+          },
+        },
+        select: { id: true, studentNumber: true },
+      }),
 
-    // Fetch students from the database based on student numbers
-    const studentNumbers = [
-      ...new Set(formattedGrades.map((g) => g.studentNumber)),
-    ];
-    const students = await prisma.student.findMany({
-      where: { studentNumber: { in: studentNumbers } },
-      select: { id: true, studentNumber: true },
-    });
+      // Fetch academic terms
+      prisma.academicTerm.findMany({
+        where: {
+          OR: [
+            ...new Set(
+              formattedGrades.map((grade) => ({
+                academicYear: grade.academicYear,
+                semester: grade.semester,
+              }))
+            ),
+          ],
+        },
+      }),
 
-    const studentMap = new Map(students.map((s) => [s.studentNumber, s.id]));
+      // Fetch existing grades
+      prisma.grade.findMany({
+        where: {
+          studentNumber: { in: formattedGrades.map((g) => g.studentNumber) },
+          courseCode: { in: formattedGrades.map((g) => g.courseCode) },
+          academicYear: { in: formattedGrades.map((g) => g.academicYear) },
+          semester: { in: formattedGrades.map((g) => g.semester) },
+        },
+      }),
+    ]);
 
-    // Log student map for debugging
-    console.log("Student map:", studentMap);
-
-    // Validate Academic Terms in the database
-    const academicTerms = await prisma.academicTerm.findMany({
-      where: {
-        OR: formattedGrades.map((grade) => ({
-          academicYear: grade.academicYear as AcademicYear,
-          semester: grade.semester as Semester,
-        })),
-      },
-    });
-
+    // Create missing academic terms if needed
     const termMap = new Map(
       academicTerms.map((term) => [
         `${term.academicYear}-${term.semester}`,
@@ -103,127 +113,60 @@ export async function POST(req: Request) {
       ])
     );
 
-    // Log term map for debugging
-    console.log("Term map:", termMap);
-
-    // Identify missing academic terms
-    const missingTerms = formattedGrades
-      .map((grade) => ({
-        academicYear: grade.academicYear,
-        semester: grade.semester as Semester,
-      }))
-      .filter((term) => !termMap.has(`${term.academicYear}-${term.semester}`));
+    const missingTerms = [
+      ...new Set(
+        formattedGrades
+          .map((grade) => ({
+            academicYear: grade.academicYear,
+            semester: grade.semester,
+          }))
+          .filter(
+            (term) => !termMap.has(`${term.academicYear}-${term.semester}`)
+          )
+      ),
+    ];
 
     if (missingTerms.length > 0) {
       await prisma.academicTerm.createMany({
-        data: missingTerms.map((term) => ({
-          academicYear: term.academicYear as AcademicYear,
-          semester: term.semester,
-        })),
+        data: missingTerms,
         skipDuplicates: true,
       });
-
-      const updatedTerms = await prisma.academicTerm.findMany({
-        where: {
-          OR: missingTerms.map((term) => ({
-            academicYear: term.academicYear as AcademicYear,
-            semester: term.semester,
-          })),
-        },
-      });
-
-      console.log("Updated terms:", updatedTerms);
     }
 
-    // Check if grades already exist and need to be updated
-    const existingGrades = await prisma.grade.findMany({
-      where: {
-        studentNumber: { in: studentNumbers },
-        courseCode: { in: formattedGrades.map((g) => g.courseCode) },
-        academicYear: {
-          in: formattedGrades.map((g) => g.academicYear as AcademicYear),
-        },
-        semester: { in: formattedGrades.map((g) => g.semester as Semester) },
-      },
-    });
-
-    // Create a map of existing grades by studentId and courseCode
+    // Prepare grades for batch upsert
     const existingGradeMap = new Map(
       existingGrades.map((g) => [
         `${g.studentNumber}-${g.courseCode}-${g.academicYear}-${g.semester}`,
-        g.id,
+        g,
       ])
     );
 
-    // Prepare grades to be inserted or updated
-    const gradesToUpsert = formattedGrades.map((grade) => ({
-      studentNumber: grade.studentNumber,
-      courseCode: grade.courseCode,
-      courseTitle: grade.courseTitle,
-      creditUnit: grade.creditUnit,
-      grade: grade.grade,
-      reExam: grade?.reExam,
-      remarks: grade.remarks,
-      instructor: grade.instructor ?? "",
-      academicYear: grade.academicYear as AcademicYear,
-      semester: grade.semester as Semester,
-      // If existing grade is found, update it, otherwise insert
-      id: existingGradeMap.has(
-        `${grade.studentNumber}-${grade.courseCode}-${grade.academicYear}-${grade.semester}`
-      )
-        ? existingGradeMap.get(
-            `${grade.studentNumber}-${grade.courseCode}-${grade.academicYear}-${grade.semester}`
-          )
-        : undefined,
-    }));
+    // Batch upsert grades
+    await prisma.$transaction(
+      formattedGrades.map((grade) => {
+        const key = `${grade.studentNumber}-${grade.courseCode}-${grade.academicYear}-${grade.semester}`;
+        const existing = existingGradeMap.get(key);
 
-    // Log grades to be inserted or updated for debugging
-    console.log("Grades to upsert:", gradesToUpsert);
-
-    // Loop through each grade and upsert
-    for (const grade of gradesToUpsert) {
-      // Convert studentNumber back to its original number form if necessary
-      grade.studentNumber = Number(grade.studentNumber);
-
-      await prisma.grade.upsert({
-        where: {
-          studentNumber_courseCode_academicYear_semester: {
-            studentNumber: Number(grade.studentNumber),
-            courseCode: grade.courseCode,
-            academicYear: grade.academicYear,
-            semester: grade.semester,
+        return prisma.grade.upsert({
+          where: {
+            studentNumber_courseCode_academicYear_semester: {
+              studentNumber: grade.studentNumber,
+              courseCode: grade.courseCode,
+              academicYear: grade.academicYear,
+              semester: grade.semester,
+            },
           },
-        },
-        update: {
-          ...grade,
-          grade: grade.grade.toString(),
-          reExam: grade.reExam?.toString() ?? null,
-        },
-        create: {
-          studentNumber: Number(grade.studentNumber),
-          courseCode: grade.courseCode,
-          courseTitle: grade.courseTitle,
-          creditUnit: grade.creditUnit,
-          grade: grade.grade.toString(),
-          reExam: grade.reExam?.toString(),
-          remarks: grade.remarks,
-          instructor: grade.instructor,
-          academicYear: grade.academicYear,
-          semester: grade.semester,
-        },
-      });
-    }
-
-    // Response summary
-    const totalRows = formattedGrades.length;
-    const uploadedRows = gradesToUpsert.length;
-    const skippedRows = totalRows - uploadedRows;
+          update: grade,
+          create: grade,
+        });
+      })
+    );
 
     return NextResponse.json({
       message: "Grades uploaded successfully.",
-      totalRows,
-      uploadedRows,
-      skippedRows,
+      totalRows: formattedGrades.length,
+      uploadedRows: formattedGrades.length,
+      skippedRows: 0,
     });
   } catch (error) {
     console.error("Error uploading grades:", error);

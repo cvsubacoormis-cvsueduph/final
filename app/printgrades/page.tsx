@@ -5,6 +5,7 @@ import Image from "next/image";
 import { useRouter, useSearchParams } from "next/navigation";
 import React, { useEffect, useState } from "react";
 import printlogo from "../../public/printlogo.png";
+import toast from "react-hot-toast";
 
 interface Grade {
   id: string;
@@ -42,6 +43,7 @@ export default function PrintGrades() {
   const purpose = searchParams.get("purpose");
 
   const [studentData, setStudentData] = useState<Student | null>(null);
+  const [hasGrades, setHasGrades] = useState(false);
 
   useEffect(() => {
     async function fetchData() {
@@ -51,11 +53,12 @@ export default function PrintGrades() {
           `/api/gradestoprint?academicYear=${academicYear}&semester=${semester}&yearLevel=${yearLevel}`
         );
         if (!res.ok) {
-          console.error("Failed to fetch data");
+          console.log("Failed to fetch data");
           return;
         }
         const data = await res.json();
         setStudentData(data);
+        setHasGrades(data?.grades?.length > 0);
       } catch (error) {
         console.error("Error fetching data", error);
       }
@@ -64,7 +67,7 @@ export default function PrintGrades() {
   }, [academicYear, semester, yearLevel]);
 
   useEffect(() => {
-    if (studentData) {
+    if (studentData && hasGrades) {
       // Set the background graphics to not print
       const style = document.createElement("style");
       style.innerHTML =
@@ -79,8 +82,11 @@ export default function PrintGrades() {
         };
         window.addEventListener("afterprint", handleAfterPrint);
       }, 1500);
+    } else if (studentData && !hasGrades) {
+      toast.error("No grades available to print");
+      router.back();
     }
-  }, [studentData, router]);
+  }, [studentData, hasGrades, router]);
 
   if (!studentData) {
     return (
@@ -89,7 +95,6 @@ export default function PrintGrades() {
       </div>
     );
   }
-
   return (
     <div>
       <div className="flex items-center ml-20">

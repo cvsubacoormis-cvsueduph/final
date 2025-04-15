@@ -81,7 +81,7 @@ export function NewsAndUpdates() {
         }
       } catch (error) {
         toast.error("Error loading news");
-        console.error(error);
+        console.log(error);
       } finally {
         setIsLoading(false);
       }
@@ -171,7 +171,7 @@ export function NewsAndUpdates() {
       }
     } catch (error) {
       toast.error("Error posting announcement");
-      console.error(error);
+      console.log(error);
     }
   };
 
