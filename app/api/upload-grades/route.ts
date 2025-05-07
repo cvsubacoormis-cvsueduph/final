@@ -13,7 +13,6 @@ export async function POST(req: Request) {
       return NextResponse.json({ error: "No file uploaded" }, { status: 400 });
     }
 
-    // Parse the uploaded file into JSON
     const arrayBuffer = await file.arrayBuffer();
     const workbook = XLSX.read(new Uint8Array(arrayBuffer), { type: "array" });
     const sheetName = workbook.SheetNames[0];

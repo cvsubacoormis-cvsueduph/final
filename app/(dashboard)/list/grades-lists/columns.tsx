@@ -18,7 +18,7 @@ export type Grades = {
   phone: string;
   address: string;
   course: "BSIT" | "BSCS" | "BSBA" | "BSHM" | "BSP" | "BSCRIM" | "BSED";
-  status: "REGULAR" | "IRREGULAR";
+  status: "REGULAR" | "IRREGULAR" | "TRANSFEREE" | "NOT_ANNOUNCED" | "RETURNEE";
 };
 
 export const columns: ColumnDef<Grades>[] = [

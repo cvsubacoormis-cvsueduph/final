@@ -19,7 +19,16 @@ async function getData(): Promise<Grades[]> {
 
   return students.map((student) => ({
     ...student,
-    middleInit: student.middleInit ?? "", // provide a default value for middleInit when it is null
+    status: student.status as
+      | "REGULAR"
+      | "IRREGULAR"
+      | "TRANSFEREE"
+      | "NOT_ANNOUNCED"
+      | "RETURNEE",
+    email: student.email ?? "",
+    phone: student.phone ?? "",
+    middleInit: student.middleInit ?? "",
+    address: student.address ?? "",
   }));
 }
 
