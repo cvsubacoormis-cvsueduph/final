@@ -23,8 +23,6 @@ import {
 
 import DeleteStudent from "./DeleteStudent";
 import UpdateStudent from "./students/update-student";
-import { getStudents } from "@/actions/search-student-action";
-import { currentUser } from "@clerk/nextjs/server";
 import { useUser } from "@clerk/nextjs";
 import { useEffect, useState } from "react";
 
@@ -149,9 +147,7 @@ export default function StudentsTable({
           )}
         </TableBody>
       </Table>
-
-      {/* Pagination */}
-      <Pagination>
+      <Pagination className="cursor-pointer">
         <PaginationContent>
           <PaginationItem>
             <PaginationPrevious
@@ -161,23 +157,39 @@ export default function StudentsTable({
             />
           </PaginationItem>
 
-          {/* Render page numbers dynamically */}
-          {Array.from({ length: totalPages }, (_, index) => (
-            <PaginationItem key={index + 1}>
-              <PaginationLink
-                onClick={() => {
-                  setPage(index + 1);
-                }}
-                className={currentPage === index + 1 ? "font-bold" : ""}
-              >
-                {index + 1}
-              </PaginationLink>
-            </PaginationItem>
-          ))}
-
-          <PaginationItem>
-            <PaginationEllipsis />
-          </PaginationItem>
+          {/* Render limited page numbers with ellipsis */}
+          {Array.from({ length: totalPages }, (_, index) => {
+            // Show first page, last page, and pages around current page
+            if (
+              index === 0 || // First page
+              index === totalPages - 1 || // Last page
+              (index >= currentPage - 2 && index <= currentPage) || // 2 pages before current
+              (index >= currentPage && index <= currentPage + 1) // 1 page after current
+            ) {
+              return (
+                <PaginationItem key={index + 1}>
+                  <PaginationLink
+                    onClick={() => {
+                      setPage(index + 1);
+                    }}
+                    className={currentPage === index + 1 ? "font-bold" : ""}
+                  >
+                    {index + 1}
+                  </PaginationLink>
+                </PaginationItem>
+              );
+            } else if (
+              index === 1 || // Show ellipsis after first page
+              index === totalPages - 2 // Show ellipsis before last page
+            ) {
+              return (
+                <PaginationItem key={index + 1}>
+                  <PaginationEllipsis />
+                </PaginationItem>
+              );
+            }
+            return null;
+          })}
 
           <PaginationItem>
             <PaginationNext

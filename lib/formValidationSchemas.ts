@@ -19,9 +19,7 @@ export const studentSchema = z.object({
   }),
   major: z.string().optional(),
   email: z.string().email(),
-  birthday: z.string().min(1, {
-    message: "Date of Birth is required",
-  }),
+  birthday: z.coerce.date(),
   phone: z.string().min(1, {
     message: "Phone is required",
   }),
@@ -31,9 +29,12 @@ export const studentSchema = z.object({
   sex: z.enum(["MALE", "FEMALE"], {
     message: "Sex is required",
   }),
-  status: z.enum(["REGULAR", "IRREGULAR"], {
-    message: "Status is required",
-  }),
+  status: z.enum(
+    ["REGULAR", "IRREGULAR", "TRANSFEREE", "RETURNEE", "NOT_ANNOUNCED"],
+    {
+      message: "Status is required",
+    }
+  ),
 });
 
 export type StudentSchema = z.infer<typeof studentSchema>;

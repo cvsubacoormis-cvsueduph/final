@@ -36,7 +36,7 @@ export default function CreateStudents() {
       email: "",
       phone: "",
       address: "",
-      birthday: "",
+      birthday: new Date(),
       course: undefined,
       major: undefined,
       sex: undefined,

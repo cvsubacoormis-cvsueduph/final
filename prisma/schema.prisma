@@ -34,15 +34,15 @@ model Student {
   firstName     String
   lastName      String
   middleInit    String?
-  email         String?  @unique
-  phone         String   @unique
+  email         String?
+  phone         String?
   address       String
   img           String?
   sex           UserSex
   course        Courses
   major         Major?
   status        Status
-  birthday      String
+  birthday      DateTime
   role          Role     @default(student)
   createdAt     DateTime @default(now())
   grades        Grade[]
@@ -143,6 +143,9 @@ enum yearLevels {
 enum Status {
   REGULAR
   IRREGULAR
+  NOT_ANNOUNCED
+  TRANSFEREE
+  RETURNEE
 }
 
 enum Role {

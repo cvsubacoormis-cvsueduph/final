@@ -2,38 +2,21 @@ import { NextRequest, NextResponse } from "next/server";
 import { StudentSchema } from "@/lib/formValidationSchemas";
 import prisma from "@/lib/prisma";
 import * as XLSX from "xlsx";
-import { Major, UserSex } from "@prisma/client";
+import { Courses, Major, Status, UserSex } from "@prisma/client";
 import { clerkClient } from "@clerk/nextjs/server";
 
-// Utility to introduce delay
 const delay = (ms: number) => new Promise((resolve) => setTimeout(resolve, ms));
 
-// Retry function with exponential backoff
-async function withRetry(
-  fn: () => Promise<any>,
-  retries = 3,
-  initialDelay = 1000
-) {
-  let attempt = 0;
-  let delayMs = initialDelay;
-
-  while (attempt < retries) {
-    try {
-      return await fn();
-    } catch (error: any) {
-      if (error.status !== 429 || attempt >= retries - 1) {
-        throw error; // Re-throw if not a rate limit error or retries exhausted
-      }
-      console.warn(`Retrying after ${delayMs}ms due to rate limit...`);
-      await delay(delayMs);
-      delayMs *= 2; // Exponential backoff
-      attempt++;
-    }
-  }
-}
-
 export async function POST(request: NextRequest) {
+  // Check if the request is aborted
+  const controller = new AbortController();
+  const { signal } = controller;
+
   try {
+    request.signal.addEventListener("abort", () => {
+      controller.abort();
+    });
+
     const formData = await request.formData();
     const file = formData.get("file") as Blob;
     if (!file) {
@@ -45,6 +28,8 @@ export async function POST(request: NextRequest) {
     const sheetName = workbook.SheetNames[0];
     const workSheet = workbook.Sheets[sheetName];
     const students: StudentSchema[] = XLSX.utils.sheet_to_json(workSheet);
+
+    console.log(students);
 
     const existingStudentNumbers = await prisma.student
       .findMany({ select: { studentNumber: true } })
@@ -62,55 +47,51 @@ export async function POST(request: NextRequest) {
       return true;
     });
 
-    const batchSize = 5; // Smaller batch size to avoid rate limits
+    const batchSize = 5;
     for (let i = 0; i < studentsToCreate.length; i += batchSize) {
+      // Check if request has been aborted
+      if (signal.aborted) {
+        throw new Error("Upload cancelled by user");
+      }
+
       const batch = studentsToCreate.slice(i, i + batchSize);
 
-      // Process each batch with a delay
       await Promise.all(
         batch.map(async (student) => {
           try {
+            if (signal.aborted) {
+              throw new Error("Upload cancelled by user");
+            }
+
             const username = `${student.studentNumber}${student.firstName}`
               .toLowerCase()
               .replace(/[^a-zA-Z0-9_-]/g, "")
-              .toLowerCase();
-
-            const clerk = await clerkClient();
-            const user = await withRetry(() =>
-              clerk.users.createUser({
-                username,
-                password: `cvsubacoor${student.studentNumber}`,
-                firstName: student.firstName.toUpperCase(),
-                lastName: student.lastName.toUpperCase(),
-                publicMetadata: {
-                  role: "student",
-                  course: student.course,
-                  major: student.major || "",
-                },
-              })
-            );
+              .toLowerCase()
+              .replaceAll("-", "");
 
             await prisma.student.create({
               data: {
-                id: user.id,
-                studentNumber: student.studentNumber,
+                studentNumber: Number(
+                  String(student.studentNumber).replaceAll("-", "")
+                ),
                 username,
-                firstName: student.firstName.toUpperCase(),
-                lastName: student.lastName.toUpperCase(),
-                middleInit: student.middleInit
-                  ? student.middleInit[0].toUpperCase()
-                  : "",
-                email: student.email || "",
-                phone: student.phone,
-                address: student.address,
-                sex: student.sex as UserSex,
-                course: student.course,
-                major: student.major as Major,
-                status: student.status,
-                birthday: student.birthday ? student.birthday.toString() : "",
+                firstName: student.firstName,
+                lastName: student.lastName,
+                middleInit: student.middleInit ? student.middleInit[0] : "",
+                email: student.email ?? "",
+                phone: student.phone ? String(student.phone) : "N/A",
+                address: student.address ?? "N/A",
+                sex: String(student.sex).toUpperCase() as UserSex,
+                course: student.course.trim() as Courses,
+                major: student.major ? (student.major.trim() as Major) : null,
+                status: student.status.trim() as Status,
+                birthday: new Date(student.birthday),
               },
             });
-          } catch (error) {
+          } catch (error: any) {
+            if (error.message === "Upload cancelled by user") {
+              throw error;
+            }
             console.error(
               `Error creating student ${student.studentNumber}:`,
               error
@@ -119,8 +100,7 @@ export async function POST(request: NextRequest) {
         })
       );
 
-      // Add delay between batches to respect rate limits
-      await delay(3000); // Adjust delay based on Clerk's rate limits
+      await delay(3000);
     }
 
     if (duplicates.length > 0) {
@@ -147,7 +127,13 @@ export async function POST(request: NextRequest) {
       message: `Students uploaded successfully. ${studentsToCreate.length} out of ${students.length} students were created.`,
       duplicates,
     });
-  } catch (error) {
+  } catch (error: any) {
+    if (error.message === "Upload cancelled by user") {
+      return NextResponse.json(
+        { error: "Upload cancelled by user" },
+        { status: 499 }
+      );
+    }
     console.error("Error uploading students:", error);
     return NextResponse.json(
       { error: "Failed to upload students" },

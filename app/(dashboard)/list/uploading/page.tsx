@@ -26,7 +26,7 @@ export default function UploadGradesPreview() {
   const [academicYear, setAcademicYear] = useState<string>("");
   const [isUploading, setIsUploading] = useState(false);
   const [isParsing, setIsParsing] = useState(false);
-  const [progress, setProgress] = useState(0); // Progress state
+  const [progress, setProgress] = useState(0);
   const [error, setError] = useState<string>("");
 
   const generateAcademicYears = (startYear: number, count: number) =>
@@ -65,39 +65,10 @@ export default function UploadGradesPreview() {
           row.reExam !== undefined && row.reExam !== "" ? row.reExam : "N/A",
       }));
 
-      if (!validateGrades(transformedData)) {
-        setError("Invalid file format. Please check the Excel columns.");
-        setGrades([]);
-      } else {
-        setGrades(transformedData as Grade[]);
-      }
+      setGrades(transformedData as Grade[]);
       setIsParsing(false);
     };
     reader.readAsBinaryString(file);
-  };
-
-  const validateGrades = (grades: any[]): grades is Grade[] => {
-    if (!grades.length) return false;
-
-    const requiredFields = [
-      "studentNumber",
-      "courseCode",
-      "creditUnit",
-      "courseTitle",
-      "grade",
-      "remarks",
-      "instructor",
-      "academicYear",
-      "semester",
-    ];
-
-    // Ensure all rows contain the required fields
-    return grades.every((grade) =>
-      requiredFields.every(
-        (field) =>
-          field in grade && grade[field] !== undefined && grade[field] !== ""
-      )
-    );
   };
 
   const handleSemesterChange = (e: React.ChangeEvent<HTMLSelectElement>) =>
@@ -116,7 +87,7 @@ export default function UploadGradesPreview() {
     }
 
     setIsUploading(true);
-    setProgress(0); // Reset progress
+    setProgress(0);
     setError("");
 
     const formData = new FormData();
@@ -141,7 +112,7 @@ export default function UploadGradesPreview() {
         setFile(null);
         setSemester("");
         setAcademicYear("");
-        setProgress(100); // Set progress to 100% on success
+        setProgress(100);
       } else {
         const errorData = await response.json();
         Swal.fire({

@@ -39,9 +39,10 @@ export default function UploadStudents() {
           const workSheet = workbook.Sheets[sheetName];
           const json = XLSX.utils.sheet_to_json(workSheet, {
             raw: false,
-            dateNF: "yyyy-mm-dd",
+            dateNF: "mmmm d, yyyy",
           });
           setJsonData(JSON.stringify(json, null, 2));
+          console.log(JSON.stringify(json, null, 2));
         }
       };
       reader.readAsBinaryString(file);
@@ -128,6 +129,7 @@ export default function UploadStudents() {
                     <th className="px-4 py-2">Name</th>
                     <th className="px-4 py-2">Course</th>
                     <th className="px-4-py-2">Major</th>
+                    <th className="px-4 py-2">Phone</th>
                     <th className="px-4 py-2">Status</th>
                     <th className="px-4 py-2">Birthday</th>
                   </tr>
@@ -140,16 +142,16 @@ export default function UploadStudents() {
                     >
                       <td className="px-4 py-2">{student.studentNumber}</td>
                       <td className="px-4 py-2">
-                        {student.firstName} {student.middleInit}{" "}
+                        {student.firstName} {student?.middleInit}{" "}
                         {student.lastName}
                       </td>
                       <td className="px-4 py-2">{student.course}</td>
                       <td className="px-4 py-2">{student?.major || ""}</td>
+                      <td className="px-4 py-2">{student.phone}</td>
                       <td className="px-4 py-2">{student.status}</td>
                       <td className="px-4 py-2">
-                        {student.birthday
-                          ? new Date(student.birthday).toLocaleDateString()
-                          : ""}
+                        {new Date(student.birthday).toDateString()}
+                        {/* {student.birthday.toString()} */}
                       </td>
                     </tr>
                   ))}
@@ -158,7 +160,12 @@ export default function UploadStudents() {
             </div>
           )}
           {loading ? (
-            <div className="animate-pulse">Saving Data please wait...</div>
+            <div className="w-full bg-gray-200 rounded-full h-2.5 dark:bg-gray-700">
+              <div className="bg-blue-600 h-2.5 rounded-full w-full animate-[loading_2s_ease-in-out_infinite]"></div>
+              <p className="text-sm text-center mt-2">
+                Saving data, please wait...
+              </p>
+            </div>
           ) : null}
           <Button onClick={saveData} disabled={loading}>
             Save Data

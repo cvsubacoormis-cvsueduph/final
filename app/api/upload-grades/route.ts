@@ -27,29 +27,9 @@ export async function POST(req: Request) {
       );
     }
 
-    // Validate required columns
-    const requiredColumns = [
-      "studentNumber",
-      "courseCode",
-      "courseTitle",
-      "creditUnit",
-      "grade",
-      "academicYear",
-      "semester",
-    ];
-    const missingColumns = requiredColumns.filter(
-      (col) => !(col in (grades[0] as Grade))
-    );
-    if (missingColumns.length > 0) {
-      return NextResponse.json(
-        { error: `Missing columns: ${missingColumns.join(", ")}` },
-        { status: 400 }
-      );
-    }
-
     // Format and validate the grades data
     const formattedGrades = (grades as Grade[]).map((row) => ({
-      studentNumber: Number(row.studentNumber),
+      studentNumber: row.studentNumber,
       courseCode: String(row.courseCode).trim(),
       courseTitle: String(row.courseTitle).trim(),
       creditUnit: Number(row.creditUnit),
@@ -141,9 +121,17 @@ export async function POST(req: Request) {
       ])
     );
 
-    // Batch upsert grades
+    // Create a Set of valid student numbers for quick lookup
+    const validStudentNumbers = new Set(students.map((s) => s.studentNumber));
+
+    // Batch upsert grades (only for existing students)
+    const validGrades = formattedGrades.filter((grade) =>
+      validStudentNumbers.has(grade.studentNumber)
+    );
+    const skippedGrades = formattedGrades.length - validGrades.length;
+
     await prisma.$transaction(
-      formattedGrades.map((grade) => {
+      validGrades.map((grade) => {
         const key = `${grade.studentNumber}-${grade.courseCode}-${grade.academicYear}-${grade.semester}`;
         const existing = existingGradeMap.get(key);
 
@@ -165,8 +153,8 @@ export async function POST(req: Request) {
     return NextResponse.json({
       message: "Grades uploaded successfully.",
       totalRows: formattedGrades.length,
-      uploadedRows: formattedGrades.length,
-      skippedRows: 0,
+      uploadedRows: validGrades.length,
+      skippedRows: skippedGrades,
     });
   } catch (error) {
     console.error("Error uploading grades:", error);
