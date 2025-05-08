@@ -182,7 +182,12 @@ export default function UploadGradesPreview() {
 
       {grades.length > 0 && (
         <div className="mb-4">
-          <h2 className="text-lg font-bold mb-2">Preview Grades</h2>
+          <h2 className="text-lg font-bold mb-2">
+            Preview Grades
+            <span className="text-sm font-normal ml-2">
+              (Total: {grades.length} {grades.length === 1 ? "row" : "rows"})
+            </span>
+          </h2>
           <div className="max-h-[50vh] overflow-y-scroll border">
             <table className="table-auto w-full border-collapse">
               <thead>
@@ -235,24 +240,19 @@ export default function UploadGradesPreview() {
       <button
         onClick={handleUpload}
         disabled={isUploading || isParsing}
-        className={`p-2 text-white rounded ${
+        className={`p-2 text-white rounded flex items-center justify-center gap-2 ${
           isUploading ? "bg-gray-500" : "bg-gray-800 text-sm hover:bg-gray-700"
         }`}
       >
-        {isUploading ? "Uploading..." : "Upload Grades"}
+        {isUploading ? (
+          <>
+            <ClipLoader size={16} color="#fff" />
+            <span>Uploading...</span>
+          </>
+        ) : (
+          "Upload Grades"
+        )}
       </button>
-
-      {isUploading && (
-        <div className="mt-4">
-          <div className="relative h-4 w-full bg-gray-300 rounded">
-            <div
-              className="absolute top-0 left-0 h-full bg-slate-950 rounded"
-              style={{ width: `${progress}%` }}
-            />
-          </div>
-          <p className="text-center mt-2 text-sm">{progress}%</p>
-        </div>
-      )}
     </div>
   );
 }

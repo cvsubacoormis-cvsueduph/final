@@ -1,3 +1,4 @@
+import { Status } from "@prisma/client";
 import { columns, Grades } from "./columns";
 import { DataTable } from "./data-table";
 import prisma from "@/lib/prisma";
@@ -19,12 +20,8 @@ async function getData(): Promise<Grades[]> {
 
   return students.map((student) => ({
     ...student,
-    status: student.status as
-      | "REGULAR"
-      | "IRREGULAR"
-      | "TRANSFEREE"
-      | "NOT_ANNOUNCED"
-      | "RETURNEE",
+    studentNumber: String(student.studentNumber),
+    status: student.status as Status,
     email: student.email ?? "",
     phone: student.phone ?? "",
     middleInit: student.middleInit ?? "",

@@ -3,7 +3,6 @@ import { StudentSchema } from "@/lib/formValidationSchemas";
 import prisma from "@/lib/prisma";
 import * as XLSX from "xlsx";
 import { Courses, Major, Status, UserSex } from "@prisma/client";
-import { clerkClient } from "@clerk/nextjs/server";
 
 const delay = (ms: number) => new Promise((resolve) => setTimeout(resolve, ms));
 
@@ -37,7 +36,7 @@ export async function POST(request: NextRequest) {
 
     const duplicates: { studentNumber: string; name: string }[] = [];
     const studentsToCreate = students.filter((student) => {
-      if (existingStudentNumbers.has(student.studentNumber)) {
+      if (existingStudentNumbers.has(String(student.studentNumber))) {
         duplicates.push({
           studentNumber: student.studentNumber.toString(),
           name: `${student.firstName} ${student.lastName}`,
@@ -71,7 +70,7 @@ export async function POST(request: NextRequest) {
 
             await prisma.student.create({
               data: {
-                studentNumber: Number(
+                studentNumber: String(
                   String(student.studentNumber).replaceAll("-", "")
                 ),
                 username,

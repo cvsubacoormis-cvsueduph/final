@@ -50,7 +50,7 @@ export async function POST(request: NextRequest) {
     const Createstudent = await prisma.student.create({
       data: {
         id: user.id,
-        studentNumber: studentData.studentNumber,
+        studentNumber: String(studentData.studentNumber),
         username: `${studentData.studentNumber}${studentData.firstName}`,
         status: studentData.status as Status,
         course: studentData.course as Courses,
@@ -138,7 +138,7 @@ export async function PUT(request: NextRequest) {
     const updateStudent = await prisma.student.update({
       where: { id },
       data: {
-        studentNumber: studentData.studentNumber,
+        studentNumber: String(studentData.studentNumber),
         username: studentData.username,
         firstName: studentData.firstName,
         lastName: studentData.lastName,

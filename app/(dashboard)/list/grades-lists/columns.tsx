@@ -10,7 +10,7 @@ import { SelectToPrint } from "@/components/SelectToPrint";
 
 export type Grades = {
   id: string;
-  studentNumber: number;
+  studentNumber: string;
   firstName: string;
   lastName: string;
   middleInit: string;
@@ -141,7 +141,7 @@ export const columns: ColumnDef<Grades>[] = [
       return (
         <div className="flex items-center space-x-2">
           <PreviewGrades
-            studentNumber={student.studentNumber}
+            studentNumber={parseInt(student.studentNumber)}
             firstName={student.firstName}
             lastName={student.lastName}
           />
