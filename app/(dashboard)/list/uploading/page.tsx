@@ -29,6 +29,22 @@ export default function UploadGradesPreview() {
   const [progress, setProgress] = useState(0);
   const [error, setError] = useState<string>("");
 
+  const resetUploadState = () => {
+    setGrades([]);
+    setFile(null);
+    setSemester("");
+    setAcademicYear("");
+    setProgress(0);
+    setError("");
+    // Reset file input
+    const fileInput = document.querySelector(
+      'input[type="file"]'
+    ) as HTMLInputElement;
+    if (fileInput) {
+      fileInput.value = "";
+    }
+  };
+
   const generateAcademicYears = (startYear: number, count: number) =>
     Array.from(
       { length: count },
@@ -108,11 +124,7 @@ export default function UploadGradesPreview() {
           icon: "success",
           confirmButtonText: "Close",
         });
-        setGrades([]);
-        setFile(null);
-        setSemester("");
-        setAcademicYear("");
-        setProgress(100);
+        resetUploadState();
       } else {
         const errorData = await response.json();
         Swal.fire({
@@ -121,6 +133,7 @@ export default function UploadGradesPreview() {
           icon: "error",
           confirmButtonText: "Close",
         });
+        resetUploadState();
       }
     } catch (error) {
       console.log("Error uploading grades:", error);
@@ -130,6 +143,7 @@ export default function UploadGradesPreview() {
         icon: "error",
         confirmButtonText: "Close",
       });
+      resetUploadState();
     } finally {
       setIsUploading(false);
     }

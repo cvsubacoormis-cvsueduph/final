@@ -28,6 +28,11 @@ export default function UploadStudents() {
     []
   );
 
+  function resetUploadState() {
+    setFile(null);
+    setJsonData("");
+  }
+
   function previewData() {
     if (file) {
       const reader = new FileReader();
@@ -64,6 +69,7 @@ export default function UploadStudents() {
         if (res.ok) {
           setDialogOpen(false);
           toast.success("Data saved successfully");
+          resetUploadState();
 
           // Debugging log to check if duplicates exist
           console.log("Response Data:", data);
@@ -77,6 +83,7 @@ export default function UploadStudents() {
         } else {
           console.error(data.message);
           toast.error("Failed to save data");
+          resetUploadState();
         }
 
         // If there are duplicates, download the Excel file
