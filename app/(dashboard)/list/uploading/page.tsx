@@ -55,7 +55,10 @@ export default function UploadGradesPreview() {
     setError("");
     if (e.target.files && e.target.files[0]) {
       const selectedFile = e.target.files[0];
-      if (!selectedFile.name.endsWith(".xlsx")) {
+      if (
+        !selectedFile.name.endsWith(".xlsx") &&
+        !selectedFile.name.endsWith(".xlsm")
+      ) {
         setError("Please upload a valid Excel file (.xlsx).");
         return;
       }
@@ -158,7 +161,7 @@ export default function UploadGradesPreview() {
       <div className="flex flex-col gap-4 mb-4">
         <Input
           type="file"
-          accept=".xlsx"
+          accept=".xlsx,.xlsm"
           onChange={handleFileChange}
           className="block"
         />
