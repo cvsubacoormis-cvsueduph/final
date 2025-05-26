@@ -43,7 +43,7 @@ type AcademicTerm = {
 // Note: We added an "id" field to the Grade type so it can be used for updates.
 export type Grade = {
   id: string;
-  studentNumber: number;
+  studentNumber: string;
   firstName: string;
   lastName: string;
   courseCode: string;
@@ -58,7 +58,7 @@ export type Grade = {
 };
 
 export type PreviewGradesProps = {
-  studentNumber: number;
+  studentNumber: string;
   firstName: string;
   lastName: string;
 };

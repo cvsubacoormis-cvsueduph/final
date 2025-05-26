@@ -18,14 +18,13 @@ export async function GET(request: Request) {
   }
 
   // Convert studentNumber to a number
-  const studentNumberInt = parseInt(studentNumber);
 
   try {
     // Query the database for matching grade records.
     // We include the related student's firstName and lastName for filtering.
     const grades = await prisma.grade.findMany({
       where: {
-        studentNumber: studentNumberInt,
+        studentNumber,
         academicYear: academicYear as AcademicYear,
         semester: semester as Semester,
       },

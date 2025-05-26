@@ -44,6 +44,7 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
 } from "./ui/alert-dialog";
+import { HashLoader } from "react-spinners";
 
 export function NewsAndUpdates() {
   const [isPostModalOpen, setIsPostModalOpen] = useState(false);
@@ -297,7 +298,11 @@ export function NewsAndUpdates() {
   const regularItems = currentItems.filter((item) => !item.important);
 
   if (isLoading) {
-    return <div>Loading...</div>;
+    return (
+      <div className="flex items-center justify-center h-screen">
+        <HashLoader color="#111542" size={150} />
+      </div>
+    );
   }
 
   return (
@@ -466,7 +471,7 @@ export function NewsAndUpdates() {
               <div className="text-sm text-muted-foreground">
                 Showing {indexOfFirstItem + 1}-
                 {Math.min(indexOfLastItem, newsItems.length)} of{" "}
-                {newsItems.length} announcements
+                {newsItems.length} News
               </div>
               <div className="flex items-center space-x-2">
                 <Button
