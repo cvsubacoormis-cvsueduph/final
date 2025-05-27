@@ -27,6 +27,64 @@ export function courseMap(courseAbbreviation: string) {
   }
 }
 
+export function courseClerkshipMap(courseClerksAbbreviation: string) {
+  switch (courseClerksAbbreviation) {
+    case "BSBA":
+      return "BON-ART C. BAGAINDOC";
+      break;
+    case "BSCS":
+      return "MICHAEL D. ANSUAS";
+      break;
+    case "BSHM":
+      return "JOHN CARLO BENJAMIN";
+      break;
+    case "BSIT":
+      return "MICHAEL D. ANSUAS";
+      break;
+    case "BSP":
+      return "MILDRED VALDEPEÑA";
+      break;
+    case "BSCRIM":
+      return " JIMWELL G. DACANAY";
+      break;
+    case "BSED":
+      return "JIMWELL G. DACANAY";
+      break;
+    default:
+      return "";
+      break;
+  }
+}
+
+export function coursePositionMap(coursePositionAbbreviation: string) {
+  switch (coursePositionAbbreviation) {
+    case "BSBA":
+      return "Registrar Clerk";
+      break;
+    case "BSCS":
+      return "Registrar Clerk";
+      break;
+    case "BSHM":
+      return "Registrar Clerk";
+      break;
+    case "BSIT":
+      return "Registrar Clerk";
+      break;
+    case "BSP":
+      return "Registrar Clerk";
+      break;
+    case "BSCRIM":
+      return "Campus Registrar";
+      break;
+    case "BSED":
+      return "Campus Registrar";
+      break;
+    default:
+      return "";
+      break;
+  }
+}
+
 export function formatMajor(major: string) {
   //HUMAN_RESOURCE_MANAGEMENT
   return major

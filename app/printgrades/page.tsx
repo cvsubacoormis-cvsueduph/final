@@ -6,6 +6,7 @@ import { useRouter, useSearchParams } from "next/navigation";
 import React, { useEffect, useState } from "react";
 import printlogo from "../../public/printlogo.png";
 import toast from "react-hot-toast";
+import { courseClerkshipMap, courseMap } from "@/lib/courses";
 
 interface Grade {
   id: string;
@@ -150,13 +151,11 @@ export default function PrintGrades() {
             </p>
             <p className="font-semibold mt-2 text-xs text-red-600">Degree:</p>
             <p className="col-span-2 mt-2 text-xs font-bold italic text-blue-900">
-              {studentData.course === "BSBA"
-                ? "BACHELOR OF SCIENCE IN BUSINESS ADMINISTRATION"
-                : studentData.course}
+              {courseMap(studentData.course).toUpperCase()}
             </p>
             <p className="font-semibold mt-2 text-xs text-red-600">Major:</p>
             <p className="col-span-2 mt-2 text-xs italic font-bold text-blue-900">
-              {studentData?.major?.replace(/_/g, " ") || ""}
+              {courseMap(studentData.major || "").toUpperCase()}
             </p>
           </div>
         </div>
@@ -307,29 +306,9 @@ export default function PrintGrades() {
           </span>
         </p>
         <p className="text-xs font-semibold mt-8">PURPOSE: {purpose} </p>
-        {studentData.course === "BSCS" || studentData.course === "BSIT" ? (
-          <p className="text-xs font-semibold ml-20 mt-8 underline">
-            MICHAEL D. ANSUAS
-          </p>
-        ) : studentData.course === "BSP" ? (
-          <p className="text-xs font-semibold ml-20 mt-8 underline">
-            MILDRED VALDEPEÑA
-          </p>
-        ) : studentData.course === "BSHM" ? (
-          <p className="text-xs font-semibold ml-20 mt-8 underline">
-            JOHN CARLO BENJAMIN
-          </p>
-        ) : studentData.course === "BSBA" &&
-          (studentData.major === "MARKETING_MANAGEMENT" ||
-            studentData.major === "HUMAN_RESOURCE_MANAGEMENT") ? (
-          <p className="text-xs font-semibold ml-20 mt-8 underline">
-            BON-ART C. BAGAINDOC
-          </p>
-        ) : (
-          <p className="text-xs font-semibold ml-20 mt-8 underline">
-            JIMWELL G. DACANAY
-          </p>
-        )}
+        <p className="text-xs font-semibold ml-20 mt-8 underline">
+          {courseClerkshipMap(studentData.course)}
+        </p>
         <p className="text-xs font-semibold"></p>
         {studentData.course === "BSCRIM" ||
         (studentData.course === "BSED" &&

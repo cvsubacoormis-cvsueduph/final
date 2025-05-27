@@ -1,7 +1,7 @@
 import { z } from "zod";
 
 export const studentSchema = z.object({
-  studentNumber: z.coerce.number().min(1, {
+  studentNumber: z.coerce.string().min(1, {
     message: "Student Number is required",
   }),
   username: z.string().min(1, {
