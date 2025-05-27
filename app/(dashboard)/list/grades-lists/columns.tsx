@@ -141,7 +141,7 @@ export const columns: ColumnDef<Grades>[] = [
       return (
         <div className="flex items-center space-x-2">
           <PreviewGrades
-            studentNumber={parseInt(student.studentNumber)}
+            studentNumber={String(student.studentNumber)}
             firstName={student.firstName}
             lastName={student.lastName}
           />

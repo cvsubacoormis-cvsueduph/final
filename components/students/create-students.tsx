@@ -28,7 +28,7 @@ export default function CreateStudents() {
   const form = useForm<StudentSchema>({
     resolver: zodResolver(studentSchema),
     defaultValues: {
-      studentNumber: 0,
+      studentNumber: "0",
       username: "",
       firstName: "",
       lastName: "",
