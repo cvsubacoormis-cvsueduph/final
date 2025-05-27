@@ -11,6 +11,7 @@ import {
   DialogTrigger,
 } from "./ui/dialog";
 import { DialogTitle } from "@radix-ui/react-dialog";
+import { Ellipsis } from "lucide-react";
 
 type Event = {
   id: number;
@@ -66,13 +67,7 @@ export default function EventCalendar() {
         <h1 className="text-xl font-semibold my-4">Events</h1>
         <Dialog>
           <DialogTrigger asChild>
-            <Image
-              src="/moreDark.png"
-              alt="More options"
-              width={20}
-              height={20}
-              className="cursor-pointer hover:opacity-80"
-            />
+            <Ellipsis height={20} width={20} cursor={"pointer"} />
           </DialogTrigger>
           <DialogContent className="bg-white shadow-lg rounded-lg">
             <DialogHeader className="border-b border-gray-200 pb-4 mb-4">

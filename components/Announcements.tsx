@@ -9,6 +9,7 @@ import {
   DialogTitle,
   DialogTrigger,
 } from "./ui/dialog";
+import { Ellipsis } from "lucide-react";
 
 type Announcement = {
   id: number;
@@ -44,13 +45,7 @@ export default function Announcements() {
         <h1 className="text-xl font-semibold">Announcements</h1>
         <Dialog>
           <DialogTrigger asChild>
-            <Image
-              src="/moreDark.png"
-              alt="More options"
-              width={20}
-              height={20}
-              className="cursor-pointer hover:opacity-80"
-            />
+            <Ellipsis width={20} height={20} cursor={"pointer"} />
           </DialogTrigger>
           <DialogContent className="bg-white shadow-lg rounded-lg">
             <DialogHeader className="border-b border-gray-200 pb-4 mb-4">
