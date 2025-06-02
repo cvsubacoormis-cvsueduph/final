@@ -40,7 +40,7 @@ model Student {
   img           String?
   sex           UserSex
   course        Courses
-  major         Major?
+  major         String?
   status        Status
   birthday      DateTime
   role          Role     @default(student)
@@ -49,31 +49,49 @@ model Student {
 }
 
 model AcademicTerm {
-  id           String       @id @default(cuid())
-  academicYear AcademicYear
-  semester     Semester
-  grades       Grade[]
+  id               String            @id @default(cuid())
+  academicYear     AcademicYear
+  semester         Semester
+  subjectOfferings SubjectOffering[]
+  grades           Grade[]
 
   @@unique([academicYear, semester], map: "unique_academic_term")
 }
 
-model Grade {
-  id            String       @id @default(cuid())
-  studentNumber String
-  student       Student      @relation(fields: [studentNumber], references: [studentNumber])
-  courseCode    String
-  creditUnit    Int
-  courseTitle   String
-  grade         String
-  reExam        String?
-  remarks       String?
-  instructor    String
-  academicYear  AcademicYear
-  semester      Semester
-  academicTerm  AcademicTerm @relation(fields: [academicYear, semester], references: [academicYear, semester])
-  createdAt     DateTime     @default(now())
+model SubjectOffering {
+  id              String       @id @default(cuid())
+  courseCode      String
+  courseTitle     String
+  creditUnitLec   Int
+  creditUnitLab   Int
+  contactHoursLec Int
+  contactHoursLab Int
+  course          Courses
+  major           Major?
+  yearLevel       yearLevels
+  semester        Semester
+  academicTerm    AcademicTerm @relation(fields: [academicTermId], references: [id])
+  academicTermId  String
+  grades          Grade[]
 
-  @@unique([studentNumber, courseCode, academicYear, semester], map: "unique_student_course_term")
+  @@unique([courseCode, academicTermId, course, major], map: "unique_subject_offering")
+}
+
+model Grade {
+  id                String   @id @default(cuid())
+  studentId         String
+  subjectOfferingId String
+  grade             String
+  reExam            String?
+  remarks           String?
+  instructor        String
+  createdAt         DateTime @default(now())
+  isFinalized       Boolean  @default(false)
+
+  student         Student         @relation(fields: [studentId], references: [id])
+  subjectOffering SubjectOffering @relation(fields: [subjectOfferingId], references: [id])
+  AcademicTerm    AcademicTerm?   @relation(fields: [academicTermId], references: [id])
+  academicTermId  String?
 }
 
 enum AcademicYear {
@@ -87,6 +105,23 @@ enum Semester {
   FIRST
   SECOND
   MIDYEAR
+}
+
+model GradeUploadLog {
+  id         String       @id @default(cuid())
+  uploaderId String
+  filename   String
+  uploadedAt DateTime     @default(now())
+  status     UploadStatus
+  errorCount Int
+  processed  Int
+  notes      String?
+}
+
+enum UploadStatus {
+  SUCCESS
+  PARTIAL
+  FAILED
 }
 
 model Event {
@@ -146,6 +181,9 @@ enum Status {
   NOT_ANNOUNCED
   TRANSFEREE
   RETURNEE
+  GRADUATED
+  INACTIVE
+  ACTIVE
 }
 
 enum Role {

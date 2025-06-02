@@ -83,3 +83,23 @@ export const createAdminSchema = z
   });
 
 export type CreateAdminSchema = z.infer<typeof createAdminSchema>;
+
+export const gradeSchema = z.object({
+  studentNumber: z.string(),
+  courseCode: z.string(),
+  courseTitle: z.string(),
+  creditUnit: z.number(),
+  grade: z.string(),
+  reExam: z.string().optional(),
+  remarks: z.string().optional(),
+  instructor: z.string(),
+  academicYear: z.enum([
+    "AY_2023_2024",
+    "AY_2024_2025",
+    "AY_2025_2026",
+    "AY_2026_2027",
+  ]),
+  semester: z.enum(["FIRST", "SECOND", "MIDYEAR"]),
+});
+
+export type GradeSchema = z.infer<typeof gradeSchema>;

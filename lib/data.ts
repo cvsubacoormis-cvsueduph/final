@@ -1134,7 +1134,6 @@ export const gradeData = [
   },
 ];
 
-// Inside @/_lib/data.js or wherever checklistData is defined
 export const ITchecklistData = [
   // First Year, First Semester
   {
