@@ -19,13 +19,13 @@ async function main() {
       update: {},
       create: {
         course: subject.course,
-        major: subject.major as any, // Type assertion to handle the Major enum
         yearLevel: subject.yearLevel,
         semester: subject.semester,
         courseCode: subject.courseCode,
         courseTitle: subject.courseTitle,
         creditLec: subject.creditLec,
         creditLab: subject.creditLab,
+        preRequisite: subject.preRequisite,
       },
     });
   }

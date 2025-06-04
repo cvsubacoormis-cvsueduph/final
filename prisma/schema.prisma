@@ -58,6 +58,7 @@ model CurriculumChecklist {
   courseTitle     String
   creditLec       Int               @default(0) // New field for lecture units
   creditLab       Int               @default(0) // New field for lab units
+  preRequisite    String?
   SubjectOffering SubjectOffering[]
 
   @@unique([course, yearLevel, semester, courseCode], name: "course_yearLevel_semester_courseCode")
@@ -150,6 +151,19 @@ enum Major {
   MARKETING_MANAGEMENT
   ENGLISH
   MATHEMATICS
+}
+
+model GradeLog {
+  id            String       @id @default(cuid())
+  studentNumber String
+  courseCode    String
+  grade         String
+  remarks       String?
+  instructor    String
+  academicYear  AcademicYear
+  semester      Semester
+  action        String // e.g., "CREATED", "UPDATED"
+  performedAt   DateTime     @default(now())
 }
 
 model Event {

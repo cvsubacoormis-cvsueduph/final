@@ -30,22 +30,24 @@ function parseSemester(text: string): Semester {
   return map[text as keyof typeof map] as Semester;
 }
 
-function convertChecklist(data: typeof BSEDENGData, course: Courses) {
+function convertChecklist(data: typeof ITchecklistData, course: Courses) {
   return data.map((subject) => ({
     course,
-    major: subject.major ? subject.major : null,
     yearLevel: parseYearLevel(subject.yearLevel),
     semester: parseSemester(subject.semester),
     courseCode: subject.courseCode,
     courseTitle: subject.courseTitle,
     creditLec: subject.creditUnit.lec ?? 0,
     creditLab: subject.creditUnit.lab ?? 0,
+    preRequisite: subject.preRequisite ? subject.preRequisite : null,
   }));
 }
 
 export const curriculumChecklistData = [
-  ...convertChecklist(BSEDENGData, Courses.BSED),
-  ...convertChecklist(BSEDMATHchecklistData, Courses.BSED),
-  ...convertChecklist(BMHRchecklistData, Courses.BSBA),
-  ...convertChecklist(BMMMchecklistData, Courses.BSBA),
+  ...convertChecklist(
+    PSYchecklistData.filter(
+      (item) => item !== undefined
+    ) as typeof ITchecklistData,
+    Courses.BSP
+  ),
 ];
