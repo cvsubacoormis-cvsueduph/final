@@ -2,8 +2,7 @@ import { NextResponse } from "next/server";
 import prisma from "@/lib/prisma";
 
 export async function POST(req: Request) {
-  const body = await req.json();
-  const { grades } = body;
+  const grades = await req.json();
 
   if (!grades || !Array.isArray(grades)) {
     return NextResponse.json({ error: "Invalid payload" }, { status: 400 });
@@ -74,12 +73,12 @@ export async function POST(req: Request) {
       continue;
     }
 
-    // 4. Find subject in curriculum checklist
+    // 4. Find curriculum subject by courseCode and student’s course/major
     const checklistSubject = await prisma.curriculumChecklist.findFirst({
       where: {
-        course: student.course,
-        major: student.major ?? null,
         courseCode,
+        course: student.course,
+        OR: [{ major: null }, { major: student.major }],
       },
     });
 
@@ -87,13 +86,33 @@ export async function POST(req: Request) {
       results.push({
         studentNumber,
         courseCode,
-        status: "Subject not in curriculum",
+        status: `Subject not in curriculum for ${student.course}${
+          student.major ? ` - ${student.major}` : ""
+        }`,
       });
       continue;
     }
 
-    // 5. Check for existing grade
-    const existing = await prisma.grade.findUnique({
+    // ✅ Now, check if this subject is offered in the selected academic term
+    const subjectOffering = await prisma.subjectOffering.findFirst({
+      where: {
+        curriculumId: checklistSubject.id,
+        academicYear,
+        semester,
+        isActive: true,
+      },
+    });
+
+    if (!subjectOffering) {
+      results.push({
+        studentNumber,
+        courseCode,
+        status: "Subject not offered in selected term",
+      });
+      continue;
+    }
+    // Upsert grade with the found subject offering
+    await prisma.grade.upsert({
       where: {
         studentNumber_courseCode_academicYear_semester: {
           studentNumber,
@@ -102,81 +121,35 @@ export async function POST(req: Request) {
           semester,
         },
       },
-    });
-
-    if (existing) {
-      const changed =
-        existing.grade !== grade ||
-        existing.reExam !== reExam ||
-        existing.remarks !== remarks ||
-        existing.instructor !== instructor;
-
-      if (changed) {
-        await prisma.grade.update({
-          where: {
-            studentNumber_courseCode_academicYear_semester: {
-              studentNumber,
-              courseCode,
-              academicYear,
-              semester,
-            },
-          },
-          data: {
-            grade,
-            reExam,
-            remarks,
-            instructor,
-            courseTitle,
-            creditUnit,
-          },
-        });
-
-        await prisma.gradeLog.create({
-          data: {
-            studentNumber,
-            courseCode,
-            grade,
-            remarks,
-            instructor,
-            academicYear,
-            semester,
-            action: "UPDATED",
-          },
-        });
-
-        results.push({ studentNumber, courseCode, status: "✅ Grade updated" });
-      } else {
-        results.push({
-          studentNumber,
-          courseCode,
-          status: "Duplicate no changes",
-        });
-      }
-
-      continue;
-    }
-
-    // 6. Create new grade and log
-    await prisma.grade.create({
-      data: {
-        studentNumber,
-        student: { connect: { studentNumber } },
+      create: {
+        student: {
+          connect: { studentNumber },
+        },
         courseCode,
         courseTitle,
-        creditUnit,
-        grade,
+        creditUnit: Number(creditUnit),
+        grade: String(grade),
         reExam,
         remarks,
         instructor,
-        academicYear,
-        semester,
         academicTerm: {
           connect: {
-            academicYear_semester: {
-              academicYear,
-              semester,
-            },
+            academicYear_semester: { academicYear, semester },
           },
+        },
+        subjectOffering: {
+          connect: { id: subjectOffering.id },
+        },
+      },
+      update: {
+        courseTitle,
+        creditUnit: Number(creditUnit),
+        grade: String(grade),
+        reExam,
+        remarks,
+        instructor,
+        subjectOffering: {
+          connect: { id: subjectOffering.id },
         },
       },
     });
@@ -185,12 +158,12 @@ export async function POST(req: Request) {
       data: {
         studentNumber,
         courseCode,
-        grade,
+        grade: String(grade),
         remarks,
         instructor,
         academicYear,
         semester,
-        action: "CREATED",
+        action: "UPDATED",
       },
     });
 

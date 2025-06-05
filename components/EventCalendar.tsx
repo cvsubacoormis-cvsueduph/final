@@ -52,6 +52,29 @@ export default function EventCalendar() {
     fetchEvents();
   }, []);
 
+  const renderEvents = (eventsList: Event[]) => {
+    if (eventsList.length === 0) {
+      return <p className="text-gray-400">No events available</p>;
+    }
+
+    return eventsList.map((event) => (
+      <div
+        className="p-5 rounded-md border-2 border-gray-100 border-t-4 odd:border-t-gray-700 even:border-t-gray-700 transition-shadow duration-200 ease-in-out"
+        key={event.id}
+      >
+        <div className="flex items-center justify-between">
+          <h1 className="font-semibold text-gray-600">{event.title}</h1>
+          <span className="text-gray-300 text-xs">
+            {event.startTime} - {event.endTime}
+          </span>
+        </div>
+        {event.description && (
+          <p className="mt-2 text-gray-400 text-sm">{event.description}</p>
+        )}
+      </div>
+    ));
+  };
+
   return (
     <div className="bg-white p-4 rounded-md">
       <Calendar
@@ -76,26 +99,30 @@ export default function EventCalendar() {
               </DialogTitle>
             </DialogHeader>
             <div className="flex flex-col gap-4">
-              {events.map((event) => (
-                <div
-                  className="p-5 rounded-md border-2 border-gray-100 border-t-4 odd:border-t-gray-700 even:border-t-gray-700 transition-shadow duration-200 ease-in-out"
-                  key={event.id}
-                >
-                  <div className="flex items-center justify-between">
-                    <h1 className="font-semibold text-gray-800">
-                      {event.title}
-                    </h1>
-                    <span className="text-gray-500 text-xs">
-                      {event.startTime} - {event.endTime}
-                    </span>
+              {events.length === 0 ? (
+                <p className="text-gray-400">No events available</p>
+              ) : (
+                events.map((event) => (
+                  <div
+                    className="p-5 rounded-md border-2 border-gray-100 border-t-4 odd:border-t-gray-700 even:border-t-gray-700 transition-shadow duration-200 ease-in-out"
+                    key={event.id}
+                  >
+                    <div className="flex items-center justify-between">
+                      <h1 className="font-semibold text-gray-800">
+                        {event.title}
+                      </h1>
+                      <span className="text-gray-500 text-xs">
+                        {event.startTime} - {event.endTime}
+                      </span>
+                    </div>
+                    {event.description && (
+                      <p className="mt-2 text-gray-600 text-sm">
+                        {event.description}
+                      </p>
+                    )}
                   </div>
-                  {event.description && (
-                    <p className="mt-2 text-gray-600 text-sm">
-                      {event.description}
-                    </p>
-                  )}
-                </div>
-              ))}
+                ))
+              )}
             </div>
           </DialogContent>
         </Dialog>
@@ -103,26 +130,7 @@ export default function EventCalendar() {
       {loading ? (
         <p className="text-gray-400">Loading events...</p>
       ) : (
-        <div className="flex flex-col gap-4">
-          {events.map((event) => (
-            <div
-              className="p-5 rounded-md border-2 border-gray-100 border-t-4 odd:border-t-gray-700 even:border-t-gray-700 transition-shadow duration-200 ease-in-out"
-              key={event.id}
-            >
-              <div className="flex items-center justify-between">
-                <h1 className="font-semibold text-gray-600">{event.title}</h1>
-                <span className="text-gray-300 text-xs">
-                  {event.startTime} - {event.endTime}
-                </span>
-              </div>
-              {event.description && (
-                <p className="mt-2 text-gray-400 text-sm">
-                  {event.description}
-                </p>
-              )}
-            </div>
-          ))}
-        </div>
+        <div className="flex flex-col gap-4">{renderEvents(events)}</div>
       )}
     </div>
   );

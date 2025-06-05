@@ -56,8 +56,8 @@ model CurriculumChecklist {
   semester        Semester
   courseCode      String
   courseTitle     String
-  creditLec       Int               @default(0) // New field for lecture units
-  creditLab       Int               @default(0) // New field for lab units
+  creditLec       Int               @default(0)
+  creditLab       Int               @default(0)
   preRequisite    String?
   SubjectOffering SubjectOffering[]
 
@@ -108,6 +108,19 @@ model Grade {
   @@unique([studentNumber, courseCode, academicYear, semester], map: "unique_grade_per_term")
 }
 
+model GradeLog {
+  id            String       @id @default(cuid())
+  studentNumber String
+  courseCode    String
+  grade         String
+  remarks       String?
+  instructor    String
+  academicYear  AcademicYear
+  semester      Semester
+  action        String
+  performedAt   DateTime     @default(now())
+}
+
 enum AcademicYear {
   AY_2023_2024
   AY_2024_2025
@@ -151,19 +164,6 @@ enum Major {
   MARKETING_MANAGEMENT
   ENGLISH
   MATHEMATICS
-}
-
-model GradeLog {
-  id            String       @id @default(cuid())
-  studentNumber String
-  courseCode    String
-  grade         String
-  remarks       String?
-  instructor    String
-  academicYear  AcademicYear
-  semester      Semester
-  action        String // e.g., "CREATED", "UPDATED"
-  performedAt   DateTime     @default(now())
 }
 
 model Event {

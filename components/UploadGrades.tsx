@@ -2,17 +2,18 @@
 
 import type React from "react";
 import * as XLSX from "xlsx";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import {
   Upload,
   FileSpreadsheet,
   CheckCircle,
   AlertCircle,
+  ChevronLeft,
+  ChevronRight,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Progress } from "@/components/ui/progress";
-// import { uploadExcel } from "@/app/actions";
 import {
   Select,
   SelectContent,
@@ -26,6 +27,7 @@ import Swal from "sweetalert2";
 export function UploadGrades() {
   const [file, setFile] = useState<File | null>(null);
   const [isUploading, setIsUploading] = useState(false);
+  const [isLoadingPreview, setIsLoadingPreview] = useState(false);
   const [uploadProgress, setUploadProgress] = useState(0);
   const [uploadStatus, setUploadStatus] = useState<
     "idle" | "success" | "error"
@@ -33,12 +35,23 @@ export function UploadGrades() {
   const [previewData, setPreviewData] = useState<any[] | null>(null);
   const [academicYear, setAcademicYear] = useState<string>("");
   const [semester, setSemester] = useState<string>("");
+  const [currentPage, setCurrentPage] = useState(1);
+  const recordsPerPage = 10;
+  const [abortController, setAbortController] =
+    useState<AbortController | null>(null);
+
+  useEffect(() => {
+    return () => {
+      if (abortController) {
+        abortController.abort();
+      }
+    };
+  }, [abortController]);
 
   const handleFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const selectedFile = e.target.files?.[0];
     if (!selectedFile) return;
 
-    // Check if file is an Excel file
     const validTypes = [
       "application/vnd.ms-excel",
       "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
@@ -53,21 +66,31 @@ export function UploadGrades() {
 
     setFile(selectedFile);
     setUploadStatus("idle");
+    setIsLoadingPreview(true);
 
-    const data = await selectedFile.arrayBuffer();
-    const workbook = XLSX.read(data);
-    const worksheet = workbook.Sheets[workbook.SheetNames[0]];
-    const jsonData = XLSX.utils.sheet_to_json(worksheet, { defval: "" });
-
-    setPreviewData(jsonData);
+    try {
+      const data = await selectedFile.arrayBuffer();
+      const workbook = XLSX.read(data);
+      const worksheet = workbook.Sheets[workbook.SheetNames[0]];
+      const jsonData = XLSX.utils.sheet_to_json(worksheet, { defval: "" });
+      setPreviewData(jsonData);
+    } catch (error) {
+      console.error("Error parsing Excel file:", error);
+      Swal.fire({
+        icon: "error",
+        title: "Error",
+        text: "Failed to parse Excel file. Please check the format.",
+      });
+    } finally {
+      setIsLoadingPreview(false);
+    }
   };
 
-  const handleDrop = (e: React.DragEvent<HTMLDivElement>) => {
+  const handleDrop = async (e: React.DragEvent<HTMLDivElement>) => {
     e.preventDefault();
     const droppedFile = e.dataTransfer.files?.[0];
     if (!droppedFile) return;
 
-    // Check if file is an Excel file
     const validTypes = [
       "application/vnd.ms-excel",
       "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
@@ -85,7 +108,24 @@ export function UploadGrades() {
 
     setFile(droppedFile);
     setUploadStatus("idle");
-    setPreviewData(null);
+    setIsLoadingPreview(true);
+
+    try {
+      const data = await droppedFile.arrayBuffer();
+      const workbook = XLSX.read(data);
+      const worksheet = workbook.Sheets[workbook.SheetNames[0]];
+      const jsonData = XLSX.utils.sheet_to_json(worksheet, { defval: "" });
+      setPreviewData(jsonData);
+    } catch (error) {
+      console.error("Error parsing Excel file:", error);
+      Swal.fire({
+        icon: "error",
+        title: "Error",
+        text: "Failed to parse Excel file. Please check the format.",
+      });
+    } finally {
+      setIsLoadingPreview(false);
+    }
   };
 
   const handleDragOver = (e: React.DragEvent<HTMLDivElement>) => {
@@ -98,7 +138,9 @@ export function UploadGrades() {
     setIsUploading(true);
     setUploadProgress(0);
 
-    // Simulate progress bar
+    const controller = new AbortController();
+    setAbortController(controller);
+
     const progressInterval = setInterval(() => {
       setUploadProgress((prev) => {
         if (prev >= 95) {
@@ -122,6 +164,7 @@ export function UploadGrades() {
             semester,
           }))
         ),
+        signal: controller.signal,
       });
 
       const result = await res.json();
@@ -131,19 +174,25 @@ export function UploadGrades() {
       if (!res.ok) {
         console.error(result.error || "Upload failed");
         setUploadStatus("error");
+        setTimeout(() => {
+          setFile(null);
+          setIsUploading(false);
+          setUploadProgress(0);
+          setUploadStatus("idle");
+          setPreviewData(null);
+          setAcademicYear("");
+          setSemester("");
+          setCurrentPage(1);
+        }, 3000);
         return;
       }
 
       setUploadProgress(100);
       setUploadStatus("success");
 
-      // Optional: Show SweetAlert summary of results
       Swal.fire({
         icon: "success",
-        title: "Grades Uploaded",
-        html: `<pre style="text-align: left">${result.results
-          .map((r: any) => `${r.studentNumber} - ${r.courseCode}: ${r.status}`)
-          .join("\n")}</pre>`,
+        title: "Grades Uploaded Successfully",
         width: 600,
         customClass: {
           popup: "text-sm",
@@ -151,15 +200,46 @@ export function UploadGrades() {
       });
 
       setTimeout(() => {
+        setFile(null);
         setIsUploading(false);
+        setUploadProgress(0);
+        setUploadStatus("idle");
+        setPreviewData(null);
+        setAcademicYear("");
+        setSemester("");
+        setCurrentPage(1);
       }, 3000);
     } catch (error) {
-      clearInterval(progressInterval);
-      setUploadStatus("error");
-      setIsUploading(false);
-      console.error("Upload failed:", error);
+      if (error instanceof Error && error.name === "AbortError") {
+        console.log("Upload cancelled");
+      } else {
+        clearInterval(progressInterval);
+        setUploadStatus("error");
+        setIsUploading(false);
+        console.error("Upload failed:", error);
+        setTimeout(() => {
+          setFile(null);
+          setIsUploading(false);
+          setUploadProgress(0);
+          setUploadStatus("idle");
+          setPreviewData(null);
+          setAcademicYear("");
+          setSemester("");
+          setCurrentPage(1);
+        }, 3000);
+      }
+    } finally {
+      setAbortController(null);
     }
   };
+
+  const totalPages = previewData
+    ? Math.ceil(previewData.length / recordsPerPage)
+    : 0;
+  const paginatedData = previewData?.slice(
+    (currentPage - 1) * recordsPerPage,
+    currentPage * recordsPerPage
+  );
 
   return (
     <div className="space-y-6">
@@ -175,9 +255,9 @@ export function UploadGrades() {
                   <SelectValue placeholder="Select academic year" />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="AY_2024-2025">AY_2024-2025</SelectItem>
-                  <SelectItem value="AY_2025-2026">AY_2025-2026</SelectItem>
-                  <SelectItem value="AY_2026-2027">AY_2026-2027</SelectItem>
+                  <SelectItem value="AY_2024_2025">AY_2024_2025</SelectItem>
+                  <SelectItem value="AY_2025_2026">AY_2025_2026</SelectItem>
+                  <SelectItem value="AY_2026_2027">AY_2026_2027</SelectItem>
                 </SelectContent>
               </Select>
             </div>
@@ -318,53 +398,95 @@ export function UploadGrades() {
         </div>
       )}
 
-      {previewData && previewData.length > 0 && (
+      {isLoadingPreview && (
         <Card className="mt-6">
           <CardContent className="pt-6">
-            <div className="flex justify-between items-center mb-4">
-              <h3 className="font-medium text-lg">Data Preview</h3>
-              <div className="text-sm text-gray-600">
-                {academicYear} •{" "}
-                {semester
-                  .replace("-", " ")
-                  .replace(/\b\w/g, (l) => l.toUpperCase())}
-              </div>
-            </div>
-            <div className="overflow-x-auto">
-              <table className="w-full border-collapse">
-                <thead>
-                  <tr className="bg-gray-100">
-                    {Object.keys(previewData[0]).map((header) => (
-                      <th key={header} className="border px-4 py-2 text-left">
-                        {header}
-                      </th>
-                    ))}
-                  </tr>
-                </thead>
-                <tbody>
-                  {previewData.slice(0, 5).map((row, index) => (
-                    <tr
-                      key={index}
-                      className={index % 2 === 0 ? "bg-white" : "bg-gray-50"}
-                    >
-                      {Object.values(row).map((cell: any, cellIndex) => (
-                        <td key={cellIndex} className="border px-4 py-2">
-                          {cell}
-                        </td>
-                      ))}
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
-              {previewData.length > 5 && (
-                <p className="text-sm text-gray-500 mt-2">
-                  Showing 5 of {previewData.length} records
-                </p>
-              )}
+            <div className="flex justify-center items-center h-40">
+              <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-gray-900"></div>
+              <span className="ml-3">Loading preview...</span>
             </div>
           </CardContent>
         </Card>
       )}
+
+      {!isLoadingPreview &&
+        previewData &&
+        paginatedData &&
+        paginatedData.length > 0 && (
+          <Card className="mt-6">
+            <CardContent className="pt-6">
+              <div className="flex justify-between items-center mb-4">
+                <h3 className="font-medium text-lg">Data Preview</h3>
+                <div className="text-sm text-gray-600">
+                  {academicYear} •{" "}
+                  {semester
+                    .replace("-", " ")
+                    .replace(/\b\w/g, (l) => l.toUpperCase())}
+                </div>
+              </div>
+              <div className="overflow-x-auto">
+                <table className="w-full border-collapse">
+                  <thead>
+                    <tr className="bg-gray-100">
+                      {Object.keys(previewData[0]).map((header) => (
+                        <th key={header} className="border px-4 py-2 text-left">
+                          {header}
+                        </th>
+                      ))}
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {paginatedData.map((row, index) => (
+                      <tr
+                        key={index}
+                        className={index % 2 === 0 ? "bg-white" : "bg-gray-50"}
+                      >
+                        {Object.values(row).map((cell: any, cellIndex) => (
+                          <td key={cellIndex} className="border px-4 py-2">
+                            {cell}
+                          </td>
+                        ))}
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+
+                <div className="mt-4 flex items-center justify-between">
+                  <p className="text-sm text-gray-500">
+                    Showing {(currentPage - 1) * recordsPerPage + 1} to{" "}
+                    {Math.min(currentPage * recordsPerPage, previewData.length)}{" "}
+                    of {previewData.length} records
+                  </p>
+                  <div className="flex items-center space-x-2">
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      onClick={() =>
+                        setCurrentPage((prev) => Math.max(1, prev - 1))
+                      }
+                      disabled={currentPage === 1}
+                    >
+                      <ChevronLeft className="h-4 w-4" />
+                    </Button>
+                    <span className="text-sm">
+                      Page {currentPage} of {totalPages}
+                    </span>
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      onClick={() =>
+                        setCurrentPage((prev) => Math.min(totalPages, prev + 1))
+                      }
+                      disabled={currentPage === totalPages}
+                    >
+                      <ChevronRight className="h-4 w-4" />
+                    </Button>
+                  </div>
+                </div>
+              </div>
+            </CardContent>
+          </Card>
+        )}
     </div>
   );
 }
