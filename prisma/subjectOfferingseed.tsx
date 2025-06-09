@@ -26,7 +26,7 @@ async function main() {
       const checklistSubjects = await prisma.curriculumChecklist.findMany({
         where: {
           course: course as Courses,
-          major: major as Major | null,
+          major: major as Major,
           semester,
         },
       });

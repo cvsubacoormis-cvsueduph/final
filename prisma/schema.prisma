@@ -51,7 +51,7 @@ model Student {
 model CurriculumChecklist {
   id              String            @id @default(cuid())
   course          Courses
-  major           Major?
+  major           Major
   yearLevel       yearLevels
   semester        Semester
   courseCode      String
@@ -61,7 +61,7 @@ model CurriculumChecklist {
   preRequisite    String?
   SubjectOffering SubjectOffering[]
 
-  @@unique([course, yearLevel, semester, courseCode], name: "course_yearLevel_semester_courseCode")
+  @@unique([course, yearLevel, semester, courseCode, major], name: "course_yearLevel_semester_courseCode_major")
 }
 
 model SubjectOffering {
@@ -164,6 +164,7 @@ enum Major {
   MARKETING_MANAGEMENT
   ENGLISH
   MATHEMATICS
+  NONE
 }
 
 model Event {

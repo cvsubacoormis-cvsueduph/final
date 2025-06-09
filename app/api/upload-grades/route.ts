@@ -1,5 +1,6 @@
 import { NextResponse } from "next/server";
 import prisma from "@/lib/prisma";
+import { Major } from "@prisma/client";
 
 export async function POST(req: Request) {
   const grades = await req.json();
@@ -78,7 +79,7 @@ export async function POST(req: Request) {
       where: {
         courseCode,
         course: student.course,
-        OR: [{ major: null }, { major: student.major }],
+        OR: [{ major: undefined }, { major: student.major as Major }],
       },
     });
 

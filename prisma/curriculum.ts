@@ -1,4 +1,4 @@
-import { Courses, Semester, yearLevels } from "@prisma/client";
+import { Courses, Major, Semester, yearLevels } from "@prisma/client";
 import {
   BMHRchecklistData,
   BMMMchecklistData,
@@ -30,13 +30,14 @@ function parseSemester(text: string): Semester {
   return map[text as keyof typeof map] as Semester;
 }
 
-function convertChecklist(data: typeof ITchecklistData, course: Courses) {
+function convertChecklist(data: typeof CRIMchecklistData, course: Courses) {
   return data.map((subject) => ({
     course,
     yearLevel: parseYearLevel(subject.yearLevel),
     semester: parseSemester(subject.semester),
     courseCode: subject.courseCode,
     courseTitle: subject.courseTitle,
+    major: subject.major,
     creditLec: subject.creditUnit.lec ?? 0,
     creditLab: subject.creditUnit.lab ?? 0,
     preRequisite: subject.preRequisite ? subject.preRequisite : null,
@@ -44,10 +45,18 @@ function convertChecklist(data: typeof ITchecklistData, course: Courses) {
 }
 
 export const curriculumChecklistData = [
-  ...convertChecklist(
-    PSYchecklistData.filter(
-      (item) => item !== undefined
-    ) as typeof ITchecklistData,
-    Courses.BSP
-  ),
+  // ...convertChecklist(
+  //   PSYchecklistData.filter(
+  //     (item) => item !== undefined
+  //   ) as typeof ITchecklistData,
+  //   Courses.BSP
+  // ),
+  // ...convertChecklist(ITchecklistData, Courses.BSIT), //
+  // ...convertChecklist(CSchecklistData, Courses.BSCS), //
+  // ...convertChecklist(HMchecklistData, Courses.BSHM), //
+  ...convertChecklist(BMHRchecklistData, Courses.BSBA), //
+  // ...convertChecklist(BMMMchecklistData, Courses.BSBA), //
+  // ...convertChecklist(CRIMchecklistData, Courses.BSCRIM), //
+  // ...convertChecklist(BSEDENGData, Courses.BSED), //
+  // ...convertChecklist(BSEDMATHchecklistData, Courses.BSED), //
 ];
