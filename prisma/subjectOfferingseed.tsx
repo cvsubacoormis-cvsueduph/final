@@ -11,11 +11,11 @@ const academicYear = "AY_2024_2025" as AcademicYear;
 const semester = "FIRST" as Semester;
 
 const courseMajorMap: Record<Courses, (Major | null)[]> = {
-  BSIT: [null],
-  BSCS: [null],
-  BSCRIM: [null],
-  BSP: [null],
-  BSHM: [null],
+  BSIT: ["NONE"],
+  BSCS: ["NONE"],
+  BSCRIM: ["NONE"],
+  BSP: ["NONE"],
+  BSHM: ["NONE"],
   BSED: ["ENGLISH", "MATHEMATICS"],
   BSBA: ["MARKETING_MANAGEMENT", "HUMAN_RESOURCE_MANAGEMENT"],
 };

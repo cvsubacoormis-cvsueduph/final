@@ -380,6 +380,10 @@ export function UploadGrades() {
                 .replace("-", " ")
                 .replace(/\b\w/g, (l) => l.toUpperCase())}{" "}
               have been successfully uploaded and processed.
+              <br />
+              <strong>
+                {previewData ? previewData.length : 0} grades uploaded.
+              </strong>
             </p>
           </div>
         </div>

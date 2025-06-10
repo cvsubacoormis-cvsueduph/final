@@ -45,12 +45,12 @@ function convertChecklist(data: typeof CRIMchecklistData, course: Courses) {
 }
 
 export const curriculumChecklistData = [
-  // ...convertChecklist(
-  //   PSYchecklistData.filter(
-  //     (item) => item !== undefined
-  //   ) as typeof ITchecklistData,
-  //   Courses.BSP
-  // ),
+  ...convertChecklist(
+    PSYchecklistData.filter(
+      (item) => item !== undefined
+    ) as typeof ITchecklistData,
+    Courses.BSP
+  ),
   // ...convertChecklist(ITchecklistData, Courses.BSIT), //
   // ...convertChecklist(CSchecklistData, Courses.BSCS), //
   // ...convertChecklist(HMchecklistData, Courses.BSHM), //

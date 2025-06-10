@@ -2,6 +2,21 @@ import { NextResponse } from "next/server";
 import prisma from "@/lib/prisma";
 import { Major } from "@prisma/client";
 
+// Define the valid grade values in order from highest to lowest
+const GRADE_HIERARCHY = [
+  "1.00",
+  "1.25",
+  "1.50",
+  "1.75",
+  "2.00",
+  "2.25",
+  "2.50",
+  "2.75",
+  "3.00",
+  "4.00",
+  "5.00",
+];
+
 export async function POST(req: Request) {
   const grades = await req.json();
 
@@ -41,6 +56,19 @@ export async function POST(req: Request) {
       continue;
     }
 
+    // Standardize the grade format (e.g., "1" becomes "1.00", "2.5" becomes "2.50")
+    const standardizedGrade = parseFloat(grade).toFixed(2);
+
+    // Check if the grade is valid
+    if (!GRADE_HIERARCHY.includes(standardizedGrade)) {
+      results.push({
+        studentNumber,
+        courseCode,
+        status: "Invalid grade value",
+      });
+      continue;
+    }
+
     // 🔍 2. Check if academic term exists
     const academicTerm = await prisma.academicTerm.findUnique({
       where: {
@@ -74,12 +102,13 @@ export async function POST(req: Request) {
       continue;
     }
 
-    // 4. Find curriculum subject by courseCode and student’s course/major
+    // 4. Find curriculum subject by courseCode and student's course/major
     const checklistSubject = await prisma.curriculumChecklist.findFirst({
       where: {
         courseCode,
         course: student.course,
-        OR: [{ major: undefined }, { major: student.major as Major }],
+        // If student.major is null, look for NONE. Otherwise, match the major.
+        major: student.major ? student.major : Major.NONE,
       },
     });
 
@@ -112,6 +141,36 @@ export async function POST(req: Request) {
       });
       continue;
     }
+
+    // Check if a grade already exists for this student/course/term
+    const existingGrade = await prisma.grade.findUnique({
+      where: {
+        studentNumber_courseCode_academicYear_semester: {
+          studentNumber,
+          courseCode,
+          academicYear,
+          semester,
+        },
+      },
+    });
+
+    // If there's an existing grade, compare it with the new grade
+    if (existingGrade) {
+      const existingGradeIndex = GRADE_HIERARCHY.indexOf(existingGrade.grade);
+      const newGradeIndex = GRADE_HIERARCHY.indexOf(standardizedGrade);
+
+      // If the existing grade is better (lower index in GRADE_HIERARCHY), keep it
+      if (existingGradeIndex < newGradeIndex) {
+        results.push({
+          studentNumber,
+          courseCode,
+          status: "Existing grade is better - kept the existing grade",
+        });
+        continue;
+      }
+      // If the new grade is better or the same, we'll proceed to update it
+    }
+
     // Upsert grade with the found subject offering
     await prisma.grade.upsert({
       where: {
@@ -129,7 +188,7 @@ export async function POST(req: Request) {
         courseCode,
         courseTitle,
         creditUnit: Number(creditUnit),
-        grade: String(grade),
+        grade: standardizedGrade,
         reExam,
         remarks,
         instructor,
@@ -145,7 +204,7 @@ export async function POST(req: Request) {
       update: {
         courseTitle,
         creditUnit: Number(creditUnit),
-        grade: String(grade),
+        grade: standardizedGrade,
         reExam,
         remarks,
         instructor,
@@ -159,12 +218,12 @@ export async function POST(req: Request) {
       data: {
         studentNumber,
         courseCode,
-        grade: String(grade),
+        grade: standardizedGrade,
         remarks,
         instructor,
         academicYear,
         semester,
-        action: "UPDATED",
+        action: existingGrade ? "UPDATED" : "CREATED",
       },
     });
 
