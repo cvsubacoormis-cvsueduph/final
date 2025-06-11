@@ -40,7 +40,7 @@ export async function POST(req: Request) {
       semester,
     } = entry;
 
-    // 🔍 1. Basic required field check
+    // 🔍 1. Basic required field checkssdsad
     if (
       !studentNumber ||
       !courseCode ||
