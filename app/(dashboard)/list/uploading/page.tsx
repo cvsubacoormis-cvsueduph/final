@@ -5,6 +5,8 @@ import Swal from "sweetalert2";
 import { ClipLoader } from "react-spinners";
 import { useState } from "react";
 import { UploadGrades } from "@/components/UploadGrades";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import ManualGradeEntry from "@/components/ManualGradeEntry";
 
 interface GradeRow {
   studentNumber: string;
@@ -27,7 +29,18 @@ export default function GradeUploader() {
       <span className=" flex text-xs text-gray-500 font-semibold mb-2">
         Uploading of Student Grades
       </span>
-      <UploadGrades />{" "}
+      <Tabs defaultValue="upload" className="w-full">
+        <TabsList className="grid w-full grid-cols-2">
+          <TabsTrigger value="upload">Excel Upload</TabsTrigger>
+          <TabsTrigger value="manual">Manual Entry</TabsTrigger>
+        </TabsList>
+        <TabsContent value="upload" className="mt-6">
+          <UploadGrades />
+        </TabsContent>
+        <TabsContent value="manual" className="mt-6">
+          <ManualGradeEntry />
+        </TabsContent>
+      </Tabs>
     </div>
   );
 }

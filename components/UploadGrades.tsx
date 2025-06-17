@@ -24,6 +24,18 @@ import {
 import { Label } from "@/components/ui/label";
 import Swal from "sweetalert2";
 
+interface UploadResult {
+  studentNumber?: string;
+  courseCode: string;
+  status: string;
+  studentName?: string;
+  possibleMatches?: Array<{
+    studentNumber: string;
+    firstName: string;
+    lastName: string;
+  }>;
+}
+
 export function UploadGrades() {
   const [file, setFile] = useState<File | null>(null);
   const [isUploading, setIsUploading] = useState(false);
@@ -36,6 +48,7 @@ export function UploadGrades() {
   const [academicYear, setAcademicYear] = useState<string>("");
   const [semester, setSemester] = useState<string>("");
   const [currentPage, setCurrentPage] = useState(1);
+  const [uploadResults, setUploadResults] = useState<UploadResult[]>([]);
   const recordsPerPage = 10;
   const [abortController, setAbortController] =
     useState<AbortController | null>(null);
@@ -137,6 +150,7 @@ export function UploadGrades() {
 
     setIsUploading(true);
     setUploadProgress(0);
+    setUploadResults([]);
 
     const controller = new AbortController();
     setAbortController(controller);
@@ -174,41 +188,124 @@ export function UploadGrades() {
       if (!res.ok) {
         console.error(result.error || "Upload failed");
         setUploadStatus("error");
-        setTimeout(() => {
-          setFile(null);
-          setIsUploading(false);
-          setUploadProgress(0);
-          setUploadStatus("idle");
-          setPreviewData(null);
-          setAcademicYear("");
-          setSemester("");
-          setCurrentPage(1);
-        }, 3000);
+        Swal.fire({
+          icon: "error",
+          title: "Upload Failed",
+          text: result.error || "An error occurred during upload",
+        });
         return;
       }
 
       setUploadProgress(100);
       setUploadStatus("success");
+      setUploadResults(result.results);
+
+      // Group results by status
+      const successResults = result.results.filter((r: UploadResult) =>
+        r.status.includes("✅")
+      );
+      const errorResults = result.results.filter(
+        (r: UploadResult) => !r.status.includes("✅")
+      );
+
+      // Get unique course codes for each group
+      const successCourseCodes = [
+        ...new Set(successResults.map((r: UploadResult) => r.courseCode)),
+      ];
+      const errorCourseCodes = [
+        ...new Set(errorResults.map((r: UploadResult) => r.courseCode)),
+      ];
+
+      // Count successful and failed uploads
+      const successCount = successResults.length;
+      const errorCount = errorResults.length;
 
       Swal.fire({
         icon: "success",
-        title: "Grades Uploaded Successfully",
-        width: 600,
-        customClass: {
-          popup: "text-sm",
-        },
-      });
+        title: "Upload Complete",
+        width: 800,
+        html: `
+          <div class="text-left">
+            <p class="mb-4">Processed ${result.results.length} records:</p>
+            
+            <div class="mb-4">
+              <p class="font-medium text-green-700">✅ ${successCount} successful uploads</p>
+              ${
+                successCourseCodes.length > 0
+                  ? `
+                <p class="text-sm mt-1">Course codes: 
+                  ${successCourseCodes
+                    .map(
+                      (code) =>
+                        `<span class="bg-green-100 text-green-800 text-xs px-2 py-1 rounded ml-1">${code}</span>`
+                    )
+                    .join("")}
+                </p>
+              `
+                  : ""
+              }
+            </div>
 
-      setTimeout(() => {
-        setFile(null);
-        setIsUploading(false);
-        setUploadProgress(0);
-        setUploadStatus("idle");
-        setPreviewData(null);
-        setAcademicYear("");
-        setSemester("");
-        setCurrentPage(1);
-      }, 3000);
+            ${
+              errorCount > 0
+                ? `
+              <div>
+                <p class="font-medium text-red-700">❌ ${errorCount} failed uploads</p>
+                ${
+                  errorCourseCodes.length > 0
+                    ? `
+                  <p class="text-sm mt-1">Course codes: 
+                    ${errorCourseCodes
+                      .map(
+                        (code) =>
+                          `<span class="bg-red-100 text-red-800 text-xs px-2 py-1 rounded ml-1">${code}</span>`
+                      )
+                      .join("")}
+                  </p>
+                `
+                    : ""
+                }
+              </div>
+            `
+                : ""
+            }
+
+            <div class="mt-4">
+              <details>
+                <summary class="text-sm font-medium cursor-pointer">View detailed results</summary>
+                <div class="mt-2 max-h-60 overflow-y-auto text-xs">
+                  <table class="w-full border-collapse">
+                    <thead>
+                      <tr class="bg-gray-100">
+                        <th class="border px-2 py-1 text-left">Student</th>
+                        <th class="border px-2 py-1 text-left">Course</th>
+                        <th class="border px-2 py-1 text-left">Status</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      ${result.results
+                        .map(
+                          (r: UploadResult) => `
+                        <tr class="${
+                          r.status.includes("✅") ? "bg-green-50" : "bg-red-50"
+                        }">
+                          <td class="border px-2 py-1">${
+                            r.studentNumber || r.studentName || "N/A"
+                          }</td>
+                          <td class="border px-2 py-1">${r.courseCode}</td>
+                          <td class="border px-2 py-1">${r.status}</td>
+                        </tr>
+                      `
+                        )
+                        .join("")}
+                    </tbody>
+                  </table>
+                </div>
+              </details>
+            </div>
+          </div>
+        `,
+      });
     } catch (error) {
       if (error instanceof Error && error.name === "AbortError") {
         console.log("Upload cancelled");
@@ -217,19 +314,15 @@ export function UploadGrades() {
         setUploadStatus("error");
         setIsUploading(false);
         console.error("Upload failed:", error);
-        setTimeout(() => {
-          setFile(null);
-          setIsUploading(false);
-          setUploadProgress(0);
-          setUploadStatus("idle");
-          setPreviewData(null);
-          setAcademicYear("");
-          setSemester("");
-          setCurrentPage(1);
-        }, 3000);
+        Swal.fire({
+          icon: "error",
+          title: "Upload Failed",
+          text: "An error occurred during the upload process",
+        });
       }
     } finally {
       setAbortController(null);
+      setIsUploading(false);
     }
   };
 
@@ -367,39 +460,6 @@ export function UploadGrades() {
             <Progress value={uploadProgress} className="h-2" />
           </CardContent>
         </Card>
-      )}
-
-      {uploadStatus === "success" && (
-        <div className="rounded-lg bg-green-50 p-4 flex items-start gap-3 mt-4">
-          <CheckCircle className="h-5 w-5 text-green-500 mt-0.5" />
-          <div>
-            <h3 className="font-medium text-green-800">Upload Successful</h3>
-            <p className="text-green-700 text-sm">
-              Student grades for {academicYear} -{" "}
-              {semester
-                .replace("-", " ")
-                .replace(/\b\w/g, (l) => l.toUpperCase())}{" "}
-              have been successfully uploaded and processed.
-              <br />
-              <strong>
-                {previewData ? previewData.length : 0} grades uploaded.
-              </strong>
-            </p>
-          </div>
-        </div>
-      )}
-
-      {uploadStatus === "error" && (
-        <div className="rounded-lg bg-red-50 p-4 flex items-start gap-3 mt-4">
-          <AlertCircle className="h-5 w-5 text-red-500 mt-0.5" />
-          <div>
-            <h3 className="font-medium text-red-800">Upload Failed</h3>
-            <p className="text-red-700 text-sm">
-              There was an error processing your file. Please check the format
-              and try again.
-            </p>
-          </div>
-        </div>
       )}
 
       {isLoadingPreview && (

@@ -51,12 +51,12 @@ export const curriculumChecklistData = [
     ) as typeof ITchecklistData,
     Courses.BSP
   ),
-  // ...convertChecklist(ITchecklistData, Courses.BSIT), //
-  // ...convertChecklist(CSchecklistData, Courses.BSCS), //
-  // ...convertChecklist(HMchecklistData, Courses.BSHM), //
-  ...convertChecklist(BMHRchecklistData, Courses.BSBA), //
-  // ...convertChecklist(BMMMchecklistData, Courses.BSBA), //
-  // ...convertChecklist(CRIMchecklistData, Courses.BSCRIM), //
-  // ...convertChecklist(BSEDENGData, Courses.BSED), //
-  // ...convertChecklist(BSEDMATHchecklistData, Courses.BSED), //
+  ...convertChecklist(ITchecklistData, Courses.BSIT),
+  ...convertChecklist(CSchecklistData, Courses.BSCS),
+  ...convertChecklist(HMchecklistData, Courses.BSHM),
+  ...convertChecklist(BMHRchecklistData, Courses.BSBA),
+  ...convertChecklist(BMMMchecklistData, Courses.BSBA),
+  ...convertChecklist(CRIMchecklistData, Courses.BSCRIM),
+  ...convertChecklist(BSEDENGData, Courses.BSED),
+  ...convertChecklist(BSEDMATHchecklistData, Courses.BSED),
 ];
