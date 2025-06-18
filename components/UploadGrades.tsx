@@ -10,6 +10,7 @@ import {
   AlertCircle,
   ChevronLeft,
   ChevronRight,
+  Download,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
@@ -23,6 +24,8 @@ import {
 } from "@/components/ui/select";
 import { Label } from "@/components/ui/label";
 import Swal from "sweetalert2";
+import { templateData } from "@/lib/templateSample";
+import UploadGradeNotice from "./Notices/upload-grade-notice";
 
 interface UploadResult {
   studentNumber?: string;
@@ -224,87 +227,6 @@ export function UploadGrades() {
         icon: "success",
         title: "Upload Complete",
         width: 800,
-        html: `
-          <div class="text-left">
-            <p class="mb-4">Processed ${result.results.length} records:</p>
-            
-            <div class="mb-4">
-              <p class="font-medium text-green-700">✅ ${successCount} successful uploads</p>
-              ${
-                successCourseCodes.length > 0
-                  ? `
-                <p class="text-sm mt-1">Course codes: 
-                  ${successCourseCodes
-                    .map(
-                      (code) =>
-                        `<span class="bg-green-100 text-green-800 text-xs px-2 py-1 rounded ml-1">${code}</span>`
-                    )
-                    .join("")}
-                </p>
-              `
-                  : ""
-              }
-            </div>
-
-            ${
-              errorCount > 0
-                ? `
-              <div>
-                <p class="font-medium text-red-700">❌ ${errorCount} failed uploads</p>
-                ${
-                  errorCourseCodes.length > 0
-                    ? `
-                  <p class="text-sm mt-1">Course codes: 
-                    ${errorCourseCodes
-                      .map(
-                        (code) =>
-                          `<span class="bg-red-100 text-red-800 text-xs px-2 py-1 rounded ml-1">${code}</span>`
-                      )
-                      .join("")}
-                  </p>
-                `
-                    : ""
-                }
-              </div>
-            `
-                : ""
-            }
-
-            <div class="mt-4">
-              <details>
-                <summary class="text-sm font-medium cursor-pointer">View detailed results</summary>
-                <div class="mt-2 max-h-60 overflow-y-auto text-xs">
-                  <table class="w-full border-collapse">
-                    <thead>
-                      <tr class="bg-gray-100">
-                        <th class="border px-2 py-1 text-left">Student</th>
-                        <th class="border px-2 py-1 text-left">Course</th>
-                        <th class="border px-2 py-1 text-left">Status</th>
-                      </tr>
-                    </thead>
-                    <tbody>
-                      ${result.results
-                        .map(
-                          (r: UploadResult) => `
-                        <tr class="${
-                          r.status.includes("✅") ? "bg-green-50" : "bg-red-50"
-                        }">
-                          <td class="border px-2 py-1">${
-                            r.studentNumber || r.studentName || "N/A"
-                          }</td>
-                          <td class="border px-2 py-1">${r.courseCode}</td>
-                          <td class="border px-2 py-1">${r.status}</td>
-                        </tr>
-                      `
-                        )
-                        .join("")}
-                    </tbody>
-                  </table>
-                </div>
-              </details>
-            </div>
-          </div>
-        `,
       });
     } catch (error) {
       if (error instanceof Error && error.name === "AbortError") {
@@ -371,6 +293,9 @@ export function UploadGrades() {
         </CardContent>
       </Card>
 
+      {/* Data Format Warning */}
+      <UploadGradeNotice />
+
       {/* File Upload Section */}
       <div
         className={`border-2 border-dashed rounded-lg p-10 text-center cursor-pointer transition-colors ${
@@ -406,6 +331,12 @@ export function UploadGrades() {
             <p className="text-sm text-gray-400">
               Complete the form above to enable file upload
             </p>
+            <div className="mt-3 text-xs text-amber-600 text-center max-w-md">
+              <p>
+                📋 Remember to verify studentNumber, lastName, firstName, and
+                courseCode in your Excel file
+              </p>
+            </div>
           </div>
         ) : file ? (
           <div className="flex flex-col items-center">
@@ -426,7 +357,7 @@ export function UploadGrades() {
         ) : (
           <div className="flex flex-col items-center">
             <Upload className="h-16 w-16 text-gray-400 mb-2" />
-            <p className="text-lg font-medium">Drop your Excel file here</p>
+            <p className="text-lg font-medium">Upload your Excel file here</p>
             <p className="text-sm text-gray-500">or click to browse</p>
             <p className="text-xs text-gray-400 mt-2">
               Supports .xlsx and .xls files
