@@ -1,6 +1,7 @@
 "use client";
 
-import ChecklistsTable from "@/components/ChecklistsTable";
+import { CurriculumChecklist } from "@/components/ChecklistsTable";
+
 export default function CheckListsPage() {
   return (
     <>
@@ -9,7 +10,7 @@ export default function CheckListsPage() {
         <div className="flex items-center justify-between">
           <h1 className="hidden md:block text-lg font-semibold">
             Curriculum Checklist{" "}
-            <span className=" flex text-xs text-gray-500">
+            <span className=" flex text-xs text-gray-500 mb-2">
               Lists of Checklists
             </span>
           </h1>
@@ -26,7 +27,7 @@ export default function CheckListsPage() {
           </div>
         </div>
         {/* LIST */}
-        <ChecklistsTable />
+        <CurriculumChecklist />
       </div>
     </>
   );
