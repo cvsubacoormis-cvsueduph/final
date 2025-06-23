@@ -7,11 +7,10 @@ import { useRouter } from "next/navigation";
 import { getCurriculumChecklist } from "@/actions/curriculum-actions";
 import { CurriculumItem } from "@/lib/types";
 import { getStudentData } from "@/actions/getStudentData";
+import { HashLoader } from "react-spinners";
 
 export default function PrintChecklist() {
   const { user } = useUser();
-  const course = user?.publicMetadata.course;
-  const major = user?.publicMetadata.major;
   const router = useRouter();
   const [checklistData, setChecklistData] = useState<CurriculumItem[]>([]);
   const [loading, setLoading] = useState(true);
@@ -19,22 +18,29 @@ export default function PrintChecklist() {
     fullName: string;
     studentNumber: string;
     address: string;
+    phone: string;
+    course: string;
+    major: string | null;
   } | null>(null);
 
   useEffect(() => {
     const fetchData = async () => {
       try {
-        if (!course) return;
-        const [student, curriculum] = await Promise.all([
-          getStudentData(),
-          getCurriculumChecklist(course as string, major as string | null),
-        ]);
+        const student = await getStudentData();
 
         setStudentData({
           fullName: `${student.firstName} ${student.lastName}`,
           studentNumber: student.studentNumber,
           address: student.address || "",
+          phone: student.phone || "",
+          course: student.course,
+          major: student.major,
         });
+
+        const curriculum = await getCurriculumChecklist(
+          student.course,
+          student.major
+        );
 
         const curriculumWithGrades = curriculum.map((item) => {
           const gradeInfo = student.grades.find(
@@ -55,7 +61,7 @@ export default function PrintChecklist() {
     };
 
     fetchData();
-  }, [course, major]);
+  }, []);
 
   useEffect(() => {
     const handlePrint = () => {
@@ -80,7 +86,9 @@ export default function PrintChecklist() {
   };
 
   const getCourseTitle = () => {
-    switch (course) {
+    if (!studentData) return "";
+
+    switch (studentData.course) {
       case "BSCS":
         return "BACHELOR OF SCIENCE IN COMPUTER SCIENCE";
       case "BSIT":
@@ -92,16 +100,16 @@ export default function PrintChecklist() {
       case "BSP":
         return "BACHELOR OF SCIENCE IN PSYCHOLOGY";
       case "BSBA":
-        if (major === "MARKETING_MANAGEMENT") {
+        if (studentData.major === "MARKETING_MANAGEMENT") {
           return "BACHELOR OF SCIENCE IN BUSINESS ADMINISTRATION - MARKETING MANAGEMENT";
-        } else if (major === "HUMAN_RESOURCE_MANAGEMENT") {
+        } else if (studentData.major === "HUMAN_RESOURCE_MANAGEMENT") {
           return "BACHELOR OF SCIENCE IN BUSINESS ADMINISTRATION - HUMAN RESOURCE MANAGEMENT";
         }
         return "BACHELOR OF SCIENCE IN BUSINESS ADMINISTRATION";
       case "BSED":
-        if (major === "ENGLISH") {
+        if (studentData.major === "ENGLISH") {
           return "BACHELOR OF SCIENCE IN SECONDARY EDUCATION - Major in English";
-        } else if (major === "MATH") {
+        } else if (studentData.major === "MATH") {
           return "BACHELOR OF SCIENCE IN SECONDARY EDUCATION - Major in Mathematics";
         }
         return "BACHELOR OF SCIENCE IN SECONDARY EDUCATION";
@@ -113,11 +121,12 @@ export default function PrintChecklist() {
   if (loading) {
     return (
       <div className="flex items-center justify-center h-screen">
-        <p>Loading checklist data...</p>
+        <p>
+          <HashLoader size={150} />
+        </p>
       </div>
     );
   }
-
   return (
     <div>
       <div
