@@ -8,7 +8,6 @@ import {
   Clock,
   XCircle,
   BookOpen,
-  GraduationCap,
   Calendar,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -21,48 +20,111 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import { getStudentData } from "@/actions/getStudentData";
 import { getCurriculumChecklist } from "@/actions/curriculum-actions";
 import { semesterMap, yearLevelMap } from "@/lib/utils";
 import { HashLoader } from "react-spinners";
-
-interface Subject {
-  id: string;
-  yearLevel: string;
-  semester: string;
-  courseCode: string;
-  courseTitle: string;
-  major: string;
-  creditUnit: { lec: number; lab: number };
-  contactHrs: { lec: number; lab: number };
-  preRequisite: string;
-  grade: string;
-  completion: string;
-  remarks: string;
-}
-
-interface AcademicProgress {
-  creditsCompleted: number;
-  totalCreditsRequired: number;
-  completionRate: number;
-  currentGPA: number;
-  subjectsCompleted: number;
-  subjectsRemaining: number;
-}
+import Link from "next/link";
+import { AcademicProgress, Subject } from "@/lib/types";
+import { courseMap, formatMajor } from "@/lib/courses";
 
 export function CurriculumChecklist() {
   const [selectedYear, setSelectedYear] = useState<string>("all");
   const [data, setData] = useState<{
     curriculum: Subject[];
     progress: AcademicProgress;
+    studentInfo: {
+      fullName: string;
+      studentNumber: string;
+      course: string;
+      major: string | null;
+    };
   } | null>(null);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     async function loadCurriculum() {
       try {
-        const data = await getCurriculumChecklist();
-        console.log("Fetched data:", data); // Debug log
-        setData(data);
+        const student = await getStudentData();
+        const curriculum = await getCurriculumChecklist(
+          student.course,
+          student.major
+        );
+
+        // Merge curriculum with grades
+        const curriculumWithGrades = curriculum.map((item) => {
+          const grade = student.grades.find(
+            (g) => g.courseCode === item.courseCode
+          );
+          const completion = grade
+            ? grade.remarks?.includes("FAILED")
+              ? "Failed"
+              : "Completed"
+            : "Not Taken";
+
+          return {
+            ...item,
+            grade: grade?.grade || "",
+            completion,
+            remarks: grade?.remarks || "",
+          };
+        });
+
+        // Calculate progress metrics
+        const creditsCompleted = curriculumWithGrades
+          .filter((subject) => subject.completion === "Completed")
+          .reduce(
+            (sum, subject) =>
+              sum + subject.creditUnit.lec + subject.creditUnit.lab,
+            0
+          );
+
+        const totalCreditsRequired = curriculumWithGrades.reduce(
+          (sum, item) => sum + item.creditUnit.lec + item.creditUnit.lab,
+          0
+        );
+
+        // Calculate GPA
+        const gradedSubjects = curriculumWithGrades
+          .filter(
+            (subject) => subject.completion === "Completed" && subject.grade
+          )
+          .map((subject) => ({
+            grade: parseFloat(subject.grade) || 0,
+            credits: subject.creditUnit.lec + subject.creditUnit.lab,
+          }));
+
+        const gpa =
+          gradedSubjects.length > 0
+            ? gradedSubjects.reduce(
+                (sum, { grade, credits }) => sum + grade * credits,
+                0
+              ) / gradedSubjects.reduce((sum, { credits }) => sum + credits, 0)
+            : 0;
+
+        setData({
+          curriculum: curriculumWithGrades as Subject[],
+          progress: {
+            creditsCompleted,
+            totalCreditsRequired,
+            completionRate: Math.round(
+              (creditsCompleted / totalCreditsRequired) * 100
+            ),
+            currentGPA: parseFloat(gpa.toFixed(2)),
+            subjectsCompleted: curriculumWithGrades.filter(
+              (s) => s.completion === "Completed"
+            ).length,
+            subjectsRemaining: curriculumWithGrades.filter(
+              (s) => s.completion !== "Completed"
+            ).length,
+          },
+          studentInfo: {
+            fullName: `${student.firstName} ${student.lastName}`,
+            studentNumber: student.studentNumber,
+            course: student.course,
+            major: student.major,
+          },
+        });
       } catch (error) {
         console.error("Error fetching curriculum:", error);
       } finally {
@@ -170,10 +232,12 @@ export function CurriculumChecklist() {
                 <SelectItem value="Fourth Year">Fourth Year</SelectItem>
               </SelectContent>
             </Select>
-            <Button onClick={handlePrint} variant="outline">
-              <Printer className="h-4 w-4 mr-2" />
-              Print
-            </Button>
+            <Link href="/printChecklist">
+              <Button>
+                <Printer className="h-4 w-4 mr-2" />
+                Print
+              </Button>
+            </Link>
             <Button variant="outline">
               <Download className="h-4 w-4 mr-2" />
               Export
@@ -187,11 +251,13 @@ export function CurriculumChecklist() {
         <CardHeader className="print:pb-2">
           <CardTitle className="flex items-center gap-2 print:text-lg">
             <BookOpen className="h-5 w-5 print:h-4 print:w-4" />
-            Academic Progress
+            Academic Progress - {courseMap(data.studentInfo.course)}
+            {data.studentInfo.major &&
+              ` (${formatMajor(data.studentInfo.major)})`}
           </CardTitle>
         </CardHeader>
         <CardContent className="print:pt-0">
-          <div className="grid grid-cols-2 md:grid-cols-3 gap-4 print:grid-cols-3 print:gap-2">
+          <div className="grid grid-cols-2 md:grid-cols-2 gap-4 print:grid-cols-2 print:gap-2">
             <div className="text-center p-4 bg-blue-50 rounded-lg print:bg-gray-50 print:p-2">
               <div className="text-2xl font-bold text-blue-600 print:text-lg">
                 {data.progress.creditsCompleted}
@@ -208,24 +274,24 @@ export function CurriculumChecklist() {
                 Total Required
               </div>
             </div>
-            <div className="text-center p-4 bg-green-50 rounded-lg print:p-2">
+            {/* <div className="text-center p-4 bg-green-50 rounded-lg print:p-2">
               <div className="text-2xl font-bold text-green-600 print:text-lg">
                 {data.progress.completionRate}%
               </div>
               <div className="text-sm text-green-700 print:text-xs">
                 Completion Rate
               </div>
-            </div>
+            </div> */}
           </div>
-          <div className="grid grid-cols-2 md:grid-cols-3 gap-4 mt-4 print:grid-cols-3 print:gap-2 print:mt-2">
-            <div className="text-center p-4 bg-purple-50 rounded-lg print:p-2">
+          <div className="grid grid-cols-2 md:grid-cols-2 gap-4 mt-4 print:grid-cols-2 print:gap-2 print:mt-2">
+            {/* <div className="text-center p-4 bg-purple-50 rounded-lg print:p-2">
               <div className="text-2xl font-bold text-purple-600 print:text-lg">
                 {data.progress.currentGPA.toFixed(2)}
               </div>
               <div className="text-sm text-purple-700 print:text-xs">
                 Current GPA
               </div>
-            </div>
+            </div> */}
             <div className="text-center p-4 bg-amber-50 rounded-lg print:p-2">
               <div className="text-2xl font-bold text-amber-600 print:text-lg">
                 {data.progress.subjectsCompleted}
@@ -378,6 +444,10 @@ export function CurriculumChecklist() {
       <div className="hidden print:block text-center text-xs text-gray-500 mt-8 pt-4 border-t border-gray-300">
         <p>
           Generated on {new Date().toLocaleDateString()} | Curriculum Checklist
+        </p>
+        <p>
+          Student: {data.studentInfo.fullName} ({data.studentInfo.studentNumber}
+          )
         </p>
       </div>
     </div>

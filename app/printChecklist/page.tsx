@@ -1,47 +1,61 @@
 "use client";
 
-import {
-  CSchecklistData,
-  ITchecklistData,
-  BMHRchecklistData,
-  BMMMchecklistData,
-  CRIMchecklistData,
-  BSEDENGData,
-  BSEDMATHchecklistData,
-  HMchecklistData,
-  PSYchecklistData,
-} from "@/lib/data";
 import Image from "next/image";
-import React, { useEffect } from "react";
+import React, { useEffect, useState } from "react";
 import { useUser } from "@clerk/nextjs";
 import { useRouter } from "next/navigation";
+import { getCurriculumChecklist } from "@/actions/curriculum-actions";
+import { CurriculumItem } from "@/lib/types";
+import { getStudentData } from "@/actions/getStudentData";
 
 export default function PrintChecklist() {
   const { user } = useUser();
   const course = user?.publicMetadata.course;
   const major = user?.publicMetadata.major;
   const router = useRouter();
+  const [checklistData, setChecklistData] = useState<CurriculumItem[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [studentData, setStudentData] = useState<{
+    fullName: string;
+    studentNumber: string;
+    address: string;
+  } | null>(null);
 
-  const getChecklistData = () => {
-    if (course === "BSIT") return ITchecklistData;
-    if (course === "BSBA" && major === "HUMAN_RESOURCE_MANAGEMENT")
-      return BMHRchecklistData;
-    if (course === "BSBA" && major === "MARKETING_MANAGEMENT")
-      return BMMMchecklistData;
-    if (course === "BSCRIM") return CRIMchecklistData;
+  useEffect(() => {
+    const fetchData = async () => {
+      try {
+        if (!course) return;
+        const [student, curriculum] = await Promise.all([
+          getStudentData(),
+          getCurriculumChecklist(course as string, major as string | null),
+        ]);
 
-    if (course === "BSCS") return CSchecklistData;
+        setStudentData({
+          fullName: `${student.firstName} ${student.lastName}`,
+          studentNumber: student.studentNumber,
+          address: student.address || "",
+        });
 
-    if (course === "BSED" && major === "ENGLISH") return BSEDENGData;
+        const curriculumWithGrades = curriculum.map((item) => {
+          const gradeInfo = student.grades.find(
+            (g) => g.courseCode === item.courseCode
+          );
+          return {
+            ...item,
+            grade: gradeInfo?.grade || "",
+          };
+        });
 
-    if (course === "BSED" && major === "MATH") return BSEDMATHchecklistData;
+        setChecklistData(curriculumWithGrades);
+      } catch (error) {
+        console.error("Error fetching data:", error);
+      } finally {
+        setLoading(false);
+      }
+    };
 
-    if (course === "BSHM") return HMchecklistData;
-
-    return PSYchecklistData;
-  };
-
-  const checklistData = getChecklistData();
+    fetchData();
+  }, [course, major]);
 
   useEffect(() => {
     const handlePrint = () => {
@@ -61,11 +75,48 @@ export default function PrintChecklist() {
 
   const hasMidYear = (yearLevel: string) => {
     return checklistData.some(
-      (item) =>
-        (item ?? {}).yearLevel === yearLevel &&
-        (item ?? {}).semester === "Mid-year"
+      (item) => item.yearLevel === yearLevel && item.semester === "MIDYEAR"
     );
   };
+
+  const getCourseTitle = () => {
+    switch (course) {
+      case "BSCS":
+        return "BACHELOR OF SCIENCE IN COMPUTER SCIENCE";
+      case "BSIT":
+        return "BACHELOR OF SCIENCE IN INFORMATION TECHNOLOGY";
+      case "BSHM":
+        return "BACHELOR OF SCIENCE IN HOSPITALITY MANAGEMENT";
+      case "BSCRIM":
+        return "BACHELOR OF SCIENCE IN CRIMINOLOGY";
+      case "BSP":
+        return "BACHELOR OF SCIENCE IN PSYCHOLOGY";
+      case "BSBA":
+        if (major === "MARKETING_MANAGEMENT") {
+          return "BACHELOR OF SCIENCE IN BUSINESS ADMINISTRATION - MARKETING MANAGEMENT";
+        } else if (major === "HUMAN_RESOURCE_MANAGEMENT") {
+          return "BACHELOR OF SCIENCE IN BUSINESS ADMINISTRATION - HUMAN RESOURCE MANAGEMENT";
+        }
+        return "BACHELOR OF SCIENCE IN BUSINESS ADMINISTRATION";
+      case "BSED":
+        if (major === "ENGLISH") {
+          return "BACHELOR OF SCIENCE IN SECONDARY EDUCATION - Major in English";
+        } else if (major === "MATH") {
+          return "BACHELOR OF SCIENCE IN SECONDARY EDUCATION - Major in Mathematics";
+        }
+        return "BACHELOR OF SCIENCE IN SECONDARY EDUCATION";
+      default:
+        return "";
+    }
+  };
+
+  if (loading) {
+    return (
+      <div className="flex items-center justify-center h-screen">
+        <p>Loading checklist data...</p>
+      </div>
+    );
+  }
 
   return (
     <div>
@@ -81,53 +132,9 @@ export default function PrintChecklist() {
               Cavite State University
             </h1>
             <p className="text-[12px]">Bacoor City Campus</p>
-            {course === "BSCS" && (
-              <p className="font-semibold text-[12px] uppercase">
-                BACHELOR OF SCIENCE IN COMPUTER SCIENCE
-              </p>
-            )}
-            {course === "BSIT" && (
-              <p className="font-semibold text-[12px] uppercase">
-                BACHELOR OF SCIENCE IN INFORMATION TECHNOLOGY
-              </p>
-            )}
-            {course === "BSHM" && (
-              <p className="font-semibold text-[12px] uppercase">
-                BACHELOR OF SCIENCE IN INFORMATION TECHNOLOGY
-              </p>
-            )}
-            {course === "BSCRIM" && (
-              <p className="font-semibold text-[12px] uppercase">
-                BACHELOR OF SCIENCE IN INFORMATION TECHNOLOGY
-              </p>
-            )}
-            {course === "BSP" && (
-              <p className="font-semibold text-[12px] uppercase">
-                BACHELOR OF SCIENCE IN INFORMATION TECHNOLOGY
-              </p>
-            )}
-            {course === "BSBM" && major === "MARKETING_MANAGEMENT" && (
-              <p className="font-semibold text-[12px] uppercase">
-                BACHELOR OF SCIENCE IN MARKETING MANAGEMENT
-              </p>
-            )}
-            {course === "BSBM" && major === "HUMAN_RESOURCE_MANAGEMENT" && (
-              <p className="font-semibold text-[12px] uppercase">
-                BACHELOR OF SCIENCE IN MARKETING MANAGEMENT
-              </p>
-            )}
-            {course === "BSED" && major === "ENGLISH" && (
-              <p className="font-semibold text-[12px] uppercase">
-                BACHELOR OF SCIENCE IN SECONDARY EDUCATION
-                <span>Major in English</span>
-              </p>
-            )}
-            {course === "BSED" && major === "MATH" && (
-              <p className="font-semibold text-[12px] uppercase">
-                BACHELOR OF SCIENCE IN SECONDARY EDUCATION
-                <span>Major in Mathematics</span>
-              </p>
-            )}
+            <p className="font-semibold text-[12px] uppercase">
+              {getCourseTitle()}
+            </p>
             <h1 className="text-sm font-bold uppercase">
               Checklist of Courses
             </h1>
@@ -137,15 +144,19 @@ export default function PrintChecklist() {
         <table className="w-full mb-3">
           <tbody>
             <tr>
-              <td className="text-[10px]">Name of Student :</td>
+              <td className="text-[10px]">
+                Name of Student : {studentData?.fullName}
+              </td>
               <td className="text-[10px]">Date of Admission :</td>
             </tr>
             <tr>
-              <td className="text-[10px]">Student Number :</td>
-              <td className="text-[10px]">Contact Number :</td>
+              <td className="text-[10px]">
+                Student Number : {studentData?.studentNumber}
+              </td>
+              {/* <td className="text-[10px]">Contact Number : {user?.phone}</td> */}
             </tr>
             <tr>
-              <td className="text-[10px]">Address :</td>
+              <td className="text-[10px]">Address : {studentData?.address}</td>
               <td className="text-[10px]">Name of Adviser :</td>
             </tr>
           </tbody>
@@ -219,124 +230,112 @@ export default function PrintChecklist() {
             </tr>
           </thead>
           <tbody>
-            {["First Year", "Second Year", "Third Year", "Fourth Year"].map(
-              (yearLevel) => (
-                <React.Fragment key={yearLevel}>
-                  <tr>
-                    <td
-                      colSpan={10}
-                      className="text-center font-bold text-[10px] pt-[10px]"
-                    >
-                      {yearLevel}
-                    </td>
-                  </tr>
-                  {["First Semester", "Second Semester"].map((semester) => (
-                    <React.Fragment key={`${yearLevel}-${semester}`}>
-                      <tr>
-                        <td colSpan={10} className="text-left text-[10px] p-2">
-                          {semester}
-                        </td>
-                      </tr>
-                      {checklistData
-                        .filter(
-                          (item) =>
-                            item?.yearLevel === yearLevel &&
-                            item.semester === semester
-                        )
-                        .map(
-                          (item) =>
-                            item && (
-                              <tr key={item.id}>
-                                <td className="border border-black text-center text-[8px]">
-                                  {item.courseCode}
-                                </td>
-                                <td className="border border-black text-[8px]">
-                                  {item.courseTitle}
-                                </td>
-                                <td className="border border-black text-center text-[8px]">
-                                  {typeof item.creditUnit === "object"
-                                    ? item.creditUnit.lec
-                                    : item.creditUnit}
-                                </td>
-                                <td className="border border-black text-center text-[8px]">
-                                  {typeof item.creditUnit === "object"
-                                    ? item.creditUnit.lab
-                                    : ""}
-                                </td>
-                                <td className="border border-black text-center text-[8px]">
-                                  {item.contactHrs.lec}
-                                </td>
-                                <td className="border border-black text-center text-[8px]">
-                                  {item.contactHrs.lab}
-                                </td>
-                                <td className="border border-black text-center text-[8px]">
-                                  {item.preRequisite}
-                                </td>
-                                <td className="border border-black text-center text-[8px]"></td>
-                                <td className="border border-black text-center text-[8px]">
-                                  {item.grade}
-                                </td>
-                                <td className="border border-black text-center text-[8px]"></td>
-                              </tr>
-                            )
-                        )}
-                    </React.Fragment>
-                  ))}
-                  {hasMidYear(yearLevel) && (
-                    <React.Fragment key={`${yearLevel}-Mid-year`}>
-                      <tr>
-                        <td colSpan={10} className="text-left text-[10px] p-2">
-                          Mid-year
-                        </td>
-                      </tr>
-                      {checklistData
-                        .filter(
-                          (item) =>
-                            item?.yearLevel === yearLevel &&
-                            item.semester === "Mid-year"
-                        )
-                        .map(
-                          (item) =>
-                            item && (
-                              <tr key={item.id}>
-                                <td className="border border-black text-center text-[8px]">
-                                  {item.courseCode}
-                                </td>
-                                <td className="border border-black text-[8px]">
-                                  {item.courseTitle}
-                                </td>
-                                <td className="border border-black text-center text-[8px]">
-                                  {typeof item.creditUnit === "object"
-                                    ? item.creditUnit.lec
-                                    : ""}
-                                </td>
-                                <td className="border border-black text-center text-[8px]">
-                                  {typeof item.creditUnit === "object"
-                                    ? item.creditUnit.lab
-                                    : ""}
-                                </td>
-                                <td className="border border-black text-center text-[8px]">
-                                  {item.contactHrs.lec}
-                                </td>
-                                <td className="border border-black text-center text-[8px]">
-                                  {item.contactHrs.lab}
-                                </td>
-                                <td className="border border-black text-center text-[8px]">
-                                  {item.preRequisite}
-                                </td>
-                                <td className="border border-black text-center text-[8px]"></td>
-                                <td className="border border-black text-center text-[8px]">
-                                  {item.grade}
-                                </td>
-                                <td className="border border-black text-center text-[8px]"></td>
-                              </tr>
-                            )
-                        )}
-                    </React.Fragment>
-                  )}
-                </React.Fragment>
-              )
-            )}
+            {["FIRST", "SECOND", "THIRD", "FOURTH"].map((yearLevel) => (
+              <React.Fragment key={yearLevel}>
+                <tr>
+                  <td
+                    colSpan={10}
+                    className="text-center font-bold text-[10px] pt-[10px]"
+                  >
+                    {yearLevel === "FIRST" && "First Year"}
+                    {yearLevel === "SECOND" && "Second Year"}
+                    {yearLevel === "THIRD" && "Third Year"}
+                    {yearLevel === "FOURTH" && "Fourth Year"}
+                  </td>
+                </tr>
+                {["FIRST", "SECOND"].map((semester) => (
+                  <React.Fragment key={`${yearLevel}-${semester}`}>
+                    <tr>
+                      <td colSpan={10} className="text-left text-[10px] p-2">
+                        {semester === "FIRST" && "First Semester"}
+                        {semester === "SECOND" && "Second Semester"}
+                      </td>
+                    </tr>
+                    {checklistData
+                      .filter(
+                        (item: CurriculumItem) =>
+                          item.yearLevel === yearLevel &&
+                          item.semester === semester
+                      )
+                      .map((item) => (
+                        <tr key={item.id}>
+                          <td className="border border-black text-center text-[8px]">
+                            {item.courseCode}
+                          </td>
+                          <td className="border border-black text-[8px]">
+                            {item.courseTitle}
+                          </td>
+                          <td className="border border-black text-center text-[8px]">
+                            {item.creditUnit.lec}
+                          </td>
+                          <td className="border border-black text-center text-[8px]">
+                            {item.creditUnit.lab}
+                          </td>
+                          <td className="border border-black text-center text-[8px]">
+                            {item.contactHrs.lec}
+                          </td>
+                          <td className="border border-black text-center text-[8px]">
+                            {item.contactHrs.lab}
+                          </td>
+                          <td className="border border-black text-center text-[8px]">
+                            {item.preRequisite || "-"}
+                          </td>
+                          <td className="border border-black text-center text-[8px]"></td>
+                          <td className="border border-black text-center text-[8px]">
+                            {item.grade || "-"}
+                          </td>
+                          <td className="border border-black text-center text-[8px]"></td>
+                        </tr>
+                      ))}
+                  </React.Fragment>
+                ))}
+                {hasMidYear(yearLevel) && (
+                  <React.Fragment key={`${yearLevel}-MIDYEAR`}>
+                    <tr>
+                      <td colSpan={10} className="text-left text-[10px] p-2">
+                        Mid-year
+                      </td>
+                    </tr>
+                    {checklistData
+                      .filter(
+                        (item) =>
+                          item.yearLevel === yearLevel &&
+                          item.semester === "MIDYEAR"
+                      )
+                      .map((item) => (
+                        <tr key={item.id}>
+                          <td className="border border-black text-center text-[8px]">
+                            {item.courseCode}
+                          </td>
+                          <td className="border border-black text-[8px]">
+                            {item.courseTitle}
+                          </td>
+                          <td className="border border-black text-center text-[8px]">
+                            {item.creditUnit.lec}
+                          </td>
+                          <td className="border border-black text-center text-[8px]">
+                            {item.creditUnit.lab}
+                          </td>
+                          <td className="border border-black text-center text-[8px]">
+                            {item.contactHrs.lec}
+                          </td>
+                          <td className="border border-black text-center text-[8px]">
+                            {item.contactHrs.lab}
+                          </td>
+                          <td className="border border-black text-center text-[8px]">
+                            {item.preRequisite || "-"}
+                          </td>
+                          <td className="border border-black text-center text-[8px]"></td>
+                          <td className="border border-black text-center text-[8px]">
+                            {item.grade || "-"}
+                          </td>
+                          <td className="border border-black text-center text-[8px]"></td>
+                        </tr>
+                      ))}
+                  </React.Fragment>
+                )}
+              </React.Fragment>
+            ))}
           </tbody>
         </table>
       </div>
