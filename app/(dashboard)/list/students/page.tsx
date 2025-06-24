@@ -4,11 +4,11 @@ import { Suspense, useState } from "react";
 import { useUser } from "@clerk/nextjs";
 
 import StudentsTable from "@/components/StudentsTable";
-import CreateStudents from "@/components/students/create-students";
 import UploadStudents from "@/components/students/upload-students";
 import SearchStudent from "@/components/students/search-students";
 import Spinner from "@/components/Spinner";
 import BulkDeleteStudent from "@/components/BulkDeleteStudent";
+import StudentForm from "@/components/forms/student-form";
 
 export default function StudentLists() {
   const { user } = useUser();
@@ -25,7 +25,7 @@ export default function StudentLists() {
           <div className="flex items-center gap-4 self-end">
             {(role === "admin" || role === "superuser") && (
               <>
-                <CreateStudents />
+                <StudentForm />
                 <UploadStudents />
                 <BulkDeleteStudent />
               </>

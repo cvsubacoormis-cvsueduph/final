@@ -25,6 +25,8 @@ export async function POST(request: NextRequest) {
   try {
     const body = await request.json();
     const result = studentSchema.safeParse(body);
+
+    console.log(result);
     if (!result.success) {
       return NextResponse.json(
         {
