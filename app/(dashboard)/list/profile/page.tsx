@@ -9,7 +9,6 @@ import {
   User,
   Venus,
 } from "lucide-react";
-
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
 import {
@@ -26,6 +25,7 @@ import { formatDistanceToNowStrict } from "date-fns";
 import prisma from "@/lib/prisma";
 import { courseMap, formatMajor } from "@/lib/courses";
 import { currentUser } from "@clerk/nextjs/server";
+import { getPreviousSemesterStats } from "@/actions/get-semester-stats";
 
 export default async function StudentProfile() {
   const user = await currentUser();
@@ -66,11 +66,59 @@ export default async function StudentProfile() {
       </div>
     );
   }
+
+  // Add this function at the top of your file to calculate semester statistics
+  const calculateSemesterStats = (
+    grades: any[],
+    academicYear: string,
+    semester: string
+  ) => {
+    const semesterGrades = grades.filter(
+      (grade) =>
+        grade.academicYear === academicYear && grade.semester === semester
+    );
+
+    const totalCreditsEnrolled = semesterGrades.reduce((acc, cur) => {
+      const finalGrade = cur.reExam !== null ? cur.reExam : cur.grade;
+      if (["INC", "DRP"].includes(finalGrade as string)) {
+        return acc;
+      }
+      return acc + cur.creditUnit;
+    }, 0);
+
+    const totalCreditsEarned = semesterGrades.reduce((acc, cur) => {
+      const originalGrade = parseFloat(cur.grade);
+      const reExamGrade = cur.reExam !== null ? parseFloat(cur.reExam) : 0;
+      const isOriginalInvalid =
+        isNaN(originalGrade) || ["INC", "DRP"].includes(cur.grade);
+      const isReExamInvalid =
+        isNaN(reExamGrade) || ["INC", "DRP"].includes(cur.reExam ?? "");
+
+      if (isOriginalInvalid && isReExamInvalid) return acc;
+
+      const finalGrade = isOriginalInvalid ? reExamGrade : originalGrade;
+      return acc + cur.creditUnit * finalGrade;
+    }, 0);
+
+    const gpa =
+      totalCreditsEnrolled > 0
+        ? (totalCreditsEarned / totalCreditsEnrolled).toFixed(2)
+        : "0.00";
+
+    return {
+      totalCreditsEnrolled,
+      totalCreditsEarned,
+      gpa,
+    };
+  };
+
+  const semesterStats = await getPreviousSemesterStats();
+
   return (
     <div className="bg-white p-4 rounded-md flex-1 m-4 mt-0">
       <h1 className="text-lg font-semibold">Student Profile</h1>
       <p className="text-xs text-gray-500 font-semibold">
-        View the student information and grades
+        View the student information
       </p>
       <div className="container mx-auto py-6 px-4 md:px-6">
         <div className="grid gap-6 md:grid-cols-[1fr_3fr]">
@@ -146,7 +194,7 @@ export default async function StudentProfile() {
           <div className="space-y-6">
             <Tabs defaultValue="overview" className="w-full">
               <TabsContent value="overview" className="space-y-6">
-                <Card className="">
+                <Card className="pb-20">
                   <CardHeader>
                     <CardTitle>Grade Summary</CardTitle>
                     <CardDescription>
@@ -221,26 +269,58 @@ export default async function StudentProfile() {
 
                       <Separator />
 
-                      <div>
+                      {/* <div>
                         <h3 className="font-medium mb-4">Previous Semesters</h3>
                         <div className="space-y-3">
-                          <div className="flex justify-between items-center">
-                            <div className="flex items-center">
-                              <Calendar className="h-4 w-4 mr-2 text-muted-foreground" />
-                              <span>First Semester AY_2024_2025</span>
-                            </div>
-                            <div className="flex items-center gap-4">
-                              <span className="text-sm text-muted-foreground">
-                                Total credit units enrolled : 21
-                              </span>
-                              <span className="text-sm text-muted-foreground">
-                                Total credits earned : 21
-                              </span>
-                              <Badge variant="outline">GPA: 3.00 </Badge>
-                            </div>
-                          </div>
+                          {Array.from(
+                            new Set(
+                              student.grades.map(
+                                (g) => `${g.academicYear}_${g.semester}`
+                              )
+                            )
+                          ).map((semesterKey) => {
+                            const [academicYear, semester] =
+                              semesterKey.split("_");
+                            const stats = calculateSemesterStats(
+                              student.grades,
+                              academicYear,
+                              semester
+                            );
+
+                            return (
+                              <div
+                                key={semesterKey}
+                                className="flex justify-between items-center"
+                              >
+                                <div className="flex items-center">
+                                  <Calendar className="h-4 w-4 mr-2 text-muted-foreground" />
+                                  <span>
+                                    {semester === "FIRST"
+                                      ? "First"
+                                      : semester === "MIDYEAR"
+                                      ? "Mid Year"
+                                      : "Second"}{" "}
+                                    Semester {academicYear.replace(/_/g, "/")}
+                                  </span>
+                                </div>
+                                <div className="flex items-center gap-4">
+                                  <span className="text-sm text-muted-foreground">
+                                    Total credit units enrolled:{" "}
+                                    {semesterStats.totalCreditsEnrolled}
+                                  </span>
+                                  <span className="text-sm text-muted-foreground">
+                                    Total credits earned:{" "}
+                                    {semesterStats.totalCreditsEarned}
+                                  </span>
+                                  <Badge variant="outline">
+                                    GPA: {semesterStats.gpa}
+                                  </Badge>
+                                </div>
+                              </div>
+                            );
+                          })}
                         </div>
-                      </div>
+                      </div> */}
                     </div>
                   </CardContent>
                 </Card>

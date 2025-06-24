@@ -238,10 +238,10 @@ export function CurriculumChecklist() {
                 Print
               </Button>
             </Link>
-            <Button variant="outline">
+            {/* <Button variant="outline">
               <Download className="h-4 w-4 mr-2" />
               Export
-            </Button>
+            </Button> */}
           </div>
         </div>
       </div>
