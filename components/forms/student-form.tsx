@@ -196,8 +196,8 @@ export default function StudentForm() {
                         </SelectTrigger>
                       </FormControl>
                       <SelectContent>
-                        <SelectItem value="MALE">Male</SelectItem>
-                        <SelectItem value="FEMALE">Female</SelectItem>
+                        <SelectItem value="MALE">MALE</SelectItem>
+                        <SelectItem value="FEMALE">FEMALE</SelectItem>
                       </SelectContent>
                     </Select>
                     <FormMessage />
@@ -269,8 +269,8 @@ export default function StudentForm() {
                       </SelectTrigger>
                     </FormControl>
                     <SelectContent>
-                      <SelectItem value="REGULAR">Regular</SelectItem>
-                      <SelectItem value="IRREGULAR">Irregular</SelectItem>
+                      <SelectItem value="REGULAR">REGULAR</SelectItem>
+                      <SelectItem value="IRREGULAR">IRREGULAR</SelectItem>
                     </SelectContent>
                   </Select>
                   <FormMessage />
