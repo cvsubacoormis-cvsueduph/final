@@ -249,24 +249,36 @@ export default async function StudentProfile() {
                     <CardTitle>Recent Announcements</CardTitle>
                   </CardHeader>
                   <CardContent className="max-h-[385px]">
-                    <ul className="space-y-4">
-                      {announcement.map((announcement) => (
-                        <li key={announcement.id} className="flex items-start">
-                          <div className="mr-4 mt-1">
-                            <FileText className="h-5 w-5 text-muted-foreground" />
-                          </div>
-                          <div>
-                            <p className="font-medium">{announcement.title}</p>
-                            <p className="text-sm text-muted-foreground">
-                              Posted{" "}
-                              {formatDistanceToNowStrict(
-                                new Date(announcement.createdAt)
-                              )}
-                            </p>
-                          </div>
-                        </li>
-                      ))}
-                    </ul>
+                    {announcement.length === 0 ? (
+                      <div className="flex flex-col items-center justify-center h-32 text-muted-foreground">
+                        <FileText className="h-8 w-8 mb-2" />
+                        <p>No announcements available</p>
+                      </div>
+                    ) : (
+                      <ul className="space-y-4">
+                        {announcement.map((announcement) => (
+                          <li
+                            key={announcement.id}
+                            className="flex items-start"
+                          >
+                            <div className="mr-4 mt-1">
+                              <FileText className="h-5 w-5 text-muted-foreground" />
+                            </div>
+                            <div>
+                              <p className="font-medium">
+                                {announcement.title}
+                              </p>
+                              <p className="text-sm text-muted-foreground">
+                                Posted{" "}
+                                {formatDistanceToNowStrict(
+                                  new Date(announcement.createdAt)
+                                )}
+                              </p>
+                            </div>
+                          </li>
+                        ))}
+                      </ul>
+                    )}
                   </CardContent>
                 </Card>
               </TabsContent>

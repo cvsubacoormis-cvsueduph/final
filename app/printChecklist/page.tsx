@@ -162,7 +162,9 @@ export default function PrintChecklist() {
               <td className="text-[10px]">
                 Student Number : {studentData?.studentNumber}
               </td>
-              {/* <td className="text-[10px]">Contact Number : {user?.phone}</td> */}
+              <td className="text-[10px]">
+                Contact Number : {studentData?.phone}
+              </td>
             </tr>
             <tr>
               <td className="text-[10px]">Address : {studentData?.address}</td>
