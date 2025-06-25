@@ -8,7 +8,10 @@ import UploadStudents from "@/components/students/upload-students";
 import SearchStudent from "@/components/students/search-students";
 import Spinner from "@/components/Spinner";
 import BulkDeleteStudent from "@/components/BulkDeleteStudent";
-import StudentForm from "@/components/forms/student-form";
+import { Button } from "@/components/ui/button";
+import { PlusCircleIcon } from "lucide-react";
+import Link from "next/link";
+import { HashLoader } from "react-spinners";
 
 export default function StudentLists() {
   const { user } = useUser();
@@ -25,7 +28,12 @@ export default function StudentLists() {
           <div className="flex items-center gap-4 self-end">
             {(role === "admin" || role === "superuser") && (
               <>
-                <StudentForm />
+                <Link href="/list/students/create">
+                  <Button>
+                    <PlusCircleIcon />
+                    Create Student
+                  </Button>
+                </Link>
                 <UploadStudents />
                 <BulkDeleteStudent />
               </>
@@ -33,7 +41,7 @@ export default function StudentLists() {
           </div>
         </div>
       </div>
-      <Suspense fallback={<Spinner />}>
+      <Suspense fallback={<HashLoader />}>
         <StudentsTable query={searchQuery} page={page} setPage={setPage} />
       </Suspense>
     </div>

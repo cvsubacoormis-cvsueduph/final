@@ -10,7 +10,6 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import { Prisma } from "@prisma/client";
-
 import {
   Pagination,
   PaginationContent,
@@ -20,11 +19,10 @@ import {
   PaginationNext,
   PaginationPrevious,
 } from "@/components/ui/pagination";
-
 import DeleteStudent from "./DeleteStudent";
 import UpdateStudent from "./students/update-student";
 import { useUser } from "@clerk/nextjs";
-import { useEffect, useState } from "react";
+import { useEffect, useState, useCallback } from "react";
 
 type Student = Prisma.StudentGetPayload<{}>;
 
@@ -43,27 +41,25 @@ export default function StudentsTable({
   const [totalPages, setTotalPages] = useState(0);
   const [currentPage, setCurrentPage] = useState(0);
 
-  useEffect(() => {
-    async function initData() {
-      const res = await fetch(
-        `/api/students/get-student?query=${query}&page=${page}`,
-        {
-          method: "GET",
-          headers: {
-            "Content-Type": "application/json",
-          },
-        }
-      );
-
-      const { data, totalPages, currentPage } = await res.json();
-
-      setData(data);
-      setTotalPages(totalPages);
-      setCurrentPage(currentPage);
-    }
-
-    initData();
+  const refreshData = useCallback(async () => {
+    const res = await fetch(
+      `/api/students/get-student?query=${query}&page=${page}`,
+      {
+        method: "GET",
+        headers: {
+          "Content-Type": "application/json",
+        },
+      }
+    );
+    const { data, totalPages, currentPage } = await res.json();
+    setData(data);
+    setTotalPages(totalPages);
+    setCurrentPage(currentPage);
   }, [page, query]);
+
+  useEffect(() => {
+    refreshData();
+  }, [refreshData]);
 
   return (
     <div>
@@ -138,7 +134,22 @@ export default function StudentsTable({
                   {(role === "admin" || role === "superuser") && (
                     <div className="flex items-center gap-2">
                       <DeleteStudent id={student.id.toString()} />
-                      <UpdateStudent student={student} />
+                      <UpdateStudent
+                        student={{
+                          id: student.id,
+                          studentNumber: student.studentNumber,
+                          firstName: student.firstName,
+                          lastName: student.lastName,
+                          middleInit: student.middleInit || undefined,
+                          email: student.email || undefined,
+                          phone: student.phone || undefined,
+                          address: student.address,
+                          sex: student.sex,
+                          course: student.course,
+                          major: student.major || undefined,
+                          status: student.status,
+                        }}
+                      />
                     </div>
                   )}
                 </TableCell>

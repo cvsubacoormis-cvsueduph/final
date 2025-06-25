@@ -1,43 +1,41 @@
 import { z } from "zod";
 
-export const studentSchema = z.object({
-  studentNumber: z.coerce.string().min(1, {
-    message: "Student Number is required",
-  }),
-  username: z.string().min(1, {
-    message: "Username is required",
-  }),
-  firstName: z.string().min(1, {
-    message: "First Name is required",
-  }),
-  lastName: z.string().min(1, {
-    message: "Last Name is required",
-  }),
-  middleInit: z.string().optional(),
-  course: z.enum(["BSIT", "BSCS", "BSCRIM", "BSP", "BSHM", "BSED", "BSBA"], {
-    message: "Course is required",
-  }),
-  major: z.string().optional(),
-  email: z.string().email(),
-  birthday: z.coerce.date(),
-  phone: z.string().min(1, {
-    message: "Phone is required",
-  }),
-  address: z.string().min(1, {
-    message: "Address is required",
-  }),
-  sex: z.enum(["MALE", "FEMALE"], {
-    message: "Sex is required",
-  }),
-  status: z.enum(
-    ["REGULAR", "IRREGULAR", "TRANSFEREE", "RETURNEE", "NOT_ANNOUNCED"],
-    {
-      message: "Status is required",
-    }
-  ),
+const baseStudentSchema = z.object({
+  studentNumber: z.string().min(1).max(20),
+  firstName: z.string().min(1).max(30),
+  middleInit: z.string().min(1).max(10).optional(),
+  lastName: z.string().min(1).max(30),
+  email: z.string().email().optional(),
+  phone: z.string().min(1).max(18).optional(),
+  address: z.string().min(1).max(50),
+  sex: z.enum(["MALE", "FEMALE"]),
+  course: z.enum(["BSIT", "BSCS", "BSBA", "BSHM", "BSP", "BSCRIM", "BSED"]),
+  major: z
+    .enum([
+      "HUMAN_RESOURCE_MANAGEMENT",
+      "MARKETING_MANAGEMENT",
+      "ENGLISH",
+      "MATHEMATICS",
+      "NONE",
+    ])
+    .optional(),
+  status: z.enum([
+    "REGULAR",
+    "IRREGULAR",
+    "NOT_ANNOUNCED",
+    "TRANSFEREE",
+    "RETURNEE",
+  ]),
 });
 
-export type StudentSchema = z.infer<typeof studentSchema>;
+export const createStudentSchema = baseStudentSchema;
+export type CreateStudentSchema = z.infer<typeof createStudentSchema>;
+
+// Schema for updating a student (ID required)
+export const updateStudentSchema = baseStudentSchema.extend({
+  id: z.string(),
+});
+export type UpdateStudentSchema = z.infer<typeof updateStudentSchema>;
 
 export const eventSchema = z.object({
   title: z.string().min(1, { message: "Title is required" }),

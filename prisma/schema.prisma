@@ -42,7 +42,6 @@ model Student {
   course        Courses
   major         Major?
   status        Status
-  birthday      DateTime
   role          Role     @default(student)
   createdAt     DateTime @default(now())
   grades        Grade[]
