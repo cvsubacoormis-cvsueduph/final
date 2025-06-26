@@ -4,6 +4,7 @@ export interface Grade {
   remarks: string;
   academicYear: string;
   semester: string;
+  instructor: string;
 }
 
 export interface StudentData {
@@ -29,6 +30,9 @@ export interface CurriculumItem {
   contactHrs: { lec: number; lab: number };
   preRequisite: string;
   grade: string;
+  instructor?: string;
+  academicYear?: string;
+  semesterTaken?: string;
 }
 
 export interface Subject extends CurriculumItem {

@@ -47,6 +47,9 @@ export default function PrintChecklist() {
           return {
             ...item,
             grade: gradeInfo?.grade || "",
+            instructor: gradeInfo?.instructor || "", // Now using actual instructor field
+            academicYear: gradeInfo?.academicYear || "",
+            semesterTaken: gradeInfo?.semester || "",
           };
         });
 
@@ -289,11 +292,25 @@ export default function PrintChecklist() {
                           <td className="border border-black text-center text-[8px]">
                             {item.preRequisite || "-"}
                           </td>
-                          <td className="border border-black text-center text-[8px]"></td>
+                          <td className="border border-black text-center text-[8px]">
+                            {item.semesterTaken && item.academicYear
+                              ? `${
+                                  item.semesterTaken === "FIRST"
+                                    ? "First semester"
+                                    : item.semesterTaken === "SECOND"
+                                    ? "Second semester"
+                                    : item.semesterTaken === "MIDYEAR"
+                                    ? "Mid year"
+                                    : item.semesterTaken
+                                } ${item.academicYear}`
+                              : "-"}
+                          </td>
                           <td className="border border-black text-center text-[8px]">
                             {item.grade || "-"}
                           </td>
-                          <td className="border border-black text-center text-[8px]"></td>
+                          <td className="border border-black text-center text-[8px]">
+                            {item.instructor || "-"}
+                          </td>
                         </tr>
                       ))}
                   </React.Fragment>

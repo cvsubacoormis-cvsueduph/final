@@ -29,6 +29,7 @@ export async function getStudentData(): Promise<StudentData> {
             remarks: true,
             academicYear: true,
             semester: true,
+            instructor: true, // Add this line to include instructor
           },
         },
       },
@@ -38,14 +39,15 @@ export async function getStudentData(): Promise<StudentData> {
 
     return {
       ...student,
-      phone: student.phone || "", // Ensure phone is not null or undefined
-      middleInit: student.middleInit || "", // Ensure middleInit is not null or undefined
+      phone: student.phone || "",
+      middleInit: student.middleInit || "",
       grades: student.grades.map((grade) => ({
         courseCode: grade.courseCode,
         grade: grade.grade,
         remarks: grade.remarks || "",
         academicYear: grade.academicYear,
         semester: grade.semester,
+        instructor: grade.instructor || "", // Add this line
       })),
     };
   } catch (error) {
