@@ -1,8 +1,8 @@
-// // import { StudentSchema, studentSchema } from "@/lib/formValidationSchemas";
-// import prisma from "@/lib/prisma";
-// import { clerkClient } from "@clerk/nextjs/server";
-// import { Courses, Major, Status, UserSex } from "@prisma/client";
-// import { NextRequest, NextResponse } from "next/server";
+// import { StudentSchema, studentSchema } from "@/lib/formValidationSchemas";
+import prisma from "@/lib/prisma";
+import { clerkClient } from "@clerk/nextjs/server";
+import { Courses, Major, Status, UserSex } from "@prisma/client";
+import { NextRequest, NextResponse } from "next/server";
 
 // export async function GET() {
 //   try {
@@ -76,47 +76,47 @@
 // //   }
 // // }
 
-// export async function DELETE(request: NextRequest) {
-//   try {
-//     const id = request.nextUrl.searchParams.get("id");
+export async function DELETE(request: NextRequest) {
+  try {
+    const id = request.nextUrl.searchParams.get("id");
 
-//     if (!id) {
-//       return NextResponse.json(
-//         { message: "student id is required" },
-//         { status: 400 }
-//       );
-//     }
+    if (!id) {
+      return NextResponse.json(
+        { message: "student id is required" },
+        { status: 400 }
+      );
+    }
 
-//     const clerk = await clerkClient();
-//     await clerk.users.deleteUser(id);
+    const clerk = await clerkClient();
+    await clerk.users.deleteUser(id);
 
-//     const deleteStudent = await prisma.student.delete({
-//       where: {
-//         id,
-//       },
-//     });
+    const deleteStudent = await prisma.student.delete({
+      where: {
+        id,
+      },
+    });
 
-//     if (!deleteStudent) {
-//       return NextResponse.json(
-//         { message: "student not found" },
-//         { status: 404 }
-//       );
-//     }
+    if (!deleteStudent) {
+      return NextResponse.json(
+        { message: "student not found" },
+        { status: 404 }
+      );
+    }
 
-//     return NextResponse.json(
-//       {
-//         message: "student deleted successfully",
-//       },
-//       { status: 200 }
-//     );
-//   } catch (error) {
-//     console.error("Error deleting student:", error);
-//     return NextResponse.json(
-//       { message: "An unexpected error occurred" },
-//       { status: 500 }
-//     );
-//   }
-// }
+    return NextResponse.json(
+      {
+        message: "student deleted successfully",
+      },
+      { status: 200 }
+    );
+  } catch (error) {
+    console.error("Error deleting student:", error);
+    return NextResponse.json(
+      { message: "An unexpected error occurred" },
+      { status: 500 }
+    );
+  }
+}
 // export async function PUT(request: NextRequest) {
 //   try {
 //     const body = await request.json();

@@ -133,7 +133,7 @@ export default function StudentsTable({
                 <TableCell className="hidden md:table-cell text-right">
                   {(role === "admin" || role === "superuser") && (
                     <div className="flex items-center gap-2">
-                      <DeleteStudent id={student.id.toString()} />
+                      <DeleteStudent id={student.id} />
                       <UpdateStudent
                         student={{
                           id: student.id,
@@ -168,7 +168,6 @@ export default function StudentsTable({
             />
           </PaginationItem>
 
-          {/* Render limited page numbers with ellipsis */}
           {Array.from({ length: totalPages }, (_, index) => {
             // Show first page, last page, and pages around current page
             if (
