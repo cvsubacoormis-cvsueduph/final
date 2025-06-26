@@ -1,11 +1,11 @@
 "use server";
 
-import { StudentSchema } from "@/lib/formValidationSchemas";
+import { CreateStudentSchema } from "@/lib/formValidationSchemas";
 import prisma from "@/lib/prisma";
 import { Courses, Major, Status, UserSex } from "@prisma/client";
 import { mutate } from "swr";
 
-export async function createStudentAction(data: StudentSchema) {
+export async function createStudentAction(data: CreateStudentSchema) {
   try {
     const student = await prisma.student.create({
       data: {
@@ -18,8 +18,8 @@ export async function createStudentAction(data: StudentSchema) {
         lastName: data.lastName,
         middleInit: data?.middleInit,
         email: data?.email,
-        birthday: new Date(data.birthday),
-        phone: data.phone.toString(),
+        // birthday: new Date(data.birthday),
+        phone: String(data.phone),
         address: data.address,
         sex: data.sex as UserSex,
       },
@@ -33,7 +33,9 @@ export async function createStudentAction(data: StudentSchema) {
   }
 }
 
-export async function createBulkStudentsAction(students: StudentSchema[]) {
+export async function createBulkStudentsAction(
+  students: CreateStudentSchema[]
+) {
   try {
     for (const student of students) {
       await createStudentAction(student);

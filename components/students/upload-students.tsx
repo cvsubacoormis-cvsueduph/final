@@ -14,9 +14,9 @@ import toast from "react-hot-toast";
 import { mutate } from "swr";
 
 import { useState } from "react";
-import { StudentSchema } from "@/lib/formValidationSchemas";
 import { Student } from "@prisma/client";
 import { UploadCloudIcon } from "lucide-react";
+import { CreateStudentSchema } from "@/lib/formValidationSchemas";
 
 export default function UploadStudents() {
   const [file, setFile] = useState<File | null>(null);
@@ -24,9 +24,9 @@ export default function UploadStudents() {
   const [jsonData, setJsonData] = useState("");
   const [DialogOpen, setDialogOpen] = useState(false);
   const [alertDialogOpen, setAlertDialogOpen] = useState(false);
-  const [duplicateStudents, setDuplicateStudents] = useState<StudentSchema[]>(
-    []
-  );
+  const [duplicateStudents, setDuplicateStudents] = useState<
+    CreateStudentSchema[]
+  >([]);
 
   function resetUploadState() {
     setFile(null);
@@ -157,7 +157,7 @@ export default function UploadStudents() {
                       <td className="px-4 py-2">{student.phone}</td>
                       <td className="px-4 py-2">{student.status}</td>
                       <td className="px-4 py-2">
-                        {new Date(student.birthday).toDateString()}
+                        {/* {new Date(student.birthday).toDateString()} */}
                         {/* {student.birthday.toString()} */}
                       </td>
                     </tr>

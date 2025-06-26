@@ -3,7 +3,6 @@
 import { z } from "zod";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { studentSchema } from "@/lib/formValidationSchemas";
 import { PlusCircleIcon } from "lucide-react";
 import {
   Dialog,
@@ -33,10 +32,11 @@ import {
   SelectTrigger,
   SelectValue,
 } from "../ui/select";
+import { createStudentSchema } from "@/lib/formValidationSchemas";
 
 export default function StudentForm() {
-  const form = useForm<z.infer<typeof studentSchema>>({
-    resolver: zodResolver(studentSchema),
+  const form = useForm<z.infer<typeof createStudentSchema>>({
+    resolver: zodResolver(createStudentSchema),
     defaultValues: {
       studentNumber: "",
       firstName: "",
@@ -46,13 +46,13 @@ export default function StudentForm() {
       phone: "",
       address: "",
       course: "BSBA",
-      major: "",
+      major: "NONE",
       sex: "MALE",
       status: "REGULAR",
     },
   });
 
-  function onSubmit(values: z.infer<typeof studentSchema>) {
+  function onSubmit(values: z.infer<typeof createStudentSchema>) {
     console.log(values);
   }
 
