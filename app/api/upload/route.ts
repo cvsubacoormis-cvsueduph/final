@@ -96,7 +96,9 @@ export async function POST(request: NextRequest) {
           try {
             if (signal.aborted) throw new Error("Upload cancelled by user");
 
-            const username = `${student.studentNumber}${student.firstName}`
+            const username = `${
+              student.studentNumber
+            }${student.firstName.toLowerCase()}`
               .toLowerCase()
               .replace(/[^a-zA-Z0-9_-]/g, "")
               .replaceAll("-", "");
@@ -124,7 +126,7 @@ export async function POST(request: NextRequest) {
                 middleInit: student.middleInit ? student.middleInit[0] : "",
                 email: student.email ?? "",
                 phone: student.phone ? String(student.phone) : "N/A",
-                address: student.address ?? "N/A",
+                address: student.address.toUpperCase() ?? "N/A",
                 sex: String(student.sex).toUpperCase() as UserSex,
                 course: student.course.trim() as Courses,
                 major: student.major ? (student.major.trim() as Major) : null,

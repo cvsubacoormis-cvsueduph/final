@@ -16,6 +16,7 @@ export async function getStudentData(): Promise<StudentData> {
         id: true,
         firstName: true,
         lastName: true,
+        middleInit: true,
         studentNumber: true,
         address: true,
         phone: true,
@@ -38,6 +39,7 @@ export async function getStudentData(): Promise<StudentData> {
     return {
       ...student,
       phone: student.phone || "", // Ensure phone is not null or undefined
+      middleInit: student.middleInit || "", // Ensure middleInit is not null or undefined
       grades: student.grades.map((grade) => ({
         courseCode: grade.courseCode,
         grade: grade.grade,

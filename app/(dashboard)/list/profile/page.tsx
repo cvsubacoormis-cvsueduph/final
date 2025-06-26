@@ -140,7 +140,10 @@ export default async function StudentProfile() {
                   Student Number: {student.studentNumber}
                 </p>
                 <Badge className="mt-2" variant="outline">
-                  {courseMap(student.course)} {formatMajor(student.major ?? "")}
+                  {courseMap(student.course)}{" "}
+                  {student.major && student.major !== "NONE"
+                    ? formatMajor(student.major)
+                    : ""}
                 </Badge>
               </CardContent>
             </Card>
@@ -166,7 +169,7 @@ export default async function StudentProfile() {
                     <span className="text-sm">{student.phone}</span>
                   </div>
                   <div className="flex items-center">
-                    <MapPin className="h-7 w-7 mr-2 text-muted-foreground" />
+                    <MapPin className="h-4 w-4 mr-2 text-muted-foreground" />
                     <span className="text-sm">
                       {student.address.toUpperCase()}
                     </span>

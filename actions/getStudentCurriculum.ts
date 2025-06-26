@@ -30,7 +30,7 @@ export async function getStudentCurriculum() {
 
     return {
       studentInfo: {
-        fullName: `${student.firstName} ${student.lastName}`,
+        fullName: `${student.firstName} ${student.middleInit} ${student.lastName}`,
         studentNumber: student.studentNumber,
         address: student.address,
         course: student.course,

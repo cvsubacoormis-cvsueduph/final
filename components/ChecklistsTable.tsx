@@ -252,8 +252,12 @@ export function CurriculumChecklist() {
           <CardTitle className="flex items-center gap-2 print:text-lg">
             <BookOpen className="h-5 w-5 print:h-4 print:w-4" />
             Academic Progress - {courseMap(data.studentInfo.course)}
-            {data.studentInfo.major &&
-              ` (${formatMajor(data.studentInfo.major)})`}
+            {data.studentInfo.major !== "NONE" &&
+              ` (${
+                data.studentInfo.major
+                  ? formatMajor(data.studentInfo.major)
+                  : ""
+              })`}
           </CardTitle>
         </CardHeader>
         <CardContent className="print:pt-0">

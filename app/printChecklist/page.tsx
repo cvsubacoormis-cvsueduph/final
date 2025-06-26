@@ -2,7 +2,6 @@
 
 import Image from "next/image";
 import React, { useEffect, useState } from "react";
-import { useUser } from "@clerk/nextjs";
 import { useRouter } from "next/navigation";
 import { getCurriculumChecklist } from "@/actions/curriculum-actions";
 import { CurriculumItem } from "@/lib/types";
@@ -10,7 +9,6 @@ import { getStudentData } from "@/actions/getStudentData";
 import { HashLoader } from "react-spinners";
 
 export default function PrintChecklist() {
-  const { user } = useUser();
   const router = useRouter();
   const [checklistData, setChecklistData] = useState<CurriculumItem[]>([]);
   const [loading, setLoading] = useState(true);
@@ -29,7 +27,7 @@ export default function PrintChecklist() {
         const student = await getStudentData();
 
         setStudentData({
-          fullName: `${student.firstName} ${student.lastName}`,
+          fullName: `${student.firstName} ${student.middleInit} ${student.lastName}`,
           studentNumber: student.studentNumber,
           address: student.address || "",
           phone: student.phone || "",

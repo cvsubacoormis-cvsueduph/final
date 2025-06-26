@@ -9,6 +9,7 @@ export interface Grade {
 export interface StudentData {
   id: string;
   firstName: string;
+  middleInit?: string;
   lastName: string;
   studentNumber: string;
   address: string;

@@ -41,11 +41,15 @@ export async function createStudent(data: CreateStudentSchema) {
 
     const clerk = await clerkClient();
     const user = await clerk.users.createUser({
-      username: `${studentData.studentNumber}${studentData.firstName}`,
-      password: `cvsubacoor${studentData.firstName}${studentData.studentNumber}`,
+      username: `${
+        studentData.studentNumber
+      }${studentData.firstName.toLowerCase()}`,
+      password: `cvsubacoor${studentData.firstName.toLowerCase()}${
+        studentData.studentNumber
+      }`,
       emailAddress: [studentData.email] as string[] | undefined,
-      firstName: studentData.firstName,
-      lastName: studentData.lastName,
+      firstName: studentData.firstName.toUpperCase(),
+      lastName: studentData.lastName.toUpperCase(),
       publicMetadata: { role: "student" },
     });
 
@@ -54,12 +58,12 @@ export async function createStudent(data: CreateStudentSchema) {
         id: user.id,
         studentNumber: studentData.studentNumber,
         username: `${studentData.studentNumber}${studentData.firstName}`,
-        firstName: studentData.firstName,
-        lastName: studentData.lastName,
-        middleInit: studentData.middleInit,
+        firstName: studentData.firstName.toUpperCase(),
+        lastName: studentData.lastName.toUpperCase(),
+        middleInit: studentData.middleInit?.charAt(0)?.toUpperCase(),
         email: studentData.email,
         phone: studentData.phone,
-        address: studentData.address,
+        address: studentData.address.toUpperCase(),
         sex: studentData.sex as UserSex,
         course: studentData.course as Courses,
         major: studentData.major as Major,

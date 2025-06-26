@@ -71,7 +71,7 @@ export default async function Menu() {
         },
         {
           icon: "/result.png",
-          label: "Upload Grades",
+          label: "Upload / Insert Grades",
           href: "/list/uploading",
           visible: ["admin", "superuser"],
         },

@@ -470,7 +470,9 @@ export default function ManualGradeEntry() {
                       </Label>
                       <p className="text-base">
                         {courseMap(studentDetails.course)}{" "}
-                        {formatMajor(studentDetails.major)}
+                        {studentDetails.major === "NONE"
+                          ? ""
+                          : formatMajor(studentDetails.major)}
                       </p>
                     </div>
                     <div>
