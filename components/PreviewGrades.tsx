@@ -68,6 +68,7 @@ export function PreviewGrades({
   firstName,
   lastName,
 }: PreviewGradesProps) {
+  const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [academicTerms, setAcademicTerms] = useState<AcademicTerm[]>([]);
   const [academicYear, setAcademicYear] = useState<string>("");
   const [semester, setSemester] = useState<string>("");
@@ -162,7 +163,45 @@ export function PreviewGrades({
   };
 
   // Toggle edit mode for a given row.
-  const toggleEditRow = (index: number) => {
+  const toggleEditRow = async (index: number) => {
+    if (editingRows[index]) {
+      // If we're exiting edit mode, save the changes
+      try {
+        const res = await fetch(
+          `/api/preview-grades?id=${editedGrades[index].id}`,
+          {
+            method: "PATCH",
+            headers: {
+              "Content-Type": "application/json",
+            },
+            body: JSON.stringify(editedGrades[index]),
+          }
+        );
+
+        if (!res.ok) {
+          throw new Error(
+            `Failed to update grade for ${editedGrades[index].courseCode}`
+          );
+        }
+
+        const updatedGrade = await res.json();
+
+        // Update both grades and editedGrades states
+        setGrades((prev) =>
+          prev.map((g, i) => (i === index ? updatedGrade : g))
+        );
+        setEditedGrades((prev) =>
+          prev.map((g, i) => (i === index ? updatedGrade : g))
+        );
+
+        toast.success("Grade updated successfully");
+      } catch (error) {
+        console.error("Error updating grade", error);
+        toast.error("Failed to update grade");
+      }
+    }
+
+    // Toggle edit mode
     setEditingRows((prev) => ({ ...prev, [index]: !prev[index] }));
   };
 
@@ -182,14 +221,19 @@ export function PreviewGrades({
         }
         return res.json();
       });
+
       const updatedGrades = await Promise.all(updatePromises);
-      console.log("All grades updated", updatedGrades);
-      // Optionally, update the local state with the updated grades.
       setGrades(updatedGrades);
       setEditedGrades(updatedGrades);
+
+      // Close all edit modes
+      setEditingRows({});
+
       toast.success("Grades updated successfully");
+
+      // Close the dialog after successful save
+      setIsDialogOpen(false);
     } catch (error) {
-      toast.error("Failed to update grades");
       console.error("Error updating grades", error);
       toast.error("Failed to update grades");
     }
@@ -197,7 +241,7 @@ export function PreviewGrades({
 
   return (
     <div>
-      <Dialog>
+      <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
         <DialogTrigger asChild>
           <Button variant="outline" className="border-none rounded-full">
             <EyeIcon className="w-4 h-4" />
