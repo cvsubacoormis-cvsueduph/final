@@ -27,6 +27,37 @@ model Admin {
   role       Role    @default(admin)
 }
 
+model Registrar {
+  id         String  @id @default(uuid()) // Use UUID for id
+  firstName  String
+  middleName String?
+  lastName   String
+  address    String
+  phone      String?
+  email      String?
+  birthday   String
+  sex        UserSex
+  username   String  @unique
+  role       Role    @default(registrar)
+
+  createdAt DateTime @default(now())
+  updatedat DateTime
+}
+
+model Faculty {
+  id         String  @id @default(uuid()) // Use UUID for id
+  firstName  String
+  middleName String?
+  lastName   String
+  address    String
+  phone      String?
+  email      String?
+  birthday   String
+  sex        UserSex
+  username   String  @unique
+  role       Role    @default(faculty)
+}
+
 model Student {
   id            String   @id @default(cuid())
   studentNumber String   @unique
@@ -204,4 +235,6 @@ enum Role {
   admin
   student
   superuser
+  faculty
+  registrar
 }

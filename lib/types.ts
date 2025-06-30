@@ -1,3 +1,5 @@
+import { Role, UserSex } from "@prisma/client";
+
 export interface Grade {
   courseCode: string;
   grade: string;
@@ -63,4 +65,18 @@ export interface Subject {
   grade: string;
   completion: "Completed" | "Enrolled" | "Failed" | "Not Taken";
   remarks: string;
+}
+
+export interface Admin {
+  id: string;
+  firstName: string;
+  middleName?: string;
+  lastName: string;
+  address: string;
+  phone?: string;
+  email: string;
+  birthday: string;
+  sex: UserSex;
+  username: string;
+  role: Role;
 }
