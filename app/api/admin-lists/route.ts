@@ -112,6 +112,7 @@ export async function POST(request: NextRequest) {
       username: adminData.username,
       password: adminData.password,
       firstName: adminData.firstName,
+      emailAddress: [adminData.email],
       lastName: adminData.lastName,
       publicMetadata: { role: "admin" },
     });

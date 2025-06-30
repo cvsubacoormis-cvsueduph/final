@@ -34,6 +34,19 @@ export default function CreateAdminForm() {
 
   const form = useForm<z.infer<typeof createAdminSchema>>({
     resolver: zodResolver(createAdminSchema),
+    defaultValues: {
+      firstName: "",
+      middleName: "",
+      lastName: "",
+      username: "",
+      password: "",
+      confirmPassword: "",
+      address: "",
+      phone: "",
+      email: "",
+      birthday: "",
+      sex: "MALE",
+    },
   });
   async function onSubmit(values: z.infer<typeof createAdminSchema>) {
     setIsSubmitting(true);
@@ -59,7 +72,7 @@ export default function CreateAdminForm() {
     } catch (error) {
       console.error("Error creating student:", error);
       const errorMessage =
-        error instanceof Error ? error.message : "An unxpected error occurred";
+        error instanceof Error ? error.message : "An unexpected error occurred";
       setErrorMessage(errorMessage);
       toast.error(errorMessage);
     } finally {
@@ -69,6 +82,9 @@ export default function CreateAdminForm() {
 
   return (
     <div>
+      {errorMessage && (
+        <div className="text-red-500 mb-4 text-sm">{errorMessage}</div>
+      )}
       <Form {...form}>
         <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-2">
           <FormField
@@ -78,7 +94,11 @@ export default function CreateAdminForm() {
               <FormItem>
                 <FormLabel>First Name</FormLabel>
                 <FormControl>
-                  <Input placeholder="Enter first name" {...field} />
+                  <Input
+                    placeholder="Enter first name"
+                    {...field}
+                    disabled={isSubmitting}
+                  />
                 </FormControl>
                 <FormMessage />
               </FormItem>
@@ -91,7 +111,11 @@ export default function CreateAdminForm() {
               <FormItem>
                 <FormLabel>Middle Initial</FormLabel>
                 <FormControl>
-                  <Input placeholder="Enter middle Initial" {...field} />
+                  <Input
+                    placeholder="Enter middle Initial"
+                    {...field}
+                    disabled={isSubmitting}
+                  />
                 </FormControl>
                 <FormMessage />
               </FormItem>
@@ -104,7 +128,11 @@ export default function CreateAdminForm() {
               <FormItem>
                 <FormLabel>Last Name</FormLabel>
                 <FormControl>
-                  <Input placeholder="Enter last name" {...field} />
+                  <Input
+                    placeholder="Enter last name"
+                    {...field}
+                    disabled={isSubmitting}
+                  />
                 </FormControl>
                 <FormMessage />
               </FormItem>
@@ -117,7 +145,11 @@ export default function CreateAdminForm() {
               <FormItem>
                 <FormLabel>Username</FormLabel>
                 <FormControl>
-                  <Input placeholder="Enter username" {...field} />
+                  <Input
+                    placeholder="Enter username"
+                    {...field}
+                    disabled={isSubmitting}
+                  />
                 </FormControl>
                 <FormMessage />
               </FormItem>
@@ -134,6 +166,7 @@ export default function CreateAdminForm() {
                     type="password"
                     placeholder="Create Password"
                     {...field}
+                    disabled={isSubmitting}
                   />
                 </FormControl>
                 <FormMessage />
@@ -151,6 +184,7 @@ export default function CreateAdminForm() {
                     type="password"
                     placeholder="Confirm Password"
                     {...field}
+                    disabled={isSubmitting}
                   />
                 </FormControl>
                 <FormMessage />
@@ -164,7 +198,11 @@ export default function CreateAdminForm() {
               <FormItem>
                 <FormLabel>Address</FormLabel>
                 <FormControl>
-                  <Input placeholder="Enter address" {...field} />
+                  <Input
+                    placeholder="Enter address"
+                    {...field}
+                    disabled={isSubmitting}
+                  />
                 </FormControl>
                 <FormMessage />
               </FormItem>
@@ -177,7 +215,11 @@ export default function CreateAdminForm() {
               <FormItem>
                 <FormLabel>Contact Number</FormLabel>
                 <FormControl>
-                  <Input placeholder="Enter contact number" {...field} />
+                  <Input
+                    placeholder="Enter contact number"
+                    {...field}
+                    disabled={isSubmitting}
+                  />
                 </FormControl>
                 <FormMessage />
               </FormItem>
@@ -190,7 +232,11 @@ export default function CreateAdminForm() {
               <FormItem>
                 <FormLabel>Email Address</FormLabel>
                 <FormControl>
-                  <Input placeholder="Enter email address" {...field} />
+                  <Input
+                    placeholder="Enter email address"
+                    {...field}
+                    disabled={isSubmitting}
+                  />
                 </FormControl>
                 <FormMessage />
               </FormItem>
@@ -208,6 +254,7 @@ export default function CreateAdminForm() {
                     placeholder="Enter Birthdate"
                     className="mb-2"
                     {...field}
+                    disabled={isSubmitting}
                   />
                 </FormControl>
                 <FormMessage />
@@ -224,6 +271,7 @@ export default function CreateAdminForm() {
                   <Select
                     value={field.value}
                     onValueChange={(value) => field.onChange(value)}
+                    disabled={isSubmitting}
                   >
                     <SelectTrigger className="w-[190px]">
                       <SelectValue placeholder="Select Sex" />
@@ -238,8 +286,8 @@ export default function CreateAdminForm() {
               </FormItem>
             )}
           />
-          <Button className="w-full" type="submit">
-            Create
+          <Button className="w-full" type="submit" disabled={isSubmitting}>
+            {isSubmitting ? "Creating..." : "Create"}
           </Button>
         </form>
       </Form>
