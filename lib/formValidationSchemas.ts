@@ -73,7 +73,7 @@ export const createAdminSchema = z
   .superRefine(({ password, confirmPassword }, ctx) => {
     if (password !== confirmPassword) {
       ctx.addIssue({
-        path: ["confirmPassword"], // Target the confirmPassword field for error
+        path: ["confirmPassword"],
         code: z.ZodIssueCode.custom,
         message: "Passwords do not match",
       });
@@ -81,6 +81,20 @@ export const createAdminSchema = z
   });
 
 export type CreateAdminSchema = z.infer<typeof createAdminSchema>;
+
+export const updateAdminSchema = z.object({
+  firstName: z.string().min(1, "First Name is required"),
+  middleName: z.string().min(1, "Middle Name is required"),
+  lastName: z.string().min(1, "Last Name is required"),
+  username: z.string().min(1, "Username is required"),
+  email: z.string().email("Invalid email format").min(1, "Email is required"),
+  address: z.string().min(1, "Address is required"),
+  phone: z.string().min(1, "Phone is required"),
+  birthday: z.string(),
+  sex: z.enum(["MALE", "FEMALE"], {
+    message: "Sex is required",
+  }),
+});
 
 export const gradeSchema = z.object({
   studentNumber: z.string(),

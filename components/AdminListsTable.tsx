@@ -89,7 +89,7 @@ export default function AdminListsTable() {
                   <TableCell className="text-right">
                     {role === "superuser" && (
                       <div className="flex items-center gap-2 justify-center">
-                        <UpdateAdmin />
+                        <UpdateAdminDialog admin={adminData} />
                         <DeleteAdmin id={adminData.id} />
                       </div>
                     )}
