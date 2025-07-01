@@ -23,8 +23,9 @@ import {
 import { Textarea } from "@/components/ui/textarea";
 import toast from "react-hot-toast";
 import { Loader2, User, Mail, Phone, MapPin } from "lucide-react";
+import { createUser } from "@/actions/user/user-action";
 
-type UserSex = "male" | "female" | "other";
+type UserSex = "MALE" | "FEMALE";
 type Role = "faculty" | "registrar";
 
 interface CreateUserForm {
@@ -94,23 +95,33 @@ export default function CreateUserPage() {
     e.preventDefault();
 
     if (!validateForm()) {
-      toast.error(
-        "Form Validation Failed"
-        // description: "Please fix the errors in the form",
-        // variant: "destructive",
-      );
+      toast.error("Form Validation Failed");
       return;
     }
 
     setIsLoading(true);
 
     try {
-      // Simulate API call
-      await new Promise((resolve) => setTimeout(resolve, 2000));
+      // Call the server action
+      const result = await createUser({
+        username: formData.username,
+        firstName: formData.firstName,
+        lastName: formData.lastName,
+        middleInit: formData.middleInit,
+        email: formData.email || undefined,
+        phone: formData.phone || undefined,
+        address: formData.address,
+        sex: formData.sex as UserSex, // Cast to UserSex since we've validated it's not empty
+        role: formData.role,
+      });
+
+      if (result.error) {
+        toast.error(result.error);
+        return;
+      }
 
       toast.success(
-        "User Created Successfully"
-        // `${formData.firstName} ${formData.lastName} has been created as a ${formData.role}.`
+        `User ${formData.firstName} ${formData.lastName} created successfully!`
       );
 
       // Reset form
@@ -126,11 +137,7 @@ export default function CreateUserPage() {
         role: "faculty",
       });
     } catch (error) {
-      toast(
-        "Error"
-        // description: "Failed to create user. Please try again.",
-        // variant: "destructive",
-      );
+      toast.error("Failed to create user. Please try again.");
     } finally {
       setIsLoading(false);
     }
