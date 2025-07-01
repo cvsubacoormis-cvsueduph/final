@@ -37,7 +37,7 @@ export default async function Menu() {
           icon: "/student.png",
           label: "Students",
           href: "/list/students",
-          visible: ["admin", "superuser"],
+          visible: ["admin", "superuser", "registrar"],
         },
         {
           icon: "/profile.png",
@@ -61,7 +61,7 @@ export default async function Menu() {
           icon: "/calendar.png",
           label: "Events",
           href: "/list/events",
-          visible: ["admin", "student", "superuser"],
+          visible: ["admin", "student", "superuser", "faculty", "registrar"],
         },
         {
           icon: "/result.png",
@@ -73,13 +73,13 @@ export default async function Menu() {
           icon: "/result.png",
           label: "Upload / Insert Grades",
           href: "/list/uploading",
-          visible: ["admin", "superuser"],
+          visible: ["admin", "superuser", "faculty"],
         },
         {
           icon: "/calendar.png",
           label: "Grades Lists",
           href: "/list/grades-lists",
-          visible: ["admin", "superuser"],
+          visible: ["admin", "superuser", "registrar", "faculty"],
         },
         {
           icon: "/assignment.png",
@@ -91,13 +91,13 @@ export default async function Menu() {
           icon: "/announcement.png",
           label: "Announcements",
           href: "/list/announcements",
-          visible: ["admin", "student", "superuser"],
+          visible: ["admin", "student", "superuser", "faculty", "registrar"],
         },
         {
           icon: "/assignment.png",
           label: "News",
           href: "/list/news",
-          visible: ["admin", "superuser"],
+          visible: ["admin", "superuser", "faculty", "registrar"],
         },
       ],
     },
@@ -114,7 +114,7 @@ export default async function Menu() {
           icon: "/profile.png",
           label: "Admin Profile",
           href: "/list/adminprofile",
-          visible: ["admin", "superuser"],
+          visible: ["admin", "superuser", "faculty", "registrar"],
         },
         {
           icon: "/profile.png",
