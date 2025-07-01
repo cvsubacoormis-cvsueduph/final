@@ -13,7 +13,7 @@ export default async function Menu() {
           icon: "/home.png",
           label: "Dashboard",
           href: "/admin",
-          visible: ["admin"],
+          visible: ["admin", "superuser", "faculty", "registrar"],
         },
         {
           icon: "/home.png",

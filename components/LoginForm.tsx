@@ -44,6 +44,10 @@ export default function LoginForm({
         router.push("/admin");
       } else if (role === "student") {
         router.push("/student");
+      } else if (role === "faculty") {
+        router.push("/admin");
+      } else if (role === "registrar") {
+        router.push("/admin");
       }
     }
   }, [user, hasAgreedToPrivacy, router]);
