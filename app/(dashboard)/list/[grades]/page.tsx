@@ -1,7 +1,7 @@
-"use server";
+"use client";
 
-import prisma from "@/lib/prisma";
-import { auth } from "@clerk/nextjs/server";
+import { useEffect, useState } from "react";
+import { useSearchParams, useRouter } from "next/navigation";
 import {
   Table,
   TableBody,
@@ -12,87 +12,139 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
-import { AcademicYear, Semester } from "@prisma/client";
+import { Button } from "@/components/ui/button";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+import { getGrades } from "@/actions/student-grades/student-grades";
 
 // Manually define enums as constants
 const AcademicYears = ["AY_2024_2025", "AY_2025_2026", "AY_2026_2027"];
 const Semesters = ["FIRST", "SECOND", "MIDYEAR"];
 
-interface GradesPageProps {
-  searchParams: Promise<{
-    year?: string;
-    semester?: string;
-  }>;
+interface Grade {
+  id: string;
+  courseCode: string;
+  creditUnit: number;
+  courseTitle: string;
+  grade: string;
+  reExam: string | null;
+  remarks: string;
+  instructor: string;
+  academicYear: string;
+  semester: string;
 }
 
-export default async function GradesPage({ searchParams }: GradesPageProps) {
-  const { userId } = await auth();
+export default function GradesPage() {
+  const searchParams = useSearchParams();
+  const router = useRouter();
+  const [grades, setGrades] = useState<Grade[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
 
-  if (!userId) {
-    return <div>Unauthorized</div>;
+  const year = searchParams.get("year") || undefined;
+  const semester = searchParams.get("semester") || undefined;
+
+  useEffect(() => {
+    const fetchGrades = async () => {
+      try {
+        setLoading(true);
+        // Convert "all" to undefined
+        const yearParam = year === "all" ? undefined : year;
+        const semesterParam = semester === "all" ? undefined : semester;
+        const data = await getGrades(yearParam, semesterParam);
+        setGrades(
+          data.map((grade) => ({
+            ...grade,
+            remarks: grade.remarks || "",
+          }))
+        );
+      } catch (err) {
+        setError(err instanceof Error ? err.message : "Failed to fetch grades");
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchGrades();
+  }, [year, semester]);
+
+  const handleFilterSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    const formData = new FormData(e.currentTarget as HTMLFormElement);
+    const params = new URLSearchParams();
+
+    const yearValue = formData.get("year");
+    const semesterValue = formData.get("semester");
+
+    if (yearValue && yearValue !== "all") {
+      params.set("year", yearValue as string);
+    }
+
+    if (semesterValue && semesterValue !== "all") {
+      params.set("semester", semesterValue as string);
+    }
+
+    router.push(`?${params.toString()}`);
+  };
+
+  if (error) {
+    return <div className="p-4 text-red-500">{error}</div>;
   }
 
-  const { year, semester } = await searchParams;
-
-  // Fetch the student and grades
-  const student = await prisma.student.findUnique({
-    where: { id: userId },
-    include: {
-      grades: {
-        where: {
-          ...(year ? { academicYear: year as AcademicYear } : {}),
-          ...(semester ? { semester: semester as Semester } : {}),
-        },
-      },
-    },
-  });
-
-  if (!student) {
-    return <div>Student not found</div>;
+  if (loading) {
+    return <div className="p-4">Loading...</div>;
   }
 
   return (
     <div className="bg-white p-4 rounded-md flex-1 m-4 mt-0">
       <h1 className="text-lg font-semibold mb-4">
         Grades{" "}
-        <span className=" flex text-xs text-gray-500">Lists of Grades</span>
+        <span className="flex text-xs text-gray-500">Lists of Grades</span>
       </h1>
+
       {/* Filter Dropdowns */}
-      <form method="get" className="mb-4 flex gap-4">
-        <select
-          name="year"
-          defaultValue={year || ""}
-          className="border rounded p-2"
-        >
-          <option value="">All Years</option>
-          {AcademicYears.map((yr) => (
-            <option key={yr} value={yr}>
-              {yr.replace("_", "-")}
-            </option>
-          ))}
-        </select>
-        <select
-          name="semester"
-          defaultValue={semester || ""}
-          className="border rounded p-2"
-        >
-          <option value="">All Semesters</option>
-          {Semesters.map((sem) => (
-            <option key={sem} value={sem}>
-              {sem}
-            </option>
-          ))}
-        </select>
-        <button
-          type="submit"
-          className="bg-gray-800 hover:bg-gray-700 text-white rounded p-2"
-        >
-          Filter
-        </button>
+      <form
+        onSubmit={handleFilterSubmit}
+        className="mb-4 flex gap-4 items-center"
+      >
+        <Select name="year" defaultValue={year || undefined}>
+          <SelectTrigger className="w-[180px]">
+            <SelectValue placeholder="All Years" />
+          </SelectTrigger>
+          <SelectContent>
+            <SelectItem value="all">All Years</SelectItem>
+            {AcademicYears.map((yr) => (
+              <SelectItem key={yr} value={yr}>
+                {yr.replace("_", "-")}
+              </SelectItem>
+            ))}
+          </SelectContent>
+        </Select>
+
+        <Select name="semester" defaultValue={semester || undefined}>
+          <SelectTrigger className="w-[180px]">
+            <SelectValue placeholder="All Semesters" />
+          </SelectTrigger>
+          <SelectContent>
+            <SelectItem value="all">All Semesters</SelectItem>
+            {Semesters.map((sem) => (
+              <SelectItem key={sem} value={sem}>
+                {sem}
+              </SelectItem>
+            ))}
+          </SelectContent>
+        </Select>
+
+        <Button type="submit">Filter</Button>
       </form>
 
       {/* Grades Table */}
-      {student.grades.length === 0 ? (
+      {grades.length === 0 ? (
         <p className="text-center font-semibold">You have no grades here.</p>
       ) : (
         <div className="overflow-y-auto">
@@ -124,7 +176,7 @@ export default async function GradesPage({ searchParams }: GradesPageProps) {
               </TableRow>
             </TableHeader>
             <TableBody>
-              {student.grades.map((grade) => (
+              {grades.map((grade) => (
                 <TableRow key={grade.id}>
                   <TableCell className="text-center font-semibold">
                     {grade.courseCode}
@@ -138,21 +190,20 @@ export default async function GradesPage({ searchParams }: GradesPageProps) {
                   <TableCell
                     className={
                       ["INC", "DRP", "FAILED", "4.00", "5.00"].includes(
-                        grade.grade as string
+                        grade.grade
                       )
                         ? "text-red-500 p-4 text-center font-bold"
                         : "p-4 text-center font-semibold"
                     }
                   >
-                    {["INC", "DRP"].includes(grade.grade as string)
+                    {["INC", "DRP"].includes(grade.grade)
                       ? grade.grade
-                      : !isNaN(parseFloat(grade.grade as string))
-                      ? parseFloat(grade.grade as string).toFixed(2)
+                      : !isNaN(parseFloat(grade.grade))
+                      ? parseFloat(grade.grade).toFixed(2)
                       : ""}
                   </TableCell>
                   <TableCell className="p-4 text-center">
-                    {grade.reExam !== null &&
-                    !isNaN(parseFloat(grade.reExam as string))
+                    {grade.reExam !== null && !isNaN(parseFloat(grade.reExam))
                       ? grade.reExam
                       : " "}
                   </TableCell>
@@ -173,16 +224,15 @@ export default async function GradesPage({ searchParams }: GradesPageProps) {
               <TableRow className="bg-gray-200">
                 <TableHead className="text-xs p-4 text-center">
                   Total Subjects Enrolled:{" "}
-                  <span className="font-bold">{student.grades.length}</span>
+                  <span className="font-bold">{grades.length}</span>
                 </TableHead>
                 <TableHead className="text-xs p-2 text-center">
                   Total Credit Units Enrolled:{" "}
                   <span className="font-bold">
-                    {student.grades.reduce((acc, cur) => {
-                      // Exclude INC or DRP grades in count
+                    {grades.reduce((acc, cur) => {
                       const finalGrade =
                         cur.reExam !== null ? cur.reExam : cur.grade;
-                      if (["INC", "DRP"].includes(finalGrade as string)) {
+                      if (["INC", "DRP"].includes(finalGrade)) {
                         return acc;
                       }
                       return acc + cur.creditUnit;
@@ -192,26 +242,20 @@ export default async function GradesPage({ searchParams }: GradesPageProps) {
                 <TableHead className="text-xs p-4 text-center">
                   Total Credits Earned:{" "}
                   <span className="font-bold">
-                    {student.grades.reduce((acc, cur) => {
-                      // Convert to number if possible, otherwise treat as invalid
+                    {grades.reduce((acc, cur) => {
                       const originalGrade = parseFloat(cur.grade);
                       const reExamGrade =
                         cur.reExam !== null ? parseFloat(cur.reExam) : 0;
 
-                      // Check if original grade is invalid
                       const isOriginalInvalid =
                         isNaN(originalGrade) ||
                         ["INC", "DRP"].includes(cur.grade);
-
-                      // Check if re-exam grade is invalid
                       const isReExamInvalid =
                         isNaN(reExamGrade) ||
                         ["INC", "DRP"].includes(cur.reExam ?? "");
 
-                      // If both original and re-exam grades are invalid, skip this row
                       if (isOriginalInvalid && isReExamInvalid) return acc;
 
-                      // Use the valid grade (prefer re-exam if original is invalid)
                       const finalGrade = isOriginalInvalid
                         ? reExamGrade
                         : originalGrade;
@@ -227,41 +271,35 @@ export default async function GradesPage({ searchParams }: GradesPageProps) {
                   Grade Point Average:{" "}
                   <span className="font-bold">
                     {(() => {
-                      const totalCreditsEarned = student.grades.reduce(
-                        (acc, cur) => {
-                          const originalGrade = parseFloat(cur.grade);
-                          const reExamGrade =
-                            cur.reExam !== null ? parseFloat(cur.reExam) : 0;
+                      const totalCreditsEarned = grades.reduce((acc, cur) => {
+                        const originalGrade = parseFloat(cur.grade);
+                        const reExamGrade =
+                          cur.reExam !== null ? parseFloat(cur.reExam) : 0;
 
-                          const isOriginalInvalid =
-                            isNaN(originalGrade) ||
-                            ["INC", "DRP"].includes(cur.grade);
-                          const isReExamInvalid =
-                            isNaN(reExamGrade) ||
-                            ["INC", "DRP"].includes(cur.reExam ?? "");
+                        const isOriginalInvalid =
+                          isNaN(originalGrade) ||
+                          ["INC", "DRP"].includes(cur.grade);
+                        const isReExamInvalid =
+                          isNaN(reExamGrade) ||
+                          ["INC", "DRP"].includes(cur.reExam ?? "");
 
-                          if (isOriginalInvalid && isReExamInvalid) return acc;
+                        if (isOriginalInvalid && isReExamInvalid) return acc;
 
-                          const finalGrade = isOriginalInvalid
-                            ? reExamGrade
-                            : originalGrade;
+                        const finalGrade = isOriginalInvalid
+                          ? reExamGrade
+                          : originalGrade;
 
-                          return acc + cur.creditUnit * finalGrade;
-                        },
-                        0
-                      );
+                        return acc + cur.creditUnit * finalGrade;
+                      }, 0);
 
-                      const totalCreditsEnrolled = student.grades.reduce(
-                        (acc, cur) => {
-                          const finalGrade =
-                            cur.reExam !== null ? cur.reExam : cur.grade;
-                          if (["INC", "DRP"].includes(finalGrade as string)) {
-                            return acc;
-                          }
-                          return acc + cur.creditUnit;
-                        },
-                        0
-                      );
+                      const totalCreditsEnrolled = grades.reduce((acc, cur) => {
+                        const finalGrade =
+                          cur.reExam !== null ? cur.reExam : cur.grade;
+                        if (["INC", "DRP"].includes(finalGrade)) {
+                          return acc;
+                        }
+                        return acc + cur.creditUnit;
+                      }, 0);
 
                       return totalCreditsEnrolled > 0
                         ? (totalCreditsEarned / totalCreditsEnrolled).toFixed(2)

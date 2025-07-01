@@ -198,7 +198,7 @@ export default function PortalGuide() {
     <div className="flex items-center justify-center min-h-[100px]">
       <Dialog open={open} onOpenChange={setOpen}>
         <DialogTrigger asChild>
-          <Button size="lg" className="gap-2 bg-[#4169E1] hover:bg-blue-700">
+          <Button size="lg" className="gap-2 bg-blue-700 hover:bg-blue-900">
             <GraduationCap className="h-5 w-5" />
             Open Student Portal Guide
           </Button>
@@ -227,7 +227,7 @@ export default function PortalGuide() {
                 <button
                   key={index}
                   className={`h-2 rounded-full transition-all ${
-                    currentStep === index ? "w-8 bg-[#4169E1]" : "w-2 bg-muted"
+                    currentStep === index ? "w-8 bg-blue-700" : "w-2 bg-muted"
                   }`}
                   onClick={() => setCurrentStep(index)}
                   aria-label={`Go to step ${index + 1}`}
@@ -240,20 +240,20 @@ export default function PortalGuide() {
             <Button
               onClick={prevStep}
               disabled={currentStep === 0}
-              className="gap-2 bg-[#4169E1] hover:bg-blue-700"
+              className="gap-2 bg-blue-700 hover:bg-blue-900"
             >
               <ArrowLeft className="h-4 w-4" /> Previous
             </Button>
             {currentStep < steps.length - 1 ? (
               <Button
                 onClick={nextStep}
-                className="gap-2 bg-[#4169E1] hover:bg-blue-700"
+                className="gap-2 bg-blue-700 hover:bg-blue-900"
               >
                 Next <ArrowRight className="h-4 w-4" />
               </Button>
             ) : (
               <Button
-                className="bg-[#4169E1] hover:bg-blue-700"
+                className="bg-blue-700 hover:bg-blue-900"
                 onClick={() => setOpen(false)}
               >
                 Finish Guide
@@ -286,7 +286,7 @@ export default function PortalGuide() {
           <DialogFooter>
             <Button
               onClick={() => setImagePreviewOpen(false)}
-              className="bg-[#4169E1] hover:bg-blue-700"
+              className="bg-blue-700 hover:bg-blue-900"
             >
               Close
             </Button>

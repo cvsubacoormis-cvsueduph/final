@@ -191,13 +191,13 @@ export default function ForgotPasswordDialog() {
             <div key={step} className="flex items-center">
               <div
                 className={`h-2 w-2 rounded-full ${
-                  index <= currentIndex ? "bg-[#4169E1]" : "bg-muted"
+                  index <= currentIndex ? "bg-blue-700" : "bg-muted"
                 }`}
               />
               {index < steps.length - 1 && (
                 <div
                   className={`h-0.5 w-8 ${
-                    index < currentIndex ? "bg-[#4169E1]" : "bg-muted"
+                    index < currentIndex ? "bg-blue-700" : "bg-muted"
                   }`}
                 />
               )}
@@ -215,7 +215,7 @@ export default function ForgotPasswordDialog() {
   return (
     <Dialog open={open} onOpenChange={setOpen}>
       <DialogTrigger asChild>
-        <Button variant="link" className="px-0 text-[#4169E1]">
+        <Button variant="link" className="px-0 text-blue-700">
           Forgot password?
         </Button>
       </DialogTrigger>
@@ -223,7 +223,7 @@ export default function ForgotPasswordDialog() {
         {currentStep === "email" && (
           <>
             <DialogHeader>
-              <DialogTitle className="text-[#4169E1]">
+              <DialogTitle className="text-blue-700">
                 Reset your password
               </DialogTitle>
               <DialogDescription>
@@ -234,7 +234,7 @@ export default function ForgotPasswordDialog() {
             {renderStepIndicator()}
             <form onSubmit={handleEmailSubmit} className="space-y-4 py-4">
               <div className="space-y-2">
-                <Label htmlFor="email" className="text-[#4169E1]">
+                <Label htmlFor="email" className="text-blue-700">
                   Email address
                 </Label>
                 <div className="relative">
@@ -255,14 +255,14 @@ export default function ForgotPasswordDialog() {
                 <Button
                   type="button"
                   onClick={handleClose}
-                  className="mt-2 sm:mt-0 bg-[#4169E1] hover:bg-blue-700 text-white"
+                  className="mt-2 sm:mt-0 bg-blue-700 hover:bg-blue-900 text-white"
                 >
                   Cancel
                 </Button>
                 <Button
                   type="submit"
                   disabled={!email}
-                  className="bg-[#4169E1] hover:bg-blue-700 text-white"
+                  className="bg-blue-700 hover:bg-blue-900 text-white"
                 >
                   Send Code
                   <ArrowRight className="ml-2 h-4 w-4" />
@@ -275,7 +275,7 @@ export default function ForgotPasswordDialog() {
         {currentStep === "code" && (
           <>
             <DialogHeader>
-              <DialogTitle className="text-[#4169E1]">
+              <DialogTitle className="text-blue-700">
                 Reset your password
               </DialogTitle>
               <DialogDescription>
@@ -285,11 +285,11 @@ export default function ForgotPasswordDialog() {
             {renderStepIndicator()}
             <form onSubmit={handleResetPassword} className="space-y-4 py-4">
               <div className="space-y-2">
-                <Label htmlFor="code" className="text-[#4169E1]">
+                <Label htmlFor="code" className="text-blue-700">
                   Verification code
                 </Label>
                 <div className="relative">
-                  <KeyRound className="absolute left-3 top-3 h-4 w-4 text-muted-foreground text-[#4169E1]" />
+                  <KeyRound className="absolute left-3 top-3 h-4 w-4 text-muted-foreground text-blue-700" />
                   <Input
                     id="code"
                     type="text"
@@ -378,14 +378,14 @@ export default function ForgotPasswordDialog() {
                 <Button
                   type="button"
                   onClick={() => setCurrentStep("email")}
-                  className="mt-2 sm:mt-0 bg-[#4169E1] hover:bg-blue-700 text-white"
+                  className="mt-2 sm:mt-0 bg-blue-700 hover:bg-blue-900 text-white"
                 >
                   Back
                 </Button>
                 <Button
                   type="submit"
                   disabled={!code || !password || !confirmPassword}
-                  className="bg-[#4169E1] hover:bg-blue-700 text-white"
+                  className="bg-blue-700 hover:bg-blue-900 text-white"
                 >
                   Reset Password
                   <ArrowRight className="ml-2 h-4 w-4" />
@@ -398,7 +398,7 @@ export default function ForgotPasswordDialog() {
         {currentStep === "success" && (
           <>
             <DialogHeader>
-              <DialogTitle className="text-[#4169E1]">
+              <DialogTitle className="text-blue-700">
                 Password reset successful
               </DialogTitle>
               <DialogDescription>
@@ -407,7 +407,7 @@ export default function ForgotPasswordDialog() {
             </DialogHeader>
             <div className="flex flex-col items-center justify-center py-6 text-center">
               <div className="mb-4 rounded-full bg-primary/10 p-3">
-                <CheckCircle className="h-6 w-6 text-[#4169E1]" />
+                <CheckCircle className="h-6 w-6 text-blue-700" />
               </div>
               <p className="mb-2 font-medium">Your password has been updated</p>
               <p className="text-sm text-muted-foreground">
@@ -417,7 +417,7 @@ export default function ForgotPasswordDialog() {
             <DialogFooter>
               <Button
                 onClick={handleClose}
-                className="w-full bg-[#4169E1] hover:bg-blue-700 text-white"
+                className="w-full bg-blue-700 hover:bg-blue-900 text-white"
               >
                 Return to Dashboard
               </Button>

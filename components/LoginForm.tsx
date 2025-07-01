@@ -104,7 +104,7 @@ export default function LoginForm({
             <div id="clerk-captcha" />
             <SignIn.Action
               submit
-              className="w-full bg-[#4169E1] hover:bg-blue-700 p-2 rounded-md text-white"
+              className="w-full bg-blue-700 hover:bg-blue-900 p-2 rounded-md text-white"
             >
               <Clerk.Loading>
                 {(isLoading) =>
@@ -119,7 +119,7 @@ export default function LoginForm({
               </Clerk.Loading>
             </SignIn.Action>
           </div>
-          <div className="text-center text-sm text-[#4169E1] mt-4">
+          <div className="text-center text-sm text-blue-700 hover:text-blue-900 mt-4">
             Don&apos;t have an account?{" "}
             <Link
               href="https://forms.gle/5YYZkPbHP1mbQBTLA"
@@ -140,7 +140,7 @@ export default function LoginForm({
           </AlertDialogHeader>
           {role === "student" ? <DataPrivacy /> : <DataPrivacyEmployee />}
           <Button
-            className="w-full bg-blue-600 hover:bg-blue-500"
+            className="w-full bg-blue-500 hover:bg-blue-700"
             onClick={() => {
               setHasAgreedToPrivacy(true);
               setIsDialogOpen(false);

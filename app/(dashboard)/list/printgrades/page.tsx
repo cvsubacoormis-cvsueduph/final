@@ -99,7 +99,7 @@ export default function PrintGradesSelector() {
 
         {/* Only enable the button when both values are selected */}
         <Button
-          className="w-[120px] mt-7"
+          className="w-[120px] mt-7 bg-blue-500 hover:bg-blue-700"
           disabled={!academicYear || !semester || !yearLevel || !purpose}
         >
           <Link
@@ -115,6 +115,9 @@ export default function PrintGradesSelector() {
           </Link>
         </Button>
       </div>
+      <span className="text-sm mt-2 font-semibold underline">
+        Note: Year Level is based on your current year standing only
+      </span>
     </div>
   );
 }
