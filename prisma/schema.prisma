@@ -27,35 +27,21 @@ model Admin {
   role       Role    @default(admin)
 }
 
-model Registrar {
-  id         String  @id @default(uuid()) // Use UUID for id
-  firstName  String
-  middleName String?
-  lastName   String
-  address    String
-  phone      String?
-  email      String?
-  birthday   String
-  sex        UserSex
+model User {
+  id         String  @id @default(cuid())
   username   String  @unique
-  role       Role    @default(registrar)
+  firstName  String
+  lastName   String
+  middleInit String?
+  email      String?
+  phone      String?
+  address    String
+  sex        UserSex
+  role       Role    @default(faculty)
 
   createdAt DateTime @default(now())
-  updatedat DateTime
-}
 
-model Faculty {
-  id         String  @id @default(uuid()) // Use UUID for id
-  firstName  String
-  middleName String?
-  lastName   String
-  address    String
-  phone      String?
-  email      String?
-  birthday   String
-  sex        UserSex
-  username   String  @unique
-  role       Role    @default(faculty)
+  @@unique([username, email], map: "unique_user")
 }
 
 model Student {

@@ -128,12 +128,12 @@ export default async function Menu() {
           href: "/list/printgrades",
           visible: ["student"],
         },
-        // {
-        //   icon: "/setting.png",
-        //   label: "Settings",
-        //   href: "/list/settings",
-        //   visible: ["student"],
-        // },
+        {
+          icon: "/profile.png",
+          label: "Create User",
+          href: "/list/create-user",
+          visible: ["admin"],
+        },
         // {
         //   icon: "/logout.png",
         //   label: "Logout",
