@@ -62,7 +62,7 @@ export default function UpdateAnnouncements({
     <div className="sm:max-w-3xl lg:max-w-5xl">
       <Dialog open={isDialogOpen} onOpenChange={setDialogOpen}>
         <DialogTrigger asChild>
-          <Button>
+          <Button className="bg-blue-700 hover:bg-blue-900">
             <PencilIcon />
             Edit
           </Button>

@@ -61,7 +61,7 @@ export default function AdminProfileComp() {
   if (loading) {
     return (
       <div className="flex items-center justify-center h-screen">
-        <HashLoader color="#111542" size={150} />
+        <HashLoader color="#1976D2" size={150} />
       </div>
     );
   }

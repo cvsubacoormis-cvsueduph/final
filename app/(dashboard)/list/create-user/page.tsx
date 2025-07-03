@@ -380,7 +380,7 @@ export default function CreateUserPage() {
                   <Button
                     type="submit"
                     disabled={isLoading}
-                    className="min-w-[120px]"
+                    className="min-w-[120px] bg-blue-700 hover:bg-blue-900"
                   >
                     {isLoading ? (
                       <>
