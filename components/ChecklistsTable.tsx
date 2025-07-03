@@ -178,7 +178,7 @@ export function CurriculumChecklist() {
   if (loading) {
     return (
       <div className="flex items-center justify-center h-screen">
-        <HashLoader color="#111542" size={150} />
+        <HashLoader color="#1976D2" size={150} />
       </div>
     );
   }
@@ -233,7 +233,7 @@ export function CurriculumChecklist() {
               </SelectContent>
             </Select>
             <Link href="/printChecklist">
-              <Button>
+              <Button className="bg-blue-700 hover:bg-blue-900">
                 <Printer className="h-4 w-4 mr-2" />
                 Print
               </Button>

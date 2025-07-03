@@ -118,16 +118,6 @@ export default function PrintChecklist() {
         return "";
     }
   };
-
-  if (loading) {
-    return (
-      <div className="flex items-center justify-center h-screen">
-        <p>
-          <HashLoader size={150} />
-        </p>
-      </div>
-    );
-  }
   return (
     <div>
       <div
