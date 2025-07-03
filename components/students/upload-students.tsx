@@ -1,6 +1,6 @@
 "use client";
 
-import { Button } from "../ui/button";
+import { Button } from "@/components/ui/button";
 import {
   Dialog,
   DialogContent,
@@ -9,20 +9,41 @@ import {
   DialogTitle,
   DialogTrigger,
 } from "@/components/ui/dialog";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from "@/components/ui/alert-dialog";
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from "@/components/ui/table";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { Progress } from "@/components/ui/progress";
+import { Card, CardContent } from "@/components/ui/card";
+import { Badge } from "@/components/ui/badge";
 import * as XLSX from "xlsx";
 import toast from "react-hot-toast";
 import { mutate } from "swr";
-
 import { useState } from "react";
-import { Student } from "@prisma/client";
-import { UploadCloudIcon } from "lucide-react";
-import { CreateStudentSchema } from "@/lib/formValidationSchemas";
+import type { Student } from "@prisma/client";
+import { UploadCloudIcon, FileSpreadsheetIcon, EyeIcon } from "lucide-react";
+import type { CreateStudentSchema } from "@/lib/formValidationSchemas";
 
 export default function UploadStudents() {
   const [file, setFile] = useState<File | null>(null);
   const [loading, setLoading] = useState(false);
   const [jsonData, setJsonData] = useState("");
-  const [DialogOpen, setDialogOpen] = useState(false);
+  const [dialogOpen, setDialogOpen] = useState(false);
   const [alertDialogOpen, setAlertDialogOpen] = useState(false);
   const [duplicateStudents, setDuplicateStudents] = useState<
     CreateStudentSchema[]
@@ -59,26 +80,24 @@ export default function UploadStudents() {
       setLoading(true);
       const formData = new FormData();
       formData.append("file", file);
+
       fetch("/api/upload", {
         method: "POST",
         body: formData,
       }).then(async (res) => {
         const data = await res.json();
         setLoading(false);
-
         if (res.ok) {
           setDialogOpen(false);
           toast.success("Data saved successfully");
           resetUploadState();
 
-          // Debugging log to check if duplicates exist
           console.log("Response Data:", data);
           if (data.duplicates && data.duplicates.length > 0) {
             console.log("Duplicates found:", data.duplicates);
             setDuplicateStudents(data.duplicates);
             setAlertDialogOpen(true);
           }
-
           mutate("/api/students");
         } else {
           console.error(data.message);
@@ -86,7 +105,6 @@ export default function UploadStudents() {
           resetUploadState();
         }
 
-        // If there are duplicates, download the Excel file
         if (res.status === 200 && data.duplicates.length > 0) {
           const blob = await res.blob();
           const link = document.createElement("a");
@@ -100,108 +118,203 @@ export default function UploadStudents() {
 
   return (
     <div className="sm:max-w-3xl lg:max-w-5xl">
-      <Dialog open={DialogOpen} onOpenChange={setDialogOpen}>
+      <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
         <DialogTrigger asChild>
-          <Button className="bg-blue-700 hover:bg-blue-900">
-            <UploadCloudIcon />
-            Upload
+          <Button className="bg-blue-600 hover:bg-blue-700">
+            <UploadCloudIcon className="w-4 h-4 mr-2" />
+            Upload Students
           </Button>
         </DialogTrigger>
-        <DialogContent className="space-y-6 px-6 py-4 lg:px-8 lg:py-6">
-          <DialogHeader className="space-y-2">
-            <DialogTitle className="text-md font-semibold">
-              Upload Student
+        <DialogContent className="max-w-4xl max-h-[80vh] overflow-y-auto">
+          <DialogHeader>
+            <DialogTitle className="text-xl font-semibold">
+              Upload Student Data
             </DialogTitle>
-            <DialogDescription className="text-sm">
-              Upload multiple student information
+            <DialogDescription>
+              Upload multiple student information from an Excel file (.xls,
+              .xlsx, .xlsm)
             </DialogDescription>
           </DialogHeader>
-          <Button>
-            <input
-              type="file"
-              name="file"
-              accept=".xls, .xlsx, .xlsm"
-              onChange={(e) =>
-                setFile(e.target.files ? e.target.files[0] : null)
-              }
-            />
-          </Button>
-          <Button onClick={previewData}>Preview Data</Button>
-          {jsonData && (
-            <div className="overflow-auto max-h-96">
-              <table className="w-full text-sm">
-                <thead>
-                  <tr className="bg-gray-100">
-                    <th className="px-4 py-2">Student Number</th>
-                    <th className="px-4 py-2">Name</th>
-                    <th className="px-4 py-2">Course</th>
-                    <th className="px-4-py-2">Major</th>
-                    <th className="px-4 py-2">Phone</th>
-                    <th className="px-4 py-2">Status</th>
-                    <th className="px-4 py-2">Birthday</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {JSON.parse(jsonData).map((student: Student) => (
-                    <tr
-                      key={student.studentNumber}
-                      className="hover:bg-gray-50"
+
+          <div className="space-y-6">
+            {/* File Upload Section */}
+            <Card>
+              <CardContent className="pt-6">
+                <div className="space-y-4">
+                  <Label htmlFor="file-upload" className="text-sm font-medium">
+                    Select Excel File
+                  </Label>
+                  <div className="flex items-center space-x-4">
+                    <Input
+                      id="file-upload"
+                      type="file"
+                      accept=".xls,.xlsx,.xlsm"
+                      onChange={(e) =>
+                        setFile(e.target.files ? e.target.files[0] : null)
+                      }
+                      className="flex-1"
+                    />
+                    {file && (
+                      <Badge
+                        variant="secondary"
+                        className="flex items-center gap-1"
+                      >
+                        <FileSpreadsheetIcon className="w-3 h-3" />
+                        {file.name}
+                      </Badge>
+                    )}
+                  </div>
+                  {file && (
+                    <Button
+                      onClick={previewData}
+                      variant="outline"
+                      className="w-full bg-transparent"
                     >
-                      <td className="px-4 py-2">{student.studentNumber}</td>
-                      <td className="px-4 py-2">
-                        {student.firstName} {student?.middleInit}{" "}
-                        {student.lastName}
-                      </td>
-                      <td className="px-4 py-2">{student.course}</td>
-                      <td className="px-4 py-2">{student?.major || ""}</td>
-                      <td className="px-4 py-2">{student.phone}</td>
-                      <td className="px-4 py-2">{student.status}</td>
-                      <td className="px-4 py-2">
-                        {/* {new Date(student.birthday).toDateString()} */}
-                        {/* {student.birthday.toString()} */}
-                      </td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
+                      <EyeIcon className="w-4 h-4 mr-2" />
+                      Preview Data
+                    </Button>
+                  )}
+                </div>
+              </CardContent>
+            </Card>
+
+            {/* Data Preview Section */}
+            {jsonData && (
+              <Card>
+                <CardContent className="pt-6">
+                  <div className="space-y-4">
+                    <Label className="text-sm font-medium">Data Preview</Label>
+                    <div className="border rounded-lg overflow-hidden">
+                      <div className="max-h-96 overflow-auto">
+                        <Table>
+                          <TableHeader>
+                            <TableRow>
+                              <TableHead>Student Number</TableHead>
+                              <TableHead>Name</TableHead>
+                              <TableHead>Course</TableHead>
+                              <TableHead>Major</TableHead>
+                              <TableHead>Phone</TableHead>
+                              <TableHead>Status</TableHead>
+                              <TableHead>Birthday</TableHead>
+                            </TableRow>
+                          </TableHeader>
+                          <TableBody>
+                            {JSON.parse(jsonData).map(
+                              (student: Student, index: number) => (
+                                <TableRow key={student.studentNumber || index}>
+                                  <TableCell className="font-medium">
+                                    {student.studentNumber}
+                                  </TableCell>
+                                  <TableCell>
+                                    {student.firstName} {student?.middleInit}{" "}
+                                    {student.lastName}
+                                  </TableCell>
+                                  <TableCell>{student.course}</TableCell>
+                                  <TableCell>{student?.major || "—"}</TableCell>
+                                  <TableCell>{student.phone}</TableCell>
+                                  <TableCell>
+                                    <Badge
+                                      variant={
+                                        student.status === "REGULAR"
+                                          ? "default"
+                                          : "secondary"
+                                      }
+                                    >
+                                      {student.status}
+                                    </Badge>
+                                  </TableCell>
+                                </TableRow>
+                              )
+                            )}
+                          </TableBody>
+                        </Table>
+                      </div>
+                    </div>
+                  </div>
+                </CardContent>
+              </Card>
+            )}
+
+            {/* Loading State */}
+            {loading && (
+              <Card>
+                <CardContent className="pt-6">
+                  <div className="space-y-4">
+                    <div className="flex items-center justify-between">
+                      <Label className="text-sm font-medium">
+                        Saving data...
+                      </Label>
+                      <Badge variant="outline">Processing</Badge>
+                    </div>
+                    <Progress value={100} className="animate-pulse" />
+                    <p className="text-sm text-muted-foreground text-center">
+                      Please wait while we process your file...
+                    </p>
+                  </div>
+                </CardContent>
+              </Card>
+            )}
+
+            {/* Action Buttons */}
+            <div className="flex justify-end space-x-3">
+              <Button
+                variant="outline"
+                onClick={() => setDialogOpen(false)}
+                disabled={loading}
+              >
+                Cancel
+              </Button>
+              <Button
+                onClick={saveData}
+                disabled={loading || !file}
+                className="bg-blue-600 hover:bg-blue-700"
+              >
+                {loading ? "Saving..." : "Save Data"}
+              </Button>
             </div>
-          )}
-          {loading ? (
-            <div className="w-full bg-gray-200 rounded-full h-2.5 dark:bg-gray-700">
-              <div className="bg-blue-600 h-2.5 rounded-full w-full animate-[loading_2s_ease-in-out_infinite]"></div>
-              <p className="text-sm text-center mt-2">
-                Saving data, please wait...
-              </p>
-            </div>
-          ) : null}
-          <Button onClick={saveData} disabled={loading}>
-            Save Data
-          </Button>
+          </div>
         </DialogContent>
       </Dialog>
 
       {/* Alert Dialog for Duplicates */}
-      {alertDialogOpen && (
-        <Dialog open={alertDialogOpen} onOpenChange={setAlertDialogOpen}>
-          <DialogContent>
-            <DialogHeader>
-              <DialogTitle>Duplicate Students Found</DialogTitle>
-            </DialogHeader>
-            <div>
-              <p>The following students already exist and were not added:</p>
-              <ul>
-                {duplicateStudents.map((student, index) => (
-                  <li key={index}>
-                    {student.studentNumber} - {student.firstName}{" "}
-                    {student.lastName}
-                  </li>
-                ))}
-              </ul>
+      <AlertDialog open={alertDialogOpen} onOpenChange={setAlertDialogOpen}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Duplicate Students Found</AlertDialogTitle>
+            <AlertDialogDescription>
+              The following students already exist in the system and were not
+              added:
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+
+          <div className="max-h-60 overflow-y-auto">
+            <div className="space-y-2">
+              {duplicateStudents.map((student, index) => (
+                <div
+                  key={index}
+                  className="flex items-center justify-between p-3 bg-muted rounded-lg"
+                >
+                  <div>
+                    <p className="font-medium">
+                      {student.firstName} {student.lastName}
+                    </p>
+                    <p className="text-sm text-muted-foreground">
+                      Student #: {student.studentNumber}
+                    </p>
+                  </div>
+                  <Badge variant="destructive">Duplicate</Badge>
+                </div>
+              ))}
             </div>
-            <Button onClick={() => setAlertDialogOpen(false)}>Close</Button>
-          </DialogContent>
-        </Dialog>
-      )}
+          </div>
+
+          <AlertDialogFooter>
+            <AlertDialogAction onClick={() => setAlertDialogOpen(false)}>
+              Close
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </div>
   );
 }
