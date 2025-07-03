@@ -63,10 +63,10 @@ export default function Announcements() {
                       <h1 className="font-semibold text-gray-800">
                         {item.title}
                       </h1>
-                      <span className="text-gray-500 text-xs">{item.date}</span>
+                      <span className="text-gray-800 text-xs">{item.date}</span>
                     </div>
                     {item.description && (
-                      <p className="mt-2 text-gray-600 text-sm">
+                      <p className="mt-2 text-gray-800 text-sm">
                         {item.description}
                       </p>
                     )}
@@ -89,8 +89,8 @@ export default function Announcements() {
           announcements.slice(0, 3).map((item) => (
             <div key={item.id} className="bg-gray-100 rounded-md p-4 shadow-sm">
               <div className="flex items-center justify-between">
-                <h2 className="font-medium">{item.title}</h2>
-                <span className="text-xs text-gray-400 bg-white rounded-md px-1 py-1">
+                <h2 className="font-medium text-gray-800">{item.title}</h2>
+                <span className="text-xs text-gray-800 bg-white rounded-md px-1 py-1">
                   {item.date}
                 </span>
               </div>

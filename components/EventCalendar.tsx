@@ -64,12 +64,12 @@ export default function EventCalendar() {
       >
         <div className="flex items-center justify-between">
           <h1 className="font-semibold text-gray-600">{event.title}</h1>
-          <span className="text-gray-300 text-xs">
+          <span className="text-gray-800 text-xs">
             {event.startTime} - {event.endTime}
           </span>
         </div>
         {event.description && (
-          <p className="mt-2 text-gray-400 text-sm">{event.description}</p>
+          <p className="mt-2 text-gray-800 text-sm">{event.description}</p>
         )}
       </div>
     ));
@@ -111,12 +111,12 @@ export default function EventCalendar() {
                       <h1 className="font-semibold text-gray-800">
                         {event.title}
                       </h1>
-                      <span className="text-gray-500 text-xs">
+                      <span className="text-gray-800 text-xs">
                         {event.startTime} - {event.endTime}
                       </span>
                     </div>
                     {event.description && (
-                      <p className="mt-2 text-gray-600 text-sm">
+                      <p className="mt-2 text-gray-800 text-sm">
                         {event.description}
                       </p>
                     )}
