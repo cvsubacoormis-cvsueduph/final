@@ -1,7 +1,6 @@
 "use client";
 
 import type React from "react";
-
 import { useState } from "react";
 import {
   Search,
@@ -32,8 +31,23 @@ import {
   addManualGrade,
   getStudentDetails,
 } from "@/actions/grades";
-import { AcademicYear, Semester } from "@prisma/client";
+import type { AcademicYear, Semester } from "@prisma/client";
 import { courseMap, formatMajor } from "@/lib/courses";
+import {
+  Popover,
+  PopoverContent,
+  PopoverTrigger,
+} from "@/components/ui/popover";
+import {
+  Command,
+  CommandEmpty,
+  CommandGroup,
+  CommandInput,
+  CommandItem,
+  CommandList,
+} from "@/components/ui/command";
+import { Check, ChevronsUpDown } from "lucide-react";
+import { cn } from "@/lib/utils";
 
 interface Student {
   studentNumber: string;
@@ -54,6 +68,32 @@ interface StudentDetails {
   phone: string;
   address: string;
 }
+
+// Course data for combo boxes
+const courseOptions = [
+  { code: "CS101", title: "Introduction to Computer Science" },
+  { code: "CS102", title: "Programming Fundamentals" },
+  { code: "CS201", title: "Data Structures and Algorithms" },
+  { code: "CS202", title: "Object-Oriented Programming" },
+  { code: "CS301", title: "Database Systems" },
+  { code: "CS302", title: "Software Engineering" },
+  { code: "CS401", title: "Computer Networks" },
+  { code: "CS402", title: "Operating Systems" },
+  { code: "MATH101", title: "College Algebra" },
+  { code: "MATH102", title: "Trigonometry" },
+  { code: "MATH201", title: "Calculus I" },
+  { code: "MATH202", title: "Calculus II" },
+  { code: "PHYS101", title: "General Physics I" },
+  { code: "PHYS102", title: "General Physics II" },
+  { code: "ENG101", title: "English Composition" },
+  { code: "ENG102", title: "Literature" },
+  { code: "HIST101", title: "Philippine History" },
+  { code: "HIST102", title: "World History" },
+  { code: "PE101", title: "Physical Education I" },
+  { code: "PE102", title: "Physical Education II" },
+  { code: "NSTP101", title: "National Service Training Program I" },
+  { code: "NSTP102", title: "National Service Training Program II" },
+];
 
 export default function ManualGradeEntry() {
   const [academicYear, setAcademicYear] = useState<string>("");
@@ -84,6 +124,31 @@ export default function ManualGradeEntry() {
   const [reExam, setReExam] = useState<string>("");
   const [remarks, setRemarks] = useState<string>("");
   const [instructor, setInstructor] = useState<string>("");
+
+  const [courseCodeOpen, setCourseCodeOpen] = useState(false);
+  const [courseTitleOpen, setCourseTitleOpen] = useState(false);
+
+  // Handle course code change and auto-populate course title
+  const handleCourseCodeChange = (value: string) => {
+    setCourseCode(value);
+    const selectedCourse = courseOptions.find(
+      (course) => course.code === value
+    );
+    if (selectedCourse) {
+      setCourseTitle(selectedCourse.title);
+    }
+  };
+
+  // Handle course title change and auto-populate course code
+  const handleCourseTitleChange = (value: string) => {
+    setCourseTitle(value);
+    const selectedCourse = courseOptions.find(
+      (course) => course.title === value
+    );
+    if (selectedCourse) {
+      setCourseCode(selectedCourse.code);
+    }
+  };
 
   const handleSearch = async () => {
     if (!academicYear || !semester) {
@@ -142,7 +207,6 @@ export default function ManualGradeEntry() {
 
     setIsSubmitting(true);
     setSubmitStatus("idle");
-
     try {
       const gradeData = {
         studentNumber: selectedStudent.studentNumber,
@@ -164,8 +228,8 @@ export default function ManualGradeEntry() {
         academicYear: gradeData.academicYear as AcademicYear,
         semester: gradeData.semester as Semester,
       });
-      setSubmitStatus("success");
 
+      setSubmitStatus("success");
       // Reset form
       setCourseCode("");
       setCreditUnit("");
@@ -432,6 +496,7 @@ export default function ManualGradeEntry() {
                         })
                       }
                       size="sm"
+                      className="bg-blue-700 hover:bg-blue-900"
                     >
                       Select for Grading
                     </Button>
@@ -616,13 +681,62 @@ export default function ManualGradeEntry() {
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div className="space-y-2">
                   <Label htmlFor="course-code">Course Code *</Label>
-                  <Input
-                    id="course-code"
-                    value={courseCode}
-                    onChange={(e) => setCourseCode(e.target.value)}
-                    placeholder="e.g., CS101"
-                    required
-                  />
+                  <Popover
+                    open={courseCodeOpen}
+                    onOpenChange={setCourseCodeOpen}
+                  >
+                    <PopoverTrigger asChild>
+                      <Button
+                        variant="outline"
+                        role="combobox"
+                        aria-expanded={courseCodeOpen}
+                        className="w-full justify-between bg-transparent"
+                      >
+                        {courseCode
+                          ? courseOptions.find(
+                              (course) => course.code === courseCode
+                            )?.code
+                          : "Select course code..."}
+                        <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
+                      </Button>
+                    </PopoverTrigger>
+                    <PopoverContent className="w-full p-0">
+                      <Command>
+                        <CommandInput placeholder="Search course code..." />
+                        <CommandList>
+                          <CommandEmpty>No course found.</CommandEmpty>
+                          <CommandGroup>
+                            {courseOptions.map((course) => (
+                              <CommandItem
+                                key={course.code}
+                                value={course.code}
+                                onSelect={(currentValue) => {
+                                  const selectedCourse = courseOptions.find(
+                                    (c) => c.code === currentValue
+                                  );
+                                  if (selectedCourse) {
+                                    setCourseCode(selectedCourse.code);
+                                    setCourseTitle(selectedCourse.title);
+                                  }
+                                  setCourseCodeOpen(false);
+                                }}
+                              >
+                                <Check
+                                  className={cn(
+                                    "mr-2 h-4 w-4",
+                                    courseCode === course.code
+                                      ? "opacity-100"
+                                      : "opacity-0"
+                                  )}
+                                />
+                                {course.code}
+                              </CommandItem>
+                            ))}
+                          </CommandGroup>
+                        </CommandList>
+                      </Command>
+                    </PopoverContent>
+                  </Popover>
                 </div>
                 <div className="space-y-2">
                   <Label htmlFor="credit-unit">Credit Unit *</Label>
@@ -648,13 +762,64 @@ export default function ManualGradeEntry() {
 
               <div className="space-y-2">
                 <Label htmlFor="course-title">Course Title *</Label>
-                <Input
-                  id="course-title"
-                  value={courseTitle}
-                  onChange={(e) => setCourseTitle(e.target.value)}
-                  placeholder="e.g., Introduction to Computer Science"
-                  required
-                />
+                <Popover
+                  open={courseTitleOpen}
+                  onOpenChange={setCourseTitleOpen}
+                >
+                  <PopoverTrigger asChild>
+                    <Button
+                      variant="outline"
+                      role="combobox"
+                      aria-expanded={courseTitleOpen}
+                      className="w-full justify-between bg-transparent"
+                    >
+                      {courseTitle
+                        ? courseOptions.find(
+                            (course) => course.title === courseTitle
+                          )?.title
+                        : "Select course title..."}
+                      <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
+                    </Button>
+                  </PopoverTrigger>
+                  <PopoverContent className="w-full p-0">
+                    <Command>
+                      <CommandInput placeholder="Search course title..." />
+                      <CommandList>
+                        <CommandEmpty>No course found.</CommandEmpty>
+                        <CommandGroup>
+                          {courseOptions.map((course) => (
+                            <CommandItem
+                              key={course.title}
+                              value={course.title}
+                              onSelect={(currentValue) => {
+                                const selectedCourse = courseOptions.find(
+                                  (c) =>
+                                    c.title.toLowerCase() ===
+                                    currentValue.toLowerCase()
+                                );
+                                if (selectedCourse) {
+                                  setCourseCode(selectedCourse.code);
+                                  setCourseTitle(selectedCourse.title);
+                                }
+                                setCourseTitleOpen(false);
+                              }}
+                            >
+                              <Check
+                                className={cn(
+                                  "mr-2 h-4 w-4",
+                                  courseTitle === course.title
+                                    ? "opacity-100"
+                                    : "opacity-0"
+                                )}
+                              />
+                              {course.title}
+                            </CommandItem>
+                          ))}
+                        </CommandGroup>
+                      </CommandList>
+                    </Command>
+                  </PopoverContent>
+                </Popover>
               </div>
 
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -715,7 +880,7 @@ export default function ManualGradeEntry() {
                     id="instructor"
                     value={instructor}
                     onChange={(e) => setInstructor(e.target.value)}
-                    placeholder="Instructor name"
+                    placeholder="MR. ZANNIE I. GAMUYAO"
                     required
                   />
                 </div>
