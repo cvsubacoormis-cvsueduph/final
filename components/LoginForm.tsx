@@ -140,7 +140,7 @@ export default function LoginForm({
           </AlertDialogHeader>
           {role === "student" ? <DataPrivacy /> : <DataPrivacyEmployee />}
           <Button
-            className="w-full bg-blue-500 hover:bg-blue-700"
+            className="w-full bg-blue-700 hover:bg-blue-900"
             onClick={() => {
               setHasAgreedToPrivacy(true);
               setIsDialogOpen(false);

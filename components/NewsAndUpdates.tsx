@@ -317,7 +317,7 @@ export function NewsAndUpdates() {
           </div>
           {role === "admin" && (
             <Button
-              variant="outline"
+              className="bg-blue-700 hover:bg-blue-900"
               size="sm"
               onClick={() => setIsPostModalOpen(true)}
             >
@@ -351,15 +351,15 @@ export function NewsAndUpdates() {
                   {(role === "admin" || role === "superuser") && (
                     <div className="flex space-x-2">
                       <Button
-                        variant="ghost"
                         size="icon"
+                        className="bg-blue-700 hover:bg-blue-900"
                         onClick={() => handleEditClick(item)}
                       >
                         <Pencil className="h-4 w-4" />
                         <span className="sr-only">Edit</span>
                       </Button>
                       <Button
-                        variant="ghost"
+                        className="bg-red-700 hover:bg-red-900"
                         size="icon"
                         onClick={() => handleDeleteClick(item)}
                       >
@@ -385,9 +385,7 @@ export function NewsAndUpdates() {
                     )}
                   </div>
                   <Button
-                    variant="ghost"
-                    size="sm"
-                    className="h-8"
+                    className="h-8 bg-blue-700 hover:bg-blue-900 text-white"
                     onClick={() => handleReadMore(item)}
                   >
                     Read More
@@ -416,15 +414,15 @@ export function NewsAndUpdates() {
                   {(role === "admin" || role === "superuser") && (
                     <div className="flex space-x-2">
                       <Button
-                        variant="ghost"
                         size="icon"
+                        className="bg-blue-700 hover:bg-blue-900"
                         onClick={() => handleEditClick(item)}
                       >
                         <Pencil className="h-4 w-4" />
                         <span className="sr-only">Edit</span>
                       </Button>
                       <Button
-                        variant="ghost"
+                        className="bg-red-700 hover:bg-red-900"
                         size="icon"
                         onClick={() => handleDeleteClick(item)}
                       >
@@ -450,9 +448,8 @@ export function NewsAndUpdates() {
                     )}
                   </div>
                   <Button
-                    variant="ghost"
                     size="sm"
-                    className="h-8"
+                    className="h-8 bg-blue-700 hover:bg-blue-900 text-white"
                     onClick={() => handleReadMore(item)}
                   >
                     Read More
@@ -560,10 +557,18 @@ export function NewsAndUpdates() {
             </div>
           </div>
           <DialogFooter>
-            <Button variant="outline" onClick={() => setIsPostModalOpen(false)}>
+            <Button
+              className="bg-red-700 hover:bg-red-900 text-white"
+              onClick={() => setIsPostModalOpen(false)}
+            >
               Cancel
             </Button>
-            <Button onClick={handlePostAnnouncement}>Submit</Button>
+            <Button
+              onClick={handlePostAnnouncement}
+              className="bg-blue-700 hover:bg-blue-900"
+            >
+              Submit
+            </Button>
           </DialogFooter>
         </DialogContent>
       </Dialog>
@@ -626,10 +631,18 @@ export function NewsAndUpdates() {
             </div>
           </div>
           <DialogFooter>
-            <Button variant="outline" onClick={() => setIsEditModalOpen(false)}>
+            <Button
+              className="bg-red-600 hover:bg-red-700"
+              onClick={() => setIsEditModalOpen(false)}
+            >
               Cancel
             </Button>
-            <Button onClick={handleSaveEdit}>Save Changes</Button>
+            <Button
+              onClick={handleSaveEdit}
+              className="bg-blue-700 hover:bg-blue-900"
+            >
+              Save Changes
+            </Button>
           </DialogFooter>
         </DialogContent>
       </Dialog>
@@ -697,7 +710,10 @@ export function NewsAndUpdates() {
                 Posted by: {selectedAnnouncement.author}
               </div>
               <DialogFooter>
-                <Button onClick={() => setReadMoreModalOpen(false)}>
+                <Button
+                  className="bg-red-600 hover:bg-red-700"
+                  onClick={() => setReadMoreModalOpen(false)}
+                >
                   Close
                 </Button>
               </DialogFooter>
