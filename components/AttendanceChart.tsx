@@ -22,7 +22,7 @@ import {
 const chartConfig = {
   desktop: {
     label: "Courses",
-    color: "#36454F",
+    color: "#1d4ed8", // This is the hex code for bg-blue-700
   },
 } satisfies ChartConfig;
 
@@ -99,7 +99,8 @@ export default function AttendanceChart() {
         <CardContent>
           {loading ? (
             <div className="flex items-center justify-center mb-8">
-              <SyncLoader color="#111542" size={14} />
+              <SyncLoader color="#1d4ed8" size={14} />{" "}
+              {/* Updated to blue-700 */}
             </div>
           ) : (
             <ChartContainer config={chartConfig}>
@@ -120,7 +121,11 @@ export default function AttendanceChart() {
                   cursor={false}
                   content={<ChartTooltipContent hideLabel />}
                 />
-                <Bar dataKey="desktop" fill="var(--color-desktop)" radius={8}>
+                <Bar
+                  dataKey="desktop"
+                  fill="#1d4ed8" // Updated to blue-700
+                  radius={8}
+                >
                   <LabelList
                     position="top"
                     offset={12}
@@ -136,7 +141,8 @@ export default function AttendanceChart() {
           <div className="flex gap-2 font-medium leading-none">
             Most Popular Course:{" "}
             <span className="italic underline">{popularCourse}</span>{" "}
-            <TrendingUp className="h-4 w-4" />
+            <TrendingUp className="h-4 w-4 text-blue-700" />{" "}
+            {/* Updated to blue-700 */}
           </div>
           <div className="leading-none text-muted-foreground">
             Showing total number of students per course

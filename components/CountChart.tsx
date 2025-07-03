@@ -24,11 +24,11 @@ import { SyncLoader } from "react-spinners";
 const chartConfig = {
   male: {
     label: "Male",
-    color: "rgb(55, 65, 81)",
+    color: "#1d4ed8", // blue-700
   },
   female: {
     label: "Female",
-    color: "rgb(107, 114, 128)",
+    color: "#93c5fd", // blue-300 for contrast
   },
 } satisfies ChartConfig;
 
@@ -47,12 +47,8 @@ export default function AdminPage() {
 
         const data = await response.json();
         setChartData([
-          { sex: "MALE", count: data.maleCount, fill: "rgb(55, 65, 81)" },
-          {
-            sex: "FEMALE",
-            count: data.femaleCount,
-            fill: "rgb(107, 114, 128)",
-          },
+          { sex: "MALE", count: data.maleCount, fill: "#1d4ed8" }, // blue-700
+          { sex: "FEMALE", count: data.femaleCount, fill: "#93c5fd" }, // blue-300
         ]);
         setTotalVisitors(data.total);
       } catch (error) {
@@ -80,7 +76,7 @@ export default function AdminPage() {
   return (
     <div className="w-full">
       <Card className="flex flex-col">
-        <CardHeader className=" pb-0">
+        <CardHeader className="pb-0">
           <CardTitle className="text-md font-semibold">
             Total number of students
           </CardTitle>
@@ -91,7 +87,7 @@ export default function AdminPage() {
         <CardContent className="flex-1 pb-0 mt-28">
           {loading ? (
             <div className="flex items-center justify-center mb-8">
-              <SyncLoader color="#111542" size={14} />
+              <SyncLoader color="#1d4ed8" size={14} /> {/* blue-700 */}
             </div>
           ) : (
             <ChartContainer
@@ -154,7 +150,7 @@ export default function AdminPage() {
           <div className="flex items-start gap-2 font-medium leading-none">
             Most number of the students is{" "}
             <span className="underline italic">{mostStudents}</span>{" "}
-            <TrendingUp className="h-4 w-4" />
+            <TrendingUp className="h-4 w-4 text-blue-700" /> {/* blue-700 */}
           </div>
           <div className="leading-none text-muted-foreground">
             Showing total students in the database

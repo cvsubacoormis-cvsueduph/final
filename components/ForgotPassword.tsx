@@ -13,6 +13,7 @@ import {
   Eye,
   EyeOff,
   KeyRound,
+  Loader2,
 } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
@@ -42,6 +43,9 @@ export default function ForgotPasswordDialog() {
   const [countdown, setCountdown] = useState(0);
   const [isResendDisabled, setIsResendDisabled] = useState(false);
   const [secondFactor, setSecondFactor] = useState(false);
+  const [isLoading, setIsLoading] = useState(false);
+  const [isResendLoading, setIsResendLoading] = useState(false);
+  const [isResetLoading, setIsResetLoading] = useState(false);
 
   const router = useRouter();
   const { isSignedIn } = useAuth();
@@ -85,9 +89,11 @@ export default function ForgotPasswordDialog() {
   async function handleEmailSubmit(e: React.FormEvent) {
     e.preventDefault();
     setError("");
+    setIsLoading(true);
 
     if (!isLoaded || !signIn) {
       setError("Authentication system is not available");
+      setIsLoading(false);
       return;
     }
 
@@ -103,6 +109,8 @@ export default function ForgotPasswordDialog() {
     } catch (err: any) {
       console.log("error", err.errors?.[0]?.longMessage || "An error occurred");
       setError(err.errors?.[0]?.longMessage || "Failed to send reset code");
+    } finally {
+      setIsLoading(false);
     }
   }
 
@@ -110,14 +118,17 @@ export default function ForgotPasswordDialog() {
   async function handleResetPassword(e: React.FormEvent) {
     e.preventDefault();
     setError("");
+    setIsResetLoading(true);
 
     if (!isLoaded || !signIn) {
       setError("Authentication system is not available");
+      setIsResetLoading(false);
       return;
     }
 
     if (password !== confirmPassword) {
       setError("Passwords do not match");
+      setIsResetLoading(false);
       return;
     }
 
@@ -141,6 +152,8 @@ export default function ForgotPasswordDialog() {
     } catch (err: any) {
       console.log("error", err.errors?.[0]?.longMessage || "An error occurred");
       setError(err.errors?.[0]?.longMessage || "Failed to reset password");
+    } finally {
+      setIsResetLoading(false);
     }
   }
 
@@ -149,6 +162,7 @@ export default function ForgotPasswordDialog() {
     if (isResendDisabled || !isLoaded || !signIn) return;
 
     setError("");
+    setIsResendLoading(true);
 
     try {
       await signIn.create({
@@ -161,6 +175,8 @@ export default function ForgotPasswordDialog() {
     } catch (err: any) {
       console.log("error", err.errors?.[0]?.longMessage || "An error occurred");
       setError(err.errors?.[0]?.longMessage || "Failed to resend code");
+    } finally {
+      setIsResendLoading(false);
     }
   }
 
@@ -177,6 +193,9 @@ export default function ForgotPasswordDialog() {
       setCountdown(0);
       setIsResendDisabled(false);
       setSecondFactor(false);
+      setIsLoading(false);
+      setIsResendLoading(false);
+      setIsResetLoading(false);
     }, 300);
   };
 
@@ -261,11 +280,20 @@ export default function ForgotPasswordDialog() {
                 </Button>
                 <Button
                   type="submit"
-                  disabled={!email}
+                  disabled={!email || isLoading}
                   className="bg-blue-700 hover:bg-blue-900 text-white"
                 >
-                  Send Code
-                  <ArrowRight className="ml-2 h-4 w-4" />
+                  {isLoading ? (
+                    <>
+                      <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                      Sending...
+                    </>
+                  ) : (
+                    <>
+                      Send Code
+                      <ArrowRight className="ml-2 h-4 w-4" />
+                    </>
+                  )}
                 </Button>
               </DialogFooter>
             </form>
@@ -309,8 +337,16 @@ export default function ForgotPasswordDialog() {
                       variant="link"
                       className="h-auto p-0"
                       onClick={handleResendCode}
+                      disabled={isResendLoading}
                     >
-                      Resend code
+                      {isResendLoading ? (
+                        <>
+                          <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                          Sending...
+                        </>
+                      ) : (
+                        "Resend code"
+                      )}
                     </Button>
                   )}
                 </div>
@@ -384,11 +420,22 @@ export default function ForgotPasswordDialog() {
                 </Button>
                 <Button
                   type="submit"
-                  disabled={!code || !password || !confirmPassword}
+                  disabled={
+                    !code || !password || !confirmPassword || isResetLoading
+                  }
                   className="bg-blue-700 hover:bg-blue-900 text-white"
                 >
-                  Reset Password
-                  <ArrowRight className="ml-2 h-4 w-4" />
+                  {isResetLoading ? (
+                    <>
+                      <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                      Resetting...
+                    </>
+                  ) : (
+                    <>
+                      Reset Password
+                      <ArrowRight className="ml-2 h-4 w-4" />
+                    </>
+                  )}
                 </Button>
               </DialogFooter>
             </form>

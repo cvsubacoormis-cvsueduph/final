@@ -35,7 +35,7 @@ export default function UserCard({ type }: { type: string }) {
         </span>
       </div>
       <div className="flex">
-        {loading ? <SyncLoader color="#111542" size={10} /> : null}
+        {loading ? <SyncLoader color="#1976D2" size={10} /> : null}
         <h1 className="text-2xl font-semibold my-4">
           {total !== null ? total : ""}
         </h1>

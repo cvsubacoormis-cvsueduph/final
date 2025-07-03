@@ -21,6 +21,7 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { getGrades } from "@/actions/student-grades/student-grades";
+import { HashLoader } from "react-spinners";
 
 // Manually define enums as constants
 const AcademicYears = ["AY_2024_2025", "AY_2025_2026", "AY_2026_2027"];
@@ -97,7 +98,11 @@ export default function GradesPage() {
   }
 
   if (loading) {
-    return <div className="p-4">Loading...</div>;
+    return (
+      <div className="flex items-center justify-center h-screen">
+        <HashLoader color="#1976D2" size={150} />
+      </div>
+    );
   }
 
   return (
@@ -140,7 +145,9 @@ export default function GradesPage() {
           </SelectContent>
         </Select>
 
-        <Button type="submit">Filter</Button>
+        <Button type="submit" className="bg-blue-700 hover:bg-blue-900">
+          Filter
+        </Button>
       </form>
 
       {/* Grades Table */}
