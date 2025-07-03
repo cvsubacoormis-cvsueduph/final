@@ -157,7 +157,7 @@ export default async function Menu() {
                 <Link
                   href={item.href}
                   key={item.label}
-                  className="flex items-center justify-center lg:justify-start gap-4 text-gray-500 py-2 md:px-2 rounded-md hover:bg-lamaSkyLight"
+                  className="flex items-center justify-center lg:justify-start gap-4 text-gray-500 py-2 md:px-2 rounded-md hover:bg-gray-100"
                 >
                   <Image src={item.icon} alt="icons" width={20} height={20} />
                   <span className="hidden lg:block">{item.label}</span>
