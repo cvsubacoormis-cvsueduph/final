@@ -63,7 +63,11 @@ export default function EventForm({
               <FormItem>
                 <FormLabel>Description</FormLabel>
                 <FormControl>
-                <Textarea placeholder="Enter Description" {...field} className="ml-2" />
+                  <Textarea
+                    placeholder="Enter Description"
+                    {...field}
+                    className="ml-2"
+                  />
                 </FormControl>
                 <FormMessage />
               </FormItem>
@@ -100,7 +104,11 @@ export default function EventForm({
             )}
           />
         </div>
-        <Button className="w-full mt-4" disabled={isSubmitting} type="submit">
+        <Button
+          className="w-full mt-4 bg-blue-700 hover:bg-blue-900"
+          disabled={isSubmitting}
+          type="submit"
+        >
           {submitButtonText}
         </Button>
       </form>

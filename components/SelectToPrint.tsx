@@ -99,7 +99,7 @@ export function SelectToPrint({ studentId }: SelectToPrintProps) {
           </div>
           <DialogFooter>
             <Button
-              className="w-[120px] mt-7"
+              className="w-[120px] mt-7 bg-blue-700 hover:bg-blue-900"
               disabled={
                 !academicYear ||
                 !semester ||

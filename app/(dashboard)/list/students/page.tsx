@@ -29,7 +29,7 @@ export default function StudentLists() {
             {(role === "admin" || role === "superuser") && (
               <>
                 <Link href="/list/students/create">
-                  <Button>
+                  <Button className="bg-blue-700 hover:bg-blue-900">
                     <PlusCircleIcon />
                     Create Student
                   </Button>

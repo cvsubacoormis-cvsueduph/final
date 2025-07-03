@@ -452,7 +452,11 @@ export function PreviewGrades({
             </Table>
           )}
           <DialogFooter>
-            <Button type="submit" onClick={handleSaveChanges}>
+            <Button
+              className="bg-blue-700 hover:bg-blue-900"
+              type="submit"
+              onClick={handleSaveChanges}
+            >
               Save changes
             </Button>
           </DialogFooter>

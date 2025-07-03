@@ -357,6 +357,7 @@ export default function ManualGradeEntry() {
                 <Button
                   onClick={handleSearch}
                   disabled={isSearching || !searchQuery.trim()}
+                  className="bg-blue-700 hover:bg-blue-900"
                 >
                   {isSearching ? "Searching..." : "Search"}
                 </Button>
@@ -399,6 +400,7 @@ export default function ManualGradeEntry() {
                         <Button
                           onClick={() => handleStudentSelect(student)}
                           size="sm"
+                          className="bg-blue-700 hover:bg-blue-900"
                         >
                           Select
                         </Button>
@@ -720,7 +722,11 @@ export default function ManualGradeEntry() {
               </div>
 
               <div className="flex justify-end pt-4">
-                <Button type="submit" disabled={isSubmitting} className="px-8">
+                <Button
+                  type="submit"
+                  disabled={isSubmitting}
+                  className="px-8 bg-blue-700 hover:bg-blue-900"
+                >
                   {isSubmitting ? "Adding Grade..." : "Add Grade"}
                 </Button>
               </div>

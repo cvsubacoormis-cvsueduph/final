@@ -13,7 +13,6 @@ import { Admin } from "@prisma/client";
 import useSWR from "swr";
 import { useUser } from "@clerk/nextjs";
 import DeleteAdmin from "./admin-lists/delete-admin";
-import UpdateAdmin from "./admin-lists/update-admin";
 import UpdateAdminDialog from "./forms/update-admin-form";
 
 const fetcher = (url: string) => fetch(url).then((res) => res.json());

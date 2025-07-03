@@ -91,7 +91,7 @@ export default function UpdateStudent({
   return (
     <Dialog open={open} onOpenChange={setOpen}>
       <DialogTrigger asChild>
-        <Button variant="default">
+        <Button className="bg-blue-700 hover:bg-blue-900">
           <PencilIcon className="mr-2 h-4 w-4" />
           Edit
         </Button>

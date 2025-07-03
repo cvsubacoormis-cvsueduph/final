@@ -37,7 +37,11 @@ export default function BulkDeleteStudent() {
   };
 
   return (
-    <Button onClick={handleBulkDelete} className="" disabled={isLoading}>
+    <Button
+      onClick={handleBulkDelete}
+      className="bg-blue-700 hover:bg-blue-900"
+      disabled={isLoading}
+    >
       <Trash2 />
       {isLoading ? "Deleting..." : "Delete All"}
     </Button>
