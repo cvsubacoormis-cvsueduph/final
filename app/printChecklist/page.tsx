@@ -6,7 +6,6 @@ import { useRouter } from "next/navigation";
 import { getCurriculumChecklist } from "@/actions/curriculum-actions";
 import { CurriculumItem } from "@/lib/types";
 import { getStudentData } from "@/actions/getStudentData";
-import { HashLoader } from "react-spinners";
 
 export default function PrintChecklist() {
   const router = useRouter();
@@ -74,7 +73,7 @@ export default function PrintChecklist() {
         };
 
         window.addEventListener("afterprint", handleAfterPrint);
-      }, 1500);
+      }, 5000);
     };
 
     handlePrint();
