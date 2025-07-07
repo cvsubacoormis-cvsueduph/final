@@ -30,234 +30,250 @@ export async function POST(req: Request) {
   const results = [];
 
   for (const entry of grades) {
-    const {
-      studentNumber,
-      firstName,
-      lastName,
-      courseCode,
-      courseTitle,
-      creditUnit,
-      grade,
-      reExam,
-      remarks,
-      instructor,
-      academicYear,
-      semester,
-    } = entry;
-
-    if (
-      (!studentNumber && (!firstName || !lastName)) ||
-      !courseCode ||
-      grade == null ||
-      !academicYear ||
-      !semester
-    ) {
-      results.push({
-        identifier: studentNumber || `${firstName} ${lastName}`,
+    try {
+      const {
+        studentNumber,
+        firstName,
+        lastName,
         courseCode,
-        status:
-          "Missing required fields (need studentNumber OR firstName+lastName)",
+        courseTitle,
+        creditUnit,
+        grade,
+        reExam,
+        remarks,
+        instructor,
+        academicYear,
+        semester,
+      } = entry;
+
+      // Validate required fields
+      if (
+        (!studentNumber && (!firstName || !lastName)) ||
+        !courseCode ||
+        grade == null ||
+        !academicYear ||
+        !semester
+      ) {
+        results.push({
+          identifier: studentNumber || `${firstName} ${lastName}`,
+          courseCode,
+          status:
+            "❌ Missing required fields (need studentNumber OR firstName+lastName)",
+        });
+        continue;
+      }
+
+      // Standardize the grade format
+      const gradeStr = grade.toString().toUpperCase();
+      const standardizedGrade = GRADE_HIERARCHY.includes(gradeStr)
+        ? gradeStr
+        : parseFloat(grade).toFixed(2);
+
+      if (!GRADE_HIERARCHY.includes(standardizedGrade)) {
+        results.push({
+          identifier: studentNumber || `${firstName} ${lastName}`,
+          courseCode,
+          status: "❌ Invalid grade value",
+        });
+        continue;
+      }
+
+      // Check if academic term exists
+      const academicTerm = await prisma.academicTerm.findUnique({
+        where: { academicYear_semester: { academicYear, semester } },
       });
-      continue;
-    }
 
-    // Standardize the grade format
-    const standardizedGrade = parseFloat(grade).toFixed(2);
+      if (!academicTerm) {
+        results.push({
+          identifier: studentNumber || `${firstName} ${lastName}`,
+          courseCode,
+          status: "❌ Academic term not found",
+        });
+        continue;
+      }
 
-    if (!GRADE_HIERARCHY.includes(standardizedGrade)) {
-      results.push({
-        identifier: studentNumber || `${firstName} ${lastName}`,
-        courseCode,
-        status: "Invalid grade value",
-      });
-      continue;
-    }
+      // Find student
+      let student;
+      if (studentNumber) {
+        student = await prisma.student.findUnique({
+          where: { studentNumber: String(studentNumber) },
+        });
+      } else {
+        // Search by name if no studentNumber provided
+        const students = await prisma.student.findMany({
+          where: {
+            AND: [
+              { firstName: { equals: firstName, mode: "insensitive" } },
+              { lastName: { equals: lastName, mode: "insensitive" } },
+            ],
+          },
+        });
 
-    // 🔍 2. Check if academic term exists
-    const academicTerm = await prisma.academicTerm.findUnique({
-      where: { academicYear_semester: { academicYear, semester } },
-    });
+        if (students.length === 0) {
+          results.push({
+            identifier: `${firstName} ${lastName}`,
+            courseCode,
+            status: "❌ Student not found by name",
+          });
+          continue;
+        }
 
-    if (!academicTerm) {
-      results.push({
-        identifier: studentNumber || `${firstName} ${lastName}`,
-        courseCode,
-        status: "Academic term not found",
-      });
-      continue;
-    }
+        if (students.length > 1) {
+          results.push({
+            identifier: `${firstName} ${lastName}`,
+            courseCode,
+            status: `❌ Multiple students found with name ${firstName} ${lastName}`,
+            possibleMatches: students.map((s) => ({
+              studentNumber: s.studentNumber,
+              firstName: s.firstName,
+              lastName: s.lastName,
+            })),
+          });
+          continue;
+        }
 
-    // 3. Find student by studentNumber OR firstName+lastName
-    let student;
-    if (studentNumber) {
-      student = await prisma.student.findUnique({
-        where: { studentNumber: String(studentNumber) },
-      });
-    } else {
-      // Search by name if no studentNumber provided
-      const students = await prisma.student.findMany({
+        student = students[0];
+      }
+
+      if (!student) {
+        results.push({
+          identifier: studentNumber || `${firstName} ${lastName}`,
+          courseCode,
+          status: "❌ Student not found",
+        });
+        continue;
+      }
+
+      // Find curriculum subject
+      const checklistSubject = await prisma.curriculumChecklist.findFirst({
         where: {
-          AND: [
-            { firstName: { equals: firstName, mode: "insensitive" } },
-            { lastName: { equals: lastName, mode: "insensitive" } },
-          ],
+          courseCode,
+          course: student.course,
+          major: student.major ? student.major : Major.NONE,
         },
       });
 
-      if (students.length === 0) {
-        results.push({
-          identifier: `${firstName} ${lastName}`,
-          courseCode,
-          status: "Student not found by name",
-        });
-        continue;
-      }
-
-      if (students.length > 1) {
-        results.push({
-          identifier: `${firstName} ${lastName}`,
-          courseCode,
-          status: `Multiple students found with name ${firstName} ${lastName}`,
-          possibleMatches: students.map((s) => ({
-            studentNumber: s.studentNumber,
-            firstName: s.firstName,
-            lastName: s.lastName,
-          })),
-        });
-        continue;
-      }
-
-      student = students[0];
-    }
-
-    if (!student) {
-      results.push({
-        identifier: studentNumber || `${firstName} ${lastName}`,
-        courseCode,
-        status: "Student not found",
-      });
-      continue;
-    }
-
-    // 4. Find curriculum subject...
-    const checklistSubject = await prisma.curriculumChecklist.findFirst({
-      where: {
-        courseCode,
-        course: student.course,
-        major: student.major ? student.major : Major.NONE,
-      },
-    });
-
-    if (!checklistSubject) {
-      results.push({
-        studentNumber: student.studentNumber,
-        courseCode,
-        status: `Subject not in curriculum for ${student.course}${
-          student.major ? ` - ${student.major}` : ""
-        }`,
-      });
-      continue;
-    }
-
-    // ✅ Check subject offering
-    const subjectOffering = await prisma.subjectOffering.findFirst({
-      where: {
-        curriculumId: checklistSubject.id,
-        academicYear,
-        semester,
-        isActive: true,
-      },
-    });
-
-    if (!subjectOffering) {
-      results.push({
-        studentNumber: student.studentNumber,
-        courseCode,
-        status: "Subject not offered in selected term",
-      });
-      continue;
-    }
-
-    // Check for existing grade
-    const existingGrade = await prisma.grade.findUnique({
-      where: {
-        studentNumber_courseCode_academicYear_semester: {
-          studentNumber: student.studentNumber,
-          courseCode,
-          academicYear,
-          semester,
-        },
-      },
-    });
-
-    if (existingGrade) {
-      const existingGradeIndex = GRADE_HIERARCHY.indexOf(existingGrade.grade);
-      const newGradeIndex = GRADE_HIERARCHY.indexOf(standardizedGrade);
-
-      if (existingGradeIndex < newGradeIndex) {
+      if (!checklistSubject) {
         results.push({
           studentNumber: student.studentNumber,
           courseCode,
-          status: "Existing grade is better - kept the existing grade",
+          status: `❌ Subject not in curriculum for ${student.course}${
+            student.major ? ` - ${student.major}` : ""
+          }`,
         });
         continue;
       }
-    }
 
-    // Upsert grade
-    await prisma.grade.upsert({
-      where: {
-        studentNumber_courseCode_academicYear_semester: {
-          studentNumber: String(student.studentNumber),
-          courseCode,
+      // Check subject offering
+      const subjectOffering = await prisma.subjectOffering.findFirst({
+        where: {
+          curriculumId: checklistSubject.id,
           academicYear,
           semester,
+          isActive: true,
         },
-      },
-      create: {
-        student: { connect: { studentNumber: String(student.studentNumber) } },
-        courseCode,
-        courseTitle,
-        creditUnit: Number(creditUnit),
-        grade: standardizedGrade,
-        reExam: String(reExam),
-        remarks: String(remarks).toUpperCase(),
-        instructor: String(instructor).toUpperCase(),
-        academicTerm: {
-          connect: { academicYear_semester: { academicYear, semester } },
-        },
-        subjectOffering: { connect: { id: subjectOffering.id } },
-      },
-      update: {
-        courseTitle,
-        creditUnit: Number(creditUnit),
-        grade: standardizedGrade,
-        reExam: String(reExam),
-        remarks: String(remarks).toUpperCase(),
-        instructor: String(instructor).toUpperCase(),
-        subjectOffering: { connect: { id: subjectOffering.id } },
-      },
-    });
+      });
 
-    await prisma.gradeLog.create({
-      data: {
+      if (!subjectOffering) {
+        results.push({
+          studentNumber: student.studentNumber,
+          courseCode,
+          status: "❌ Subject not offered in selected term",
+        });
+        continue;
+      }
+
+      // Check for existing grade
+      const existingGrade = await prisma.grade.findUnique({
+        where: {
+          studentNumber_courseCode_academicYear_semester: {
+            studentNumber: student.studentNumber,
+            courseCode,
+            academicYear,
+            semester,
+          },
+        },
+      });
+
+      if (existingGrade) {
+        const existingGradeIndex = GRADE_HIERARCHY.indexOf(existingGrade.grade);
+        const newGradeIndex = GRADE_HIERARCHY.indexOf(standardizedGrade);
+
+        if (existingGradeIndex < newGradeIndex) {
+          results.push({
+            studentNumber: student.studentNumber,
+            courseCode,
+            status: "⚠️ Existing grade is better - kept the existing grade",
+          });
+          continue;
+        }
+      }
+
+      // Upsert grade
+      await prisma.grade.upsert({
+        where: {
+          studentNumber_courseCode_academicYear_semester: {
+            studentNumber: String(student.studentNumber),
+            courseCode,
+            academicYear,
+            semester,
+          },
+        },
+        create: {
+          student: {
+            connect: { studentNumber: String(student.studentNumber) },
+          },
+          courseCode,
+          courseTitle,
+          creditUnit: Number(creditUnit),
+          grade: standardizedGrade,
+          reExam: String(reExam),
+          remarks: String(remarks).toUpperCase(),
+          instructor: String(instructor).toUpperCase(),
+          academicTerm: {
+            connect: { academicYear_semester: { academicYear, semester } },
+          },
+          subjectOffering: { connect: { id: subjectOffering.id } },
+        },
+        update: {
+          courseTitle,
+          creditUnit: Number(creditUnit),
+          grade: standardizedGrade,
+          reExam: String(reExam),
+          remarks: String(remarks).toUpperCase(),
+          instructor: String(instructor).toUpperCase(),
+          subjectOffering: { connect: { id: subjectOffering.id } },
+        },
+      });
+
+      await prisma.gradeLog.create({
+        data: {
+          studentNumber: student.studentNumber,
+          courseCode,
+          grade: standardizedGrade,
+          remarks: String(remarks).toUpperCase(),
+          instructor: String(instructor).toUpperCase(),
+          academicYear,
+          semester,
+          action: existingGrade ? "UPDATED" : "CREATED",
+        },
+      });
+
+      results.push({
         studentNumber: student.studentNumber,
         courseCode,
-        grade: standardizedGrade,
-        remarks: remarks.toUpperCase(),
-        instructor: instructor.toUpperCase(),
-        academicYear,
-        semester,
-        action: existingGrade ? "UPDATED" : "CREATED",
-      },
-    });
-
-    results.push({
-      studentNumber: student.studentNumber,
-      courseCode,
-      status: "✅ Grade uploaded",
-      studentName: `${student.firstName} ${student.lastName}`,
-    });
+        status: "✅ Grade uploaded",
+        studentName: `${student.firstName} ${student.lastName}`,
+      });
+    } catch (error) {
+      console.error(`Error processing entry:`, entry, error);
+      results.push({
+        identifier:
+          entry.studentNumber || `${entry.firstName} ${entry.lastName}`,
+        courseCode: entry.courseCode,
+        status: "❌ Server error processing this record",
+      });
+    }
   }
 
   return NextResponse.json({ results });

@@ -113,6 +113,9 @@ model Grade {
   reExam        String?
   remarks       String?
   instructor    String
+  attemptNumber Int          @default(1) // 1 = first attempt, 2 = first retake, etc.
+  isRetaken     Boolean      @default(false)
+  retakenAYSem  String? // Format: "AY 2023-2024 / 1st Sem (Attempt 2)"
   academicYear  AcademicYear
   semester      Semester
   academicTerm  AcademicTerm @relation(fields: [academicYear, semester], references: [academicYear, semester])

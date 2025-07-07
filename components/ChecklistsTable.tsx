@@ -51,26 +51,88 @@ export function CurriculumChecklist() {
           student.major
         );
 
+        // Group grades by course code to track retakes
+        const gradesByCourse: Record<string, typeof student.grades> = {};
+        student.grades.forEach((grade) => {
+          if (!gradesByCourse[grade.courseCode]) {
+            gradesByCourse[grade.courseCode] = [];
+          }
+          gradesByCourse[grade.courseCode].push(grade);
+        });
+
+        // Process retakes and assign attempt numbers
+        Object.entries(gradesByCourse).forEach(([courseCode, grades]) => {
+          if (grades.length > 1) {
+            grades.sort((a, b) => {
+              // Sort by academic year and semester
+              const yearA = a.academicYear;
+              const yearB = b.academicYear;
+              if (yearA !== yearB) return yearA.localeCompare(yearB);
+              return a.semester.localeCompare(b.semester);
+            });
+
+            grades.forEach((grade, index) => {
+              grade.attemptNumber = index + 1;
+              grade.isRetaken = index > 0;
+              grade.retakenAYSem = `AY ${grade.academicYear
+                .split("_")
+                .slice(1)
+                .join("-")} / ${
+                grade.semester === "FIRST"
+                  ? "1st"
+                  : grade.semester === "SECOND"
+                  ? "2nd"
+                  : "Midyear"
+              } Sem (Attempt ${index + 1})`;
+            });
+          } else {
+            grades[0].attemptNumber = 1;
+            grades[0].isRetaken = false;
+          }
+        });
+
         // Merge curriculum with grades
         const curriculumWithGrades = curriculum.map((item) => {
-          const grade = student.grades.find(
-            (g) => g.courseCode === item.courseCode
-          );
-          const completion = grade
-            ? grade.remarks?.includes("FAILED")
+          const gradesForCourse = gradesByCourse[item.courseCode] || [];
+          const latestGrade = gradesForCourse[gradesForCourse.length - 1];
+          const retakeCount =
+            gradesForCourse.length > 1 ? gradesForCourse.length - 1 : 0;
+          const allAttempts = gradesForCourse.map((g) => ({
+            academicYear: g.academicYear,
+            semester: g.semester,
+            grade: g.grade,
+            remarks: g.remarks,
+            attemptNumber: g.attemptNumber,
+            retakenAYSem: g.retakenAYSem,
+          }));
+
+          const completion = latestGrade
+            ? latestGrade.remarks?.includes("FAILED")
               ? "Failed"
+              : latestGrade.remarks?.includes("UNSATISFACTORY")
+              ? "Unsatisfactory"
+              : latestGrade.remarks?.includes("CON. FAILURE")
+              ? "Con. Failure"
+              : latestGrade.remarks?.includes("DROPPED")
+              ? "Dropped"
+              : latestGrade.remarks?.includes("LACK OF REQ.")
+              ? "Lack of Req."
               : "Completed"
             : "Not Taken";
 
           return {
             ...item,
-            grade: grade?.grade || "",
+            grade: latestGrade?.grade || "",
             completion,
-            remarks: grade?.remarks || "",
+            remarks: latestGrade?.remarks || "",
+            retakeCount,
+            latestAttempt: latestGrade?.attemptNumber || 1,
+            allAttempts,
+            retaken: latestGrade?.isRetaken ? latestGrade.retakenAYSem : null,
           };
         });
 
-        // Calculate progress metrics
+        // Calculate progress metrics (same as before)
         const creditsCompleted = curriculumWithGrades
           .filter((subject) => subject.completion === "Completed")
           .reduce(
@@ -84,7 +146,7 @@ export function CurriculumChecklist() {
           0
         );
 
-        // Calculate GPA
+        // Calculate GPA (same as before)
         const gradedSubjects = curriculumWithGrades
           .filter(
             (subject) => subject.completion === "Completed" && subject.grade
@@ -137,12 +199,19 @@ export function CurriculumChecklist() {
   const getStatusIcon = (status: string) => {
     switch (status) {
       case "Completed":
+      case "Passed":
+      case "Satisfactory":
         return <CheckCircle className="h-4 w-4 text-green-600" />;
       case "Enrolled":
         return <Clock className="h-4 w-4 text-blue-600" />;
       case "Failed":
+      case "Unsatisfactory":
         return <XCircle className="h-4 w-4 text-red-600" />;
-      default:
+      case "Dropped":
+      case "Con. Failure":
+      case "Lack of Req.":
+        return <XCircle className="h-4 w-4 text-orange-600" />;
+      default: // "Not Taken"
         return (
           <div className="h-4 w-4 rounded-full border-2 border-gray-300" />
         );
@@ -152,13 +221,20 @@ export function CurriculumChecklist() {
   const getStatusColor = (status: string) => {
     switch (status) {
       case "Completed":
-        return "bg-green-100 text-green-800 border-green-200";
+      case "Passed":
+      case "Satisfactory":
+        return "bg-green-100 text-green-800 border-green-200 hover:bg-green-100";
       case "Enrolled":
-        return "bg-blue-100 text-blue-800 border-blue-200";
+        return "bg-blue-100 text-blue-800 border-blue-200 hover:bg-blue-100";
       case "Failed":
-        return "bg-red-100 text-red-800 border-red-200";
-      default:
-        return "bg-gray-100 text-gray-600 border-gray-200";
+      case "Unsatisfactory":
+        return "bg-red-100 text-red-800 border-red-200 hover:bg-red-100";
+      case "Dropped":
+      case "Con. Failure":
+      case "Lack of Req.":
+        return "bg-orange-100 text-orange-800 border-orange-200 hover:bg-orange-100";
+      default: // "Not Taken"
+        return "bg-gray-100 text-gray-600 border-gray-200 hover:bg-gray-100";
     }
   };
 
@@ -166,13 +242,9 @@ export function CurriculumChecklist() {
     if (!grade) return "text-gray-400";
     const numGrade = Number.parseFloat(grade);
     if (isNaN(numGrade)) return "text-gray-600";
-    if (numGrade <= 1.75) return "text-green-600";
-    if (numGrade <= 3.0) return "text-amber-600";
+    if (numGrade <= 3.0) return "text-green-600";
+    if (numGrade <= 4.0 || 5.0) return "text-red-600";
     return "text-red-600";
-  };
-
-  const handlePrint = () => {
-    window.print();
   };
 
   if (loading) {
@@ -238,14 +310,9 @@ export function CurriculumChecklist() {
                 Print
               </Button>
             </Link>
-            {/* <Button variant="outline">
-              <Download className="h-4 w-4 mr-2" />
-              Export
-            </Button> */}
           </div>
         </div>
       </div>
-
       {/* Progress Summary */}
       <Card className="print:shadow-none print:border print:border-gray-300">
         <CardHeader className="print:pb-2">
@@ -278,24 +345,8 @@ export function CurriculumChecklist() {
                 Total Required
               </div>
             </div>
-            {/* <div className="text-center p-4 bg-green-50 rounded-lg print:p-2">
-              <div className="text-2xl font-bold text-green-600 print:text-lg">
-                {data.progress.completionRate}%
-              </div>
-              <div className="text-sm text-green-700 print:text-xs">
-                Completion Rate
-              </div>
-            </div> */}
           </div>
           <div className="grid grid-cols-2 md:grid-cols-2 gap-4 mt-4 print:grid-cols-2 print:gap-2 print:mt-2">
-            {/* <div className="text-center p-4 bg-purple-50 rounded-lg print:p-2">
-              <div className="text-2xl font-bold text-purple-600 print:text-lg">
-                {data.progress.currentGPA.toFixed(2)}
-              </div>
-              <div className="text-sm text-purple-700 print:text-xs">
-                Current GPA
-              </div>
-            </div> */}
             <div className="text-center p-4 bg-amber-50 rounded-lg print:p-2">
               <div className="text-2xl font-bold text-amber-600 print:text-lg">
                 {data.progress.subjectsCompleted}
@@ -358,6 +409,9 @@ export function CurriculumChecklist() {
                             <th className="text-center py-2 px-2 font-medium text-gray-700 print:py-1">
                               Grade
                             </th>
+                            <th className="text-center py-2 px-2 font-medium text-gray-700 print:py-1">
+                              AY/Semester Taken
+                            </th>
                             <th className="text-left py-2 px-2 font-medium text-gray-700 print:py-1 hidden md:table-cell print:table-cell">
                               Prerequisites
                             </th>
@@ -379,7 +433,21 @@ export function CurriculumChecklist() {
                                     )}`}
                                   >
                                     {subject.completion === "Not Taken"
-                                      ? "Pending"
+                                      ? "Not Taken"
+                                      : subject.completion === "Completed"
+                                      ? "Completed"
+                                      : subject.completion === "Enrolled"
+                                      ? "Enrolled"
+                                      : subject.completion === "Failed"
+                                      ? "Failed"
+                                      : subject.completion === "Unsatisfactory"
+                                      ? "Unsatisfactory"
+                                      : subject.completion === "Dropped"
+                                      ? "Dropped"
+                                      : subject.completion === "Con. Failure"
+                                      ? "Con. Failure"
+                                      : subject.completion === "Lack of Req."
+                                      ? "Lack of Req."
                                       : subject.completion}
                                   </Badge>
                                 </div>
@@ -404,6 +472,41 @@ export function CurriculumChecklist() {
                                 >
                                   {subject.grade || "-"}
                                 </span>
+                              </td>
+                              <td className="py-2 px-2 text-center print:py-1">
+                                {subject.allAttempts.length > 0 ? (
+                                  <div className="flex flex-col gap-1">
+                                    {subject.allAttempts.map((attempt, idx) => (
+                                      <div key={idx} className="text-xs">
+                                        {attempt.retakenAYSem ||
+                                          `AY ${attempt.academicYear
+                                            .split("_")
+                                            .slice(1)
+                                            .join("-")} / ${
+                                            attempt.semester === "FIRST"
+                                              ? "1st"
+                                              : attempt.semester === "SECOND"
+                                              ? "2nd"
+                                              : "Midyear"
+                                          } Sem (Attempt ${
+                                            attempt.attemptNumber
+                                          })`}{" "}
+                                        -
+                                        {attempt.grade && (
+                                          <span
+                                            className={`ml-2 font-medium ${getGradeColor(
+                                              attempt.grade
+                                            )}`}
+                                          >
+                                            {attempt.grade}
+                                          </span>
+                                        )}
+                                      </div>
+                                    ))}
+                                  </div>
+                                ) : (
+                                  "-"
+                                )}
                               </td>
                               <td className="py-2 px-2 text-xs text-gray-600 hidden md:table-cell print:table-cell print:py-1">
                                 {subject.preRequisite || "-"}
@@ -430,11 +533,15 @@ export function CurriculumChecklist() {
           <div className="grid grid-cols-2 md:grid-cols-4 gap-4 print:grid-cols-4 print:gap-2 print:text-xs">
             <div className="flex items-center gap-2">
               <CheckCircle className="h-4 w-4 text-green-600 print:h-3 print:w-3" />
-              <span>Completed</span>
+              <span>Completed/Passed/Satisfactory</span>
             </div>
             <div className="flex items-center gap-2">
               <XCircle className="h-4 w-4 text-red-600 print:h-3 print:w-3" />
-              <span>Failed</span>
+              <span>Failed/Unsatisfactory</span>
+            </div>
+            <div className="flex items-center gap-2">
+              <XCircle className="h-4 w-4 text-orange-600 print:h-3 print:w-3" />
+              <span>Conditional Failure/Dropped/Lack of Requirements</span>
             </div>
             <div className="flex items-center gap-2">
               <div className="h-4 w-4 rounded-full border-2 border-gray-300 print:h-3 print:w-3" />

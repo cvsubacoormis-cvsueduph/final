@@ -24,7 +24,6 @@ import {
 } from "@/components/ui/select";
 import { Label } from "@/components/ui/label";
 import Swal from "sweetalert2";
-import { templateData } from "@/lib/templateSample";
 import UploadGradeNotice from "./Notices/upload-grade-notice";
 
 interface UploadResult {

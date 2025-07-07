@@ -71,7 +71,7 @@ interface StudentDetails {
 
 // Course data for combo boxes
 const courseOptions = [
-  { code: "CS101", title: "Introduction to Computer Science" },
+  { code: "INSY 50", title: "INFORMATION SYSTEM" },
   { code: "CS102", title: "Programming Fundamentals" },
   { code: "CS201", title: "Data Structures and Algorithms" },
   { code: "CS202", title: "Object-Oriented Programming" },
@@ -274,9 +274,7 @@ export default function ManualGradeEntry() {
                 </SelectTrigger>
                 <SelectContent>
                   <SelectItem value="AY_2024_2025">2024-2025</SelectItem>
-                  <SelectItem disabled value="AY_2025_2026">
-                    2025-2026
-                  </SelectItem>
+                  <SelectItem value="AY_2025_2026">2025-2026</SelectItem>
                   <SelectItem disabled value="AY_2026_2027">
                     2026-2027
                   </SelectItem>

@@ -12,43 +12,91 @@ export async function getStudentData(): Promise<StudentData> {
 
     const student = await prisma.student.findUnique({
       where: { id: userId },
-      select: {
-        id: true,
-        firstName: true,
-        lastName: true,
-        middleInit: true,
-        studentNumber: true,
-        address: true,
-        phone: true,
-        course: true,
-        major: true,
+      include: {
         grades: {
-          select: {
-            courseCode: true,
-            grade: true,
-            remarks: true,
-            academicYear: true,
-            semester: true,
-            instructor: true, // Add this line to include instructor
+          include: {
+            subjectOffering: {
+              include: {
+                curriculum: true,
+              },
+            },
           },
+          orderBy: [
+            { academicYear: "asc" },
+            { semester: "asc" },
+            { courseCode: "asc" },
+          ],
         },
       },
     });
 
     if (!student) throw new Error("Student not found");
 
+    // Group grades by course code to calculate attempt numbers
+    const gradesByCourse: Record<string, typeof student.grades> = {};
+    student.grades.forEach((grade) => {
+      if (!gradesByCourse[grade.courseCode]) {
+        gradesByCourse[grade.courseCode] = [];
+      }
+      gradesByCourse[grade.courseCode].push(grade);
+    });
+
+    // Process retakes and assign attempt numbers
+    Object.entries(gradesByCourse).forEach(([courseCode, grades]) => {
+      if (grades.length > 1) {
+        grades.forEach((grade, index) => {
+          grade.attemptNumber = index + 1;
+          grade.isRetaken = index > 0;
+          grade.retakenAYSem = `AY ${grade.academicYear
+            .split("_")
+            .slice(1)
+            .join("-")} / ${
+            grade.semester === "FIRST"
+              ? "1st"
+              : grade.semester === "SECOND"
+              ? "2nd"
+              : "Midyear"
+          } Sem (Attempt ${index + 1})`;
+        });
+      } else {
+        grades[0].attemptNumber = 1;
+        grades[0].isRetaken = false;
+      }
+    });
+
     return {
-      ...student,
-      phone: student.phone || "",
+      id: student.id,
+      firstName: student.firstName,
+      lastName: student.lastName,
       middleInit: student.middleInit || "",
+      studentNumber: student.studentNumber,
+      address: student.address,
+      phone: student.phone || "",
+      course: student.course,
+      major: student.major,
       grades: student.grades.map((grade) => ({
         courseCode: grade.courseCode,
+        courseTitle:
+          grade.subjectOffering?.curriculum.courseTitle || grade.courseCode,
         grade: grade.grade,
         remarks: grade.remarks || "",
         academicYear: grade.academicYear,
         semester: grade.semester,
-        instructor: grade.instructor || "", // Add this line
+        instructor: grade.instructor || "",
+        attemptNumber: grade.attemptNumber || 1,
+        isRetaken: grade.isRetaken || false,
+        retakenAYSem: grade.retakenAYSem || "",
+        creditUnit:
+          (grade.subjectOffering?.curriculum.creditLec || 0) +
+          (grade.subjectOffering?.curriculum.creditLab || 0),
+        createdAt: grade.createdAt,
       })),
+      status: student.status,
+      email: student.email || "",
+      img: student.img || "",
+      sex: student.sex,
+      role: student.role,
+      createdAt: student.createdAt,
     };
   } catch (error) {
     console.error("Error fetching student data:", error);

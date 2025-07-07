@@ -9,7 +9,7 @@ import {
 const prisma = new PrismaClient();
 
 const targetSemester = "FIRST" as Semester;
-const academicYear = "AY_2024_2025" as AcademicYear;
+const academicYear = "AY_2025_2026" as AcademicYear;
 
 const courseMajorMap: Record<Courses, (Major | null)[]> = {
   BSIT: ["NONE"],
@@ -22,7 +22,7 @@ const courseMajorMap: Record<Courses, (Major | null)[]> = {
 };
 
 // ✅ Subjects you want to force into this semester (even if in another semester)
-const manualOverrides: string[] = ["ITEC 200A"];
+const manualOverrides: string[] = [""];
 
 async function main() {
   console.log(
