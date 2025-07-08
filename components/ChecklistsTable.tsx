@@ -305,12 +305,13 @@ export function CurriculumChecklist() {
                 <SelectItem value="Fourth Year">Fourth Year</SelectItem>
               </SelectContent>
             </Select>
-            <Link href="/printChecklist">
+            {/* Link to print checklist page with print button */}
+            {/* <<Link href="/printChecklist">
               <Button className="bg-blue-700 hover:bg-blue-900">
                 <Printer className="h-4 w-4 mr-2" />
                 Print
               </Button>
-            </Link>
+            </Link> >> */}
             <GenerateChecklistPDF />
           </div>
         </div>
