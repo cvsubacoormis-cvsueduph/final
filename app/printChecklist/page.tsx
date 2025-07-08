@@ -65,19 +65,34 @@ export default function PrintChecklist() {
 
   useEffect(() => {
     const handlePrint = () => {
-      setTimeout(() => {
-        window.print();
-        const handleAfterPrint = () => {
-          router.back();
+      if (studentData?.fullName) {
+        document.title = `${studentData.fullName} - Checklist of Courses`;
+      }
+      const printTimeout = setTimeout(() => {
+        const cleanup = () => {
           window.removeEventListener("afterprint", handleAfterPrint);
+          clearTimeout(fallbackTimeout);
         };
 
+        const handleAfterPrint = () => {
+          cleanup();
+          router.back();
+        };
+
+        const fallbackTimeout = setTimeout(() => {
+          cleanup();
+          router.back();
+        }, 3000); // Fallback after 5 seconds
+
         window.addEventListener("afterprint", handleAfterPrint);
-      }, 5000);
+        window.print();
+      }, 3500);
+
+      return () => clearTimeout(printTimeout);
     };
 
     handlePrint();
-  }, [router]);
+  }, [studentData,router]);
 
   const hasMidYear = (yearLevel: string) => {
     return checklistData.some(

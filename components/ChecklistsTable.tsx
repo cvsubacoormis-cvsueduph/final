@@ -27,6 +27,7 @@ import { HashLoader } from "react-spinners";
 import Link from "next/link";
 import { AcademicProgress, Subject } from "@/lib/types";
 import { courseMap, formatMajor } from "@/lib/courses";
+import GenerateChecklistPDF from "./GenerateChecklistsPDF";
 
 export function CurriculumChecklist() {
   const [selectedYear, setSelectedYear] = useState<string>("all");
@@ -310,6 +311,7 @@ export function CurriculumChecklist() {
                 Print
               </Button>
             </Link>
+            <GenerateChecklistPDF />
           </div>
         </div>
       </div>
