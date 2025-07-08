@@ -92,7 +92,7 @@ export default function PrintChecklist() {
     };
 
     handlePrint();
-  }, [studentData,router]);
+  }, [studentData, router]);
 
   const hasMidYear = (yearLevel: string) => {
     return checklistData.some(

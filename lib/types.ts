@@ -26,6 +26,16 @@ export interface GradeAttempt {
   instructor?: string;
 }
 
+export interface GradeAttempt {
+  academicYear: string;
+  semester: string;
+  grade: string;
+  remarks: string;
+  attemptNumber: number;
+  retakenAYSem?: string;
+  instructor?: string;
+}
+
 export interface StudentData {
   id: string;
   firstName: string;
@@ -58,6 +68,7 @@ export interface CurriculumItem {
   instructor?: string;
   academicYear?: string;
   semesterTaken?: string;
+  allAttempts?: GradeAttempt[];
 }
 
 export interface Subject extends CurriculumItem {
