@@ -20,6 +20,7 @@ export const metadata: Metadata = {
 
 import { Toaster } from "react-hot-toast";
 import { ClerkProvider } from "@clerk/nextjs";
+import { SpeedInsights } from "@vercel/speed-insights/next";
 
 export default function RootLayout({
   children,
@@ -33,6 +34,7 @@ export default function RootLayout({
           className={`${geistSans.variable} ${geistMono.variable} antialiased`}
         >
           {children}
+          <SpeedInsights />
           <Toaster position="top-right" />
         </body>
       </html>
