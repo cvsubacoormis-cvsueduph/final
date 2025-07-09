@@ -71,7 +71,7 @@ const GenerateChecklistPDF = () => {
                 ? "1"
                 : gradeInfo.semester === "SECOND"
                 ? "2"
-                : "2.5";
+                : "MIDYEAR";
             return {
               academicYear: `AY/${shortAY} - ${semesterNum}`,
               grade: gradeInfo.grade,

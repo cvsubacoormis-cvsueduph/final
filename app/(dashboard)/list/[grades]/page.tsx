@@ -22,8 +22,9 @@ import {
 } from "@/components/ui/select";
 import { getGrades } from "@/actions/student-grades/student-grades";
 import { HashLoader } from "react-spinners";
+import GenerateCOG from "@/components/GenerateCOG";
 
-// Manually define enums as constants
+// Define academic years and semesters in chronological order
 const AcademicYears = ["AY_2024_2025", "AY_2025_2026", "AY_2026_2027"];
 const Semesters = ["FIRST", "SECOND", "MIDYEAR"];
 
@@ -47,17 +48,15 @@ export default function GradesPage() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
-  const year = searchParams.get("year") || undefined;
-  const semester = searchParams.get("semester") || undefined;
+  // Default to oldest academic year and first semester if no params are provided
+  const year = searchParams.get("year") || AcademicYears[0];
+  const semester = searchParams.get("semester") || Semesters[0];
 
   useEffect(() => {
     const fetchGrades = async () => {
       try {
         setLoading(true);
-        // Convert "all" to undefined
-        const yearParam = year === "all" ? undefined : year;
-        const semesterParam = semester === "all" ? undefined : semester;
-        const data = await getGrades(yearParam, semesterParam);
+        const data = await getGrades(year, semester);
         setGrades(
           data.map((grade) => ({
             ...grade,
@@ -74,21 +73,37 @@ export default function GradesPage() {
     fetchGrades();
   }, [year, semester]);
 
+  const getFinalGradeToUse = (grade: Grade): number | null => {
+    const originalGrade = parseFloat(grade.grade);
+    const reExamGrade = grade.reExam !== null ? parseFloat(grade.reExam) : null;
+
+    // Handle special cases (INC, DRP) - these should be excluded from calculations
+    if (["INC", "DRP"].includes(grade.grade)) {
+      if (reExamGrade === null || ["INC", "DRP"].includes(grade.reExam || "")) {
+        return null; // Exclude from calculations
+      }
+      return reExamGrade; // Use re-exam if original is special case
+    }
+
+    // If no re-exam, use original grade
+    if (reExamGrade === null) {
+      return originalGrade;
+    }
+
+    // Compare grades - lower is better (1.00 is highest, 5.00 is failing)
+    return reExamGrade < originalGrade ? reExamGrade : originalGrade;
+  };
+
   const handleFilterSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     const formData = new FormData(e.currentTarget as HTMLFormElement);
     const params = new URLSearchParams();
 
-    const yearValue = formData.get("year");
-    const semesterValue = formData.get("semester");
+    const yearValue = formData.get("year") as string;
+    const semesterValue = formData.get("semester") as string;
 
-    if (yearValue && yearValue !== "all") {
-      params.set("year", yearValue as string);
-    }
-
-    if (semesterValue && semesterValue !== "all") {
-      params.set("semester", semesterValue as string);
-    }
+    params.set("year", yearValue);
+    params.set("semester", semesterValue);
 
     router.push(`?${params.toString()}`);
   };
@@ -105,6 +120,26 @@ export default function GradesPage() {
     );
   }
 
+  // Calculate totals
+  const totalSubjectsEnrolled = grades.length;
+
+  const totalCreditsEnrolled = grades.reduce((acc, cur) => {
+    const finalGrade = getFinalGradeToUse(cur);
+    if (finalGrade === null || isNaN(finalGrade)) return acc;
+    return acc + cur.creditUnit;
+  }, 0);
+
+  const totalCreditsEarned = grades.reduce((acc, cur) => {
+    const finalGrade = getFinalGradeToUse(cur);
+    if (finalGrade === null || isNaN(finalGrade)) return acc;
+    return acc + cur.creditUnit * finalGrade;
+  }, 0);
+
+  const gpa =
+    totalCreditsEnrolled > 0 && !isNaN(totalCreditsEarned)
+      ? (totalCreditsEarned / totalCreditsEnrolled).toFixed(2)
+      : "N/A";
+
   return (
     <div className="bg-white p-4 rounded-md flex-1 m-4 mt-0">
       <h1 className="text-lg font-semibold mb-4">
@@ -117,12 +152,11 @@ export default function GradesPage() {
         onSubmit={handleFilterSubmit}
         className="mb-4 flex gap-4 items-center"
       >
-        <Select name="year" defaultValue={year || undefined}>
+        <Select name="year" defaultValue={year}>
           <SelectTrigger className="w-[180px]">
-            <SelectValue placeholder="All Years" />
+            <SelectValue placeholder="Select Academic Year" />
           </SelectTrigger>
           <SelectContent>
-            <SelectItem value="all">All Years</SelectItem>
             {AcademicYears.map((yr) => (
               <SelectItem key={yr} value={yr}>
                 {yr.replace("_", "-")}
@@ -131,15 +165,18 @@ export default function GradesPage() {
           </SelectContent>
         </Select>
 
-        <Select name="semester" defaultValue={semester || undefined}>
+        <Select name="semester" defaultValue={semester}>
           <SelectTrigger className="w-[180px]">
-            <SelectValue placeholder="All Semesters" />
+            <SelectValue placeholder="Select Semester" />
           </SelectTrigger>
           <SelectContent>
-            <SelectItem value="all">All Semesters</SelectItem>
             {Semesters.map((sem) => (
               <SelectItem key={sem} value={sem}>
-                {sem}
+                {sem === "FIRST"
+                  ? "First Semester"
+                  : sem === "SECOND"
+                  ? "Second Semester"
+                  : "Midyear"}
               </SelectItem>
             ))}
           </SelectContent>
@@ -148,6 +185,7 @@ export default function GradesPage() {
         <Button type="submit" className="bg-blue-700 hover:bg-blue-900">
           Filter
         </Button>
+        <GenerateCOG />
       </form>
 
       {/* Grades Table */}
@@ -183,136 +221,76 @@ export default function GradesPage() {
               </TableRow>
             </TableHeader>
             <TableBody>
-              {grades.map((grade) => (
-                <TableRow key={grade.id}>
-                  <TableCell className="text-center font-semibold">
-                    {grade.courseCode}
-                  </TableCell>
-                  <TableCell className="p-4 text-center font-semibold">
-                    {grade.creditUnit}
-                  </TableCell>
-                  <TableCell className="p-4 text-center font-semibold">
-                    {grade.courseTitle}
-                  </TableCell>
-                  <TableCell
-                    className={
-                      ["INC", "DRP", "FAILED", "4.00", "5.00"].includes(
-                        grade.grade
-                      )
-                        ? "text-red-500 p-4 text-center font-bold"
-                        : "p-4 text-center font-semibold"
-                    }
-                  >
-                    {["INC", "DRP"].includes(grade.grade)
-                      ? grade.grade
-                      : !isNaN(parseFloat(grade.grade))
-                      ? parseFloat(grade.grade).toFixed(2)
-                      : ""}
-                  </TableCell>
-                  <TableCell className="p-4 text-center">
-                    {grade.reExam !== null && !isNaN(parseFloat(grade.reExam))
-                      ? grade.reExam
-                      : " "}
-                  </TableCell>
-                  <TableCell
-                    className={`p-4 text-center font-semibold ${
-                      grade.remarks !== "PASSED" ? "text-red-500" : ""
-                    }`}
-                  >
-                    {grade.remarks}
-                  </TableCell>
-                  <TableCell className="p-4 text-center font-semibold">
-                    {grade.instructor}
-                  </TableCell>
-                </TableRow>
-              ))}
+              {grades.map((grade) => {
+                const finalGradeToUse = getFinalGradeToUse(grade);
+                const displayGrade = ["INC", "DRP"].includes(grade.grade)
+                  ? grade.grade
+                  : !isNaN(parseFloat(grade.grade))
+                  ? parseFloat(grade.grade).toFixed(2)
+                  : "";
+
+                return (
+                  <TableRow key={grade.id}>
+                    <TableCell className="text-center font-semibold">
+                      {grade.courseCode}
+                    </TableCell>
+                    <TableCell className="p-4 text-center font-semibold">
+                      {grade.creditUnit}
+                    </TableCell>
+                    <TableCell className="p-4 text-center font-semibold">
+                      {grade.courseTitle}
+                    </TableCell>
+                    <TableCell
+                      className={
+                        ["INC", "DRP", "FAILED", "4.00", "5.00"].includes(
+                          grade.grade
+                        )
+                          ? "text-red-500 p-4 text-center font-bold"
+                          : "p-4 text-center font-semibold"
+                      }
+                    >
+                      {displayGrade}
+                    </TableCell>
+                    <TableCell className="p-4 text-center">
+                      {grade.reExam !== null && !isNaN(parseFloat(grade.reExam))
+                        ? parseFloat(grade.reExam).toFixed(2)
+                        : " "}
+                    </TableCell>
+                    <TableCell
+                      className={`p-4 text-center font-semibold ${
+                        grade.remarks !== "PASSED" ? "text-red-500" : ""
+                      }`}
+                    >
+                      {grade.remarks}
+                    </TableCell>
+                    <TableCell className="p-4 text-center font-semibold">
+                      {grade.instructor}
+                    </TableCell>
+                  </TableRow>
+                );
+              })}
             </TableBody>
             <TableFooter>
               <TableRow className="bg-gray-200">
                 <TableHead className="text-xs p-4 text-center">
                   Total Subjects Enrolled:{" "}
-                  <span className="font-bold">{grades.length}</span>
+                  <span className="font-bold">{totalSubjectsEnrolled}</span>
                 </TableHead>
                 <TableHead className="text-xs p-2 text-center">
                   Total Credit Units Enrolled:{" "}
-                  <span className="font-bold">
-                    {grades.reduce((acc, cur) => {
-                      const finalGrade =
-                        cur.reExam !== null ? cur.reExam : cur.grade;
-                      if (["INC", "DRP"].includes(finalGrade)) {
-                        return acc;
-                      }
-                      return acc + cur.creditUnit;
-                    }, 0)}
-                  </span>
+                  <span className="font-bold">{totalCreditsEnrolled}</span>
                 </TableHead>
                 <TableHead className="text-xs p-4 text-center">
                   Total Credits Earned:{" "}
                   <span className="font-bold">
-                    {grades.reduce((acc, cur) => {
-                      const originalGrade = parseFloat(cur.grade);
-                      const reExamGrade =
-                        cur.reExam !== null ? parseFloat(cur.reExam) : 0;
-
-                      const isOriginalInvalid =
-                        isNaN(originalGrade) ||
-                        ["INC", "DRP"].includes(cur.grade);
-                      const isReExamInvalid =
-                        isNaN(reExamGrade) ||
-                        ["INC", "DRP"].includes(cur.reExam ?? "");
-
-                      if (isOriginalInvalid && isReExamInvalid) return acc;
-
-                      const finalGrade = isOriginalInvalid
-                        ? reExamGrade
-                        : originalGrade;
-
-                      return acc + cur.creditUnit * finalGrade;
-                    }, 0)}
+                    {totalCreditsEarned.toFixed(2)}
                   </span>
                 </TableHead>
                 <TableHead className="text-xs p-4 text-center"></TableHead>
                 <TableHead className="p-4 text-center"></TableHead>
                 <TableHead className="p-4 text-center"></TableHead>
                 <TableHead className="text-xs p-4 text-center">
-                  Grade Point Average:{" "}
-                  <span className="font-bold">
-                    {(() => {
-                      const totalCreditsEarned = grades.reduce((acc, cur) => {
-                        const originalGrade = parseFloat(cur.grade);
-                        const reExamGrade =
-                          cur.reExam !== null ? parseFloat(cur.reExam) : 0;
-
-                        const isOriginalInvalid =
-                          isNaN(originalGrade) ||
-                          ["INC", "DRP"].includes(cur.grade);
-                        const isReExamInvalid =
-                          isNaN(reExamGrade) ||
-                          ["INC", "DRP"].includes(cur.reExam ?? "");
-
-                        if (isOriginalInvalid && isReExamInvalid) return acc;
-
-                        const finalGrade = isOriginalInvalid
-                          ? reExamGrade
-                          : originalGrade;
-
-                        return acc + cur.creditUnit * finalGrade;
-                      }, 0);
-
-                      const totalCreditsEnrolled = grades.reduce((acc, cur) => {
-                        const finalGrade =
-                          cur.reExam !== null ? cur.reExam : cur.grade;
-                        if (["INC", "DRP"].includes(finalGrade)) {
-                          return acc;
-                        }
-                        return acc + cur.creditUnit;
-                      }, 0);
-
-                      return totalCreditsEnrolled > 0
-                        ? (totalCreditsEarned / totalCreditsEnrolled).toFixed(2)
-                        : "N/A";
-                    })()}
-                  </span>
+                  Grade Point Average: <span className="font-bold">{gpa}</span>
                 </TableHead>
               </TableRow>
             </TableFooter>

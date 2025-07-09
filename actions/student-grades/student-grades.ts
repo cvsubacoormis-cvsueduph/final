@@ -10,21 +10,17 @@ export async function getGrades(year?: string, semester?: string) {
   if (!userId) {
     throw new Error("Unauthorized");
   }
-
-  // Filter out "all" values
-  const yearFilter =
-    year && year !== "all" ? { academicYear: year as AcademicYear } : {};
-  const semesterFilter =
-    semester && semester !== "all" ? { semester: semester as Semester } : {};
-
   const student = await prisma.student.findUnique({
     where: { id: userId },
     include: {
       grades: {
         where: {
-          ...yearFilter,
-          ...semesterFilter,
+          academicYear: year as AcademicYear,
+          semester: semester as Semester,
         },
+        orderBy: [
+          { courseCode: "asc" }, // Optional: sort by course code
+        ],
       },
     },
   });
