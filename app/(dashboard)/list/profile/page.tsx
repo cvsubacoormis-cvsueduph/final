@@ -26,6 +26,7 @@ import prisma from "@/lib/prisma";
 import { courseMap, formatMajor } from "@/lib/courses";
 import { currentUser } from "@clerk/nextjs/server";
 import { getPreviousSemesterStats } from "@/actions/get-semester-stats";
+import { getStudentData } from "@/actions/getStudentData";
 
 export default async function StudentProfile() {
   const user = await currentUser();
@@ -45,12 +46,7 @@ export default async function StudentProfile() {
     );
   }
 
-  const student = await prisma.student.findUnique({
-    where: { id: userId },
-    include: {
-      grades: true,
-    },
-  });
+  const student = await getStudentData();
 
   const announcement = await prisma.announcement.findMany();
 
@@ -65,6 +61,18 @@ export default async function StudentProfile() {
         </p>
       </div>
     );
+  }
+  function getBetterGrade(grade: string, reExam: string) {
+    if (["DRP", "INC"].includes(grade)) return reExam;
+    if (!reExam) return grade;
+
+    const g = parseFloat(grade);
+    const r = parseFloat(reExam);
+    return !isNaN(g) && !isNaN(r)
+      ? r < g
+        ? r.toString()
+        : g.toString()
+      : grade;
   }
 
   // Add this function at the top of your file to calculate semester statistics
@@ -206,124 +214,68 @@ export default async function StudentProfile() {
                   </CardHeader>
                   <CardContent>
                     <div className="space-y-6">
-                      <div className="flex items-center justify-between">
-                        <div>
-                          <h3 className="font-medium">Cumulative GPA</h3>
-                          <p className="text-sm text-muted-foreground">
-                            All semesters
-                          </p>
-                        </div>
-                        <div className="text-right">
-                          <span className="text-2xl font-bold">
-                            {" "}
-                            GPA:{" "}
-                            {(() => {
-                              const totalCreditsEarned = student.grades.reduce(
-                                (acc, cur) => {
-                                  const originalGrade = parseFloat(cur.grade);
-                                  const reExamGrade =
-                                    cur.reExam !== null
-                                      ? parseFloat(cur.reExam)
-                                      : 0;
-                                  const isOriginalInvalid =
-                                    isNaN(originalGrade) ||
-                                    ["INC", "DRP"].includes(cur.grade);
-                                  const isReExamInvalid =
-                                    isNaN(reExamGrade) ||
-                                    ["INC", "DRP"].includes(cur.reExam ?? "");
+                      <Separator />
+                      <div>
+                        <h3 className="font-medium mb-4">Previous Semesters</h3>
+                        <h3 className="font-medium mb-4">
+                          GPA by Academic Year
+                        </h3>
+                        <div className="space-y-3">
+                          {(() => {
+                            const gradesByYear: Record<
+                              string,
+                              typeof student.grades
+                            > = {};
+                            for (const grade of student.grades) {
+                              if (!gradesByYear[grade.academicYear]) {
+                                gradesByYear[grade.academicYear] = [];
+                              }
+                              gradesByYear[grade.academicYear].push(grade);
+                            }
 
-                                  if (isOriginalInvalid && isReExamInvalid)
-                                    return acc;
+                            return Object.entries(gradesByYear).map(
+                              ([year, grades]) => {
+                                let totalCredits = 0;
+                                let totalWeighted = 0;
 
-                                  const finalGrade = isOriginalInvalid
-                                    ? reExamGrade
-                                    : originalGrade;
+                                for (const grade of grades) {
+                                  const final = getBetterGrade(
+                                    grade.grade,
+                                    grade.reExam ?? ""
+                                  );
+                                  if (["DRP", "INC"].includes(final)) continue;
 
-                                  return acc + cur.creditUnit * finalGrade;
-                                },
-                                0
-                              );
-
-                              const totalCreditsEnrolled =
-                                student.grades.reduce((acc, cur) => {
-                                  const finalGrade =
-                                    cur.reExam !== null
-                                      ? cur.reExam
-                                      : cur.grade;
-                                  if (
-                                    ["INC", "DRP"].includes(
-                                      finalGrade as string
-                                    )
-                                  ) {
-                                    return acc;
+                                  const numeric = parseFloat(final);
+                                  if (!isNaN(numeric)) {
+                                    totalCredits += grade.creditUnit;
+                                    totalWeighted += numeric * grade.creditUnit;
                                   }
-                                  return acc + cur.creditUnit;
-                                }, 0);
+                                }
 
-                              return totalCreditsEnrolled > 0
-                                ? (
-                                    totalCreditsEarned / totalCreditsEnrolled
-                                  ).toFixed(2)
-                                : "N/A";
-                            })()}
-                          </span>
+                                const gpa =
+                                  totalCredits > 0
+                                    ? (totalWeighted / totalCredits).toFixed(2)
+                                    : "N/A";
+
+                                return (
+                                  <div
+                                    key={year}
+                                    className="flex justify-between items-center"
+                                  >
+                                    <div className="flex items-center">
+                                      <Calendar className="h-4 w-4 mr-2 text-muted-foreground" />
+                                      <span>
+                                        Academic Year {year.replace("_", "/")}
+                                      </span>
+                                    </div>
+                                    <Badge variant="outline">GPA: {gpa}</Badge>
+                                  </div>
+                                );
+                              }
+                            );
+                          })()}
                         </div>
                       </div>
-
-                      <Separator />
-
-                      {/* <div>
-                        <h3 className="font-medium mb-4">Previous Semesters</h3>
-                        <div className="space-y-3">
-                          {Array.from(
-                            new Set(
-                              student.grades.map(
-                                (g) => `${g.academicYear}_${g.semester}`
-                              )
-                            )
-                          ).map((semesterKey) => {
-                            const [academicYear, semester] =
-                              semesterKey.split("_");
-                            const stats = calculateSemesterStats(
-                              student.grades,
-                              academicYear,
-                              semester
-                            );
-
-                            return (
-                              <div
-                                key={semesterKey}
-                                className="flex justify-between items-center"
-                              >
-                                <div className="flex items-center">
-                                  <Calendar className="h-4 w-4 mr-2 text-muted-foreground" />
-                                  <span>
-                                    {semester === "FIRST"
-                                      ? "First"
-                                      : semester === "MIDYEAR"
-                                      ? "Mid Year"
-                                      : "Second"}{" "}
-                                    Semester {academicYear.replace(/_/g, "/")}
-                                  </span>
-                                </div>
-                                <div className="flex items-center gap-4">
-                                  <span className="text-sm text-muted-foreground">
-                                    Total credit units enrolled:{" "}
-                                    {semesterStats.totalCreditsEnrolled}
-                                  </span>
-                                  <span className="text-sm text-muted-foreground">
-                                    Total credits earned:{" "}
-                                    {semesterStats.totalCreditsEarned}
-                                  </span>
-                                  <Badge variant="outline">
-                                    GPA: {semesterStats.gpa}
-                                  </Badge>
-                                </div>
-                              </div>
-                            );
-                          })}
-                        </div>
-                      </div> */}
                     </div>
                   </CardContent>
                 </Card>
