@@ -1,13 +1,16 @@
 "use client";
+
 import { useState, useEffect } from "react";
 import { LibraryBig, Cloud, Sun, CloudRain } from "lucide-react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+
 export function StudentCard() {
   const [weatherData, setWeatherData] = useState({
     temperature: 0,
     condition: "sunny",
     description: "Loading weather data...",
   });
+
   useEffect(() => {
     const fetchWeather = async () => {
       try {
@@ -17,35 +20,37 @@ export function StudentCard() {
         );
         const data = await response.json();
         console.log(data);
-        // Map weather conditions based on temperature and condition code
-        const mapCondition = (temp: number, condition: string) => {
-          if (condition.toLowerCase().includes("rain")) return "rainy";
-          if (temp >= 30) return "cloudy"; // When temperature is 30°C or higher, show cloudy
-          if (
-            condition.toLowerCase().includes("clear") ||
-            condition.toLowerCase().includes("sunny")
-          )
-            return "sunny";
-          return "cloudy";
+
+        // Use WeatherAPI condition codes for more accurate icons
+        const mapCondition = (code: number): string => {
+          const rainyCodes = [
+            1063, 1072, 1150, 1153, 1180, 1183, 1186, 1189, 1192, 1195, 1240,
+            1243, 1246,
+          ];
+          const cloudyCodes = [1003, 1006, 1009, 1030, 1135, 1147];
+          const sunnyCodes = [1000];
+
+          if (rainyCodes.includes(code)) return "rainy";
+          if (cloudyCodes.includes(code)) return "cloudy";
+          if (sunnyCodes.includes(code)) return "sunny";
+          return "cloudy"; // default
         };
+
         setWeatherData({
           temperature: Math.round(data.current.temp_c),
-          condition: mapCondition(
-            data.current.temp_c,
-            data.current.condition.text
-          ),
+          condition: mapCondition(data.current.condition.code),
           description: data.current.condition.text,
         });
       } catch (error) {
         console.log("Error fetching weather data:", error);
       }
     };
+
     fetchWeather();
-    // Refresh weather data every 30 minutes
     const interval = setInterval(fetchWeather, 30 * 60 * 1000);
     return () => clearInterval(interval);
   }, []);
-  // Get weather icon based on condition
+
   const getWeatherIcon = (condition: string) => {
     switch (condition) {
       case "sunny":
@@ -55,26 +60,12 @@ export function StudentCard() {
       case "rainy":
         return <CloudRain className="h-8 w-8 text-blue-500" />;
       default:
-        return <Sun className="h-8 w-8 text-amber-500" />;
+        return <Cloud className="h-8 w-8 text-gray-500" />;
     }
   };
 
   return (
     <div className="grid gap-4 md:grid-cols-1 lg:grid-cols-1">
-      {/* <Card>
-        <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-          <CardTitle className="text-sm font-medium">Subjects</CardTitle>
-          <LibraryBig className="h-4 w-4 text-muted-foreground" />
-        </CardHeader>
-        <CardContent>
-          <div className="mb-2">
-            <div className="text-2xl font-bold mb-2">5</div>
-            <p className="text-xs text-muted-foreground">
-              Total Subjects in Curiculum
-            </p>
-          </div>
-        </CardContent>
-      </Card> */}
       <Card>
         <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
           <CardTitle className="text-sm font-medium">Weather & Time</CardTitle>

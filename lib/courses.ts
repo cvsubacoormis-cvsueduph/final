@@ -36,19 +36,19 @@ export function courseClerkshipMap(courseClerksAbbreviation: string) {
       return "MICHAEL D. ANSUAS";
       break;
     case "BSHM":
-      return "JOHN CARLO BENJAMIN";
+      return "JOHN CARLO J. BENJAMIN";
       break;
     case "BSIT":
-      return "MICHAEL D. ANSUAS";
+      return "TENEE D. DADAP";
       break;
     case "BSP":
-      return "MILDRED VALDEPEÑA";
+      return "MILDRED Q. VALDEPEÑA";
       break;
     case "BSCRIM":
       return " JIMWELL G. DACANAY";
       break;
     case "BSED":
-      return "JIMWELL G. DACANAY";
+      return "MICHAEL D. ANSUAS";
       break;
     default:
       return "";
@@ -77,7 +77,7 @@ export function coursePositionMap(coursePositionAbbreviation: string) {
       return "Campus Registrar";
       break;
     case "BSED":
-      return "Campus Registrar";
+      return "Registrar Clerk";
       break;
     default:
       return "";

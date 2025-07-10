@@ -43,6 +43,7 @@ export async function getStudentGradesWithReExam() {
       studentNumber: true,
       firstName: true,
       lastName: true,
+      middleInit: true,
       course: true,
       major: true,
       grades: {
@@ -74,4 +75,25 @@ export async function getStudentGradesWithReExam() {
   }
 
   return student;
+}
+
+export async function getAvailableAcademicOptions() {
+  const { userId } = await auth();
+  if (!userId) throw new Error("Unauthorized");
+
+  const student = await prisma.student.findUnique({
+    where: { id: userId },
+    select: {
+      grades: {
+        distinct: ["academicYear", "semester"],
+        select: {
+          academicYear: true,
+          semester: true,
+        },
+      },
+    },
+  });
+
+  if (!student) throw new Error("Student not found");
+  return student.grades;
 }
