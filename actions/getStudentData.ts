@@ -79,6 +79,7 @@ export async function getStudentData(): Promise<StudentData> {
         courseTitle:
           grade.subjectOffering?.curriculum.courseTitle || grade.courseCode,
         grade: grade.grade,
+        reExam: grade.reExam || "",
         remarks: grade.remarks || "",
         academicYear: grade.academicYear,
         semester: grade.semester,

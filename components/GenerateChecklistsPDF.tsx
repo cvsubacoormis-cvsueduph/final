@@ -37,6 +37,39 @@ const GenerateChecklistPDF = () => {
   const [loading, setLoading] = useState(false);
   const [generating, setGenerating] = useState(false);
 
+  function getBetterGrade(
+    grade?: string | null,
+    reExam?: string | null
+  ): string {
+    const parse = (g: string | null | undefined) => {
+      const n = parseFloat(g || "");
+      return isNaN(n) ? null : n;
+    };
+
+    const isNonNumeric = (g: string | null | undefined) =>
+      g && isNaN(parseFloat(g));
+
+    const gradeNum = parse(grade);
+    const reExamNum = parse(reExam);
+
+    // Case 1: Both numeric
+    if (gradeNum !== null && reExamNum !== null) {
+      return gradeNum <= reExamNum ? grade! : reExam!;
+    }
+
+    // Case 2: Only grade is numeric
+    if (gradeNum !== null) return grade!;
+    // Case 3: Only reExam is numeric
+    if (reExamNum !== null) return reExam!;
+
+    // ✅ Case 4: If grade or reExam is a non-numeric string like "DRP"
+    if (isNonNumeric(grade)) return grade!;
+    if (isNonNumeric(reExam)) return reExam!;
+
+    // Fallback
+    return "-";
+  }
+
   useEffect(() => {
     const fetchData = async () => {
       try {
@@ -74,7 +107,7 @@ const GenerateChecklistPDF = () => {
                 : "MIDYEAR";
             return {
               academicYear: `AY/${shortAY} - ${semesterNum}`,
-              grade: gradeInfo.grade,
+              grade: getBetterGrade(gradeInfo.grade, gradeInfo.reExam),
               remarks: gradeInfo.remarks || "",
               instructor: gradeInfo.instructor || "",
               isRetaken: gradeInfo.isRetaken,
@@ -91,7 +124,7 @@ const GenerateChecklistPDF = () => {
 
           return {
             ...item,
-            grade: latestAttempt.grade || "",
+            grade: latestAttempt.grade || "-",
             remarks: latestAttempt.remarks || "",
             instructor: latestAttempt.instructor || "",
             academicYear: latestAttempt.academicYear || "",
@@ -199,6 +232,16 @@ const GenerateChecklistPDF = () => {
       doc.text(getCourseTitle(), 105, 25, {
         align: "center",
       });
+      doc.setFont("helvetica", "bold");
+      if (studentData?.major) {
+        doc.text(getCourseTitle(), 105, 25, {
+          align: "center",
+        });
+      } else {
+        doc.text(getCourseTitle().split("-")[0].trim(), 105, 25, {
+          align: "center",
+        });
+      }
       doc.text("CHECKLIST OF COURSES", 105, 30, { align: "center" });
 
       doc.setFontSize(7);
@@ -694,7 +737,11 @@ const GenerateChecklistPDF = () => {
 
           const titleLines = doc.splitTextToSize(course.courseTitle, 50);
           const attemptsText = course.allAttempts
-            ?.map((attempt: any) => `Retakes ${attempt.attemptNumber}`)
+            ?.map((attempt: any) =>
+              attempt.attemptNumber === 1
+                ? "First Take"
+                : `Retake ${attempt.attemptNumber - 1}`
+            )
             .join("\n");
           const gradesText = course.allAttempts
             ?.map((attempt: any) => attempt.grade || "-")

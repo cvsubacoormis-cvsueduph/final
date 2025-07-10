@@ -28,6 +28,7 @@ import Link from "next/link";
 import { AcademicProgress, Subject } from "@/lib/types";
 import { courseMap, formatMajor } from "@/lib/courses";
 import GenerateChecklistPDF from "./GenerateChecklistsPDF";
+import { getStudentGradesWithReExam } from "@/actions/student-grades/student-grades";
 
 export function CurriculumChecklist() {
   const [selectedYear, setSelectedYear] = useState<string>("all");
@@ -46,7 +47,8 @@ export function CurriculumChecklist() {
   useEffect(() => {
     async function loadCurriculum() {
       try {
-        const student = await getStudentData();
+        const student = await getStudentGradesWithReExam();
+        console.log(student.grades);
         const curriculum = await getCurriculumChecklist(
           student.course,
           student.major
@@ -105,6 +107,7 @@ export function CurriculumChecklist() {
             remarks: g.remarks,
             attemptNumber: g.attemptNumber,
             retakenAYSem: g.retakenAYSem,
+            reExam: g.reExam, // ✅ ADD THIS
           }));
 
           const completion = latestGrade
@@ -196,6 +199,17 @@ export function CurriculumChecklist() {
     }
     loadCurriculum();
   }, []);
+
+  function getBetterGrade(grade?: string, reExam?: string) {
+    const parsedGrade = parseFloat(grade ?? "");
+    const parsedReExam = parseFloat(reExam ?? "");
+
+    if (!isNaN(parsedGrade) && !isNaN(parsedReExam)) {
+      return parsedGrade < parsedReExam ? grade : reExam;
+    }
+
+    return grade || reExam || "-";
+  }
 
   const getStatusIcon = (status: string) => {
     switch (status) {
@@ -413,6 +427,9 @@ export function CurriculumChecklist() {
                               Grade
                             </th>
                             <th className="text-center py-2 px-2 font-medium text-gray-700 print:py-1">
+                              Re-Exam
+                            </th>
+                            <th className="text-center py-2 px-2 font-medium text-gray-700 print:py-1">
                               AY/Semester Taken
                             </th>
                             <th className="text-left py-2 px-2 font-medium text-gray-700 print:py-1 hidden md:table-cell print:table-cell">
@@ -476,6 +493,17 @@ export function CurriculumChecklist() {
                                   {subject.grade || "-"}
                                 </span>
                               </td>
+                              <td
+                                className={`py-2 px-2 text-center print:py-1 ${getGradeColor(
+                                  subject.allAttempts?.[
+                                    subject.allAttempts.length - 1
+                                  ]?.reExam
+                                )}`}
+                              >
+                                {subject.allAttempts?.[
+                                  subject.allAttempts.length - 1
+                                ]?.reExam || "-"}
+                              </td>
                               <td className="py-2 px-2 text-center print:py-1">
                                 {subject.allAttempts.length > 0 ? (
                                   <div className="flex flex-col gap-1">
@@ -495,13 +523,19 @@ export function CurriculumChecklist() {
                                             attempt.attemptNumber
                                           })`}{" "}
                                         -
-                                        {attempt.grade && (
+                                        {(attempt.grade || attempt.reExam) && (
                                           <span
                                             className={`ml-2 font-medium ${getGradeColor(
-                                              attempt.grade
+                                              getBetterGrade(
+                                                attempt.grade,
+                                                attempt.reExam
+                                              )
                                             )}`}
                                           >
-                                            {attempt.grade}
+                                            {getBetterGrade(
+                                              attempt.grade,
+                                              attempt.reExam
+                                            )}
                                           </span>
                                         )}
                                       </div>

@@ -31,6 +31,7 @@ export interface GradeAttempt {
   semester: string;
   grade: string;
   remarks: string;
+  reExam?: string;
   attemptNumber: number;
   retakenAYSem?: string;
   instructor?: string;
@@ -86,6 +87,7 @@ export interface Subject extends CurriculumItem {
   remarks: string;
   retaken?: string;
   retakeCount: number;
+  reExam?: string | null;
   latestAttempt: number;
   allAttempts: GradeAttempt[];
   isRetaken?: boolean;
