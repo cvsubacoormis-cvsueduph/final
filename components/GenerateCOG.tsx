@@ -22,7 +22,12 @@ import {
   getAvailableAcademicOptions,
   getStudentGradesWithReExam,
 } from "@/actions/student-grades/student-grades";
-import { courseClerkshipMap, courseMap, formatMajor } from "@/lib/courses";
+import {
+  courseClerkshipMap,
+  courseMap,
+  coursePositionMap,
+  formatMajor,
+} from "@/lib/courses";
 
 const yearLevels = ["FIRST YEAR", "SECOND YEAR", "THIRD YEAR", "FOURTH YEAR"];
 const purposes = [
@@ -323,7 +328,11 @@ export default function GenerateCOG() {
       153 + registrarWidth,
       (doc as any).lastAutoTable.finalY + 39
     );
-    doc.text("Registrar Clerk", 158, (doc as any).lastAutoTable.finalY + 42);
+    doc.text(
+      coursePositionMap(course),
+      158,
+      (doc as any).lastAutoTable.finalY + 42
+    );
 
     autoTable(doc, {
       startY: (doc as any).lastAutoTable.finalY + 55,
