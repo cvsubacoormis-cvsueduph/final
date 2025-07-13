@@ -212,7 +212,7 @@ const GenerateChecklistPDF = () => {
       const logoY = 5;
 
       doc.addImage(
-        "/printLogo.png",
+        "/printlogo.png",
         "PNG",
         logoX,
         logoY,

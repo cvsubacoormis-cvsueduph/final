@@ -138,7 +138,7 @@ export default function GenerateCOG() {
     const logoX = 40;
     const logoY = 5;
 
-    doc.addImage("/printLogo.png", "PNG", logoX, logoY, logoWidth, logoHeight);
+    doc.addImage("/printlogo.png", "PNG", logoX, logoY, logoWidth, logoHeight);
     doc.setFontSize(9);
     doc.text("Republic of the Philippines", 105, 11, { align: "center" });
     doc.setFont("helvetica", "bold");
