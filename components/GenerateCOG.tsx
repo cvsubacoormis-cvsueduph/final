@@ -262,9 +262,13 @@ export default function GenerateCOG() {
         g.courseCode,
         g.creditUnit.toString(),
         g.courseTitle,
-        g.grade || "-",
+        ["DRP", "INC", "4.00", "5.00"].includes(g.grade)
+          ? { content: g.grade || "-", styles: { textColor: [255, 0, 0] } }
+          : { content: g.grade || "-", styles: { textColor: [0, 0, 0] } },
         g.reExam || "",
-        g.remarks || "",
+        ["FAILED", "CON. FAILURE", "LACK OF REQ", "DROPPED"].includes(g.remarks)
+          ? { content: g.remarks || "", styles: { textColor: [255, 0, 0] } }
+          : { content: g.remarks || "", styles: { textColor: [0, 0, 0] } },
         g.instructor || "",
       ]),
     });
@@ -435,7 +439,13 @@ export default function GenerateCOG() {
                 {[...new Set(academicOptions.map((o) => o.semester))].map(
                   (sem) => (
                     <SelectItem key={sem} value={sem}>
-                      {sem}
+                      {sem === "FIRST"
+                        ? "First Semester"
+                        : sem === "SECOND"
+                        ? "Second Semester"
+                        : sem === "MIDYEAR"
+                        ? "Midyear"
+                        : sem}
                     </SelectItem>
                   )
                 )}
