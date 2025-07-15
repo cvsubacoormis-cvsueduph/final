@@ -140,6 +140,12 @@ export default async function Menu() {
         //   href: "/logout",
         //   visible: ["admin", "teacher", "student", "parent"],
         // },
+        {
+          icon: "/subject.png",
+          label: "Seed a Subject Offering",
+          href: "/list/subject-offering",
+          visible: ["admin", "superuser"],
+        },
       ],
     },
   ];
