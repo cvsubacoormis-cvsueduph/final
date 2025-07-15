@@ -25,7 +25,12 @@ import { HashLoader } from "react-spinners";
 import GenerateCOG from "@/components/GenerateCOG";
 
 // Define academic years and semesters in chronological order
-const AcademicYears = ["AY_2024_2025", "AY_2025_2026", "AY_2026_2027"];
+const AcademicYears = [
+  "AY_2024_2025",
+  "AY_2025_2026",
+  "AY_2026_2027",
+  "AY_2027_2028",
+];
 const Semesters = ["FIRST", "SECOND", "MIDYEAR"];
 
 interface Grade {

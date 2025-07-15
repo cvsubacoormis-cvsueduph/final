@@ -48,6 +48,7 @@ import {
 } from "@/components/ui/command";
 import { Check, ChevronsUpDown } from "lucide-react";
 import { cn } from "@/lib/utils";
+import { getCourseOptions } from "@/lib/subjects";
 
 interface Student {
   studentNumber: string;
@@ -68,32 +69,6 @@ interface StudentDetails {
   phone: string;
   address: string;
 }
-
-// Course data for combo boxes
-const courseOptions = [
-  { code: "INSY 50", title: "INFORMATION SYSTEM" },
-  { code: "CS102", title: "Programming Fundamentals" },
-  { code: "CS201", title: "Data Structures and Algorithms" },
-  { code: "CS202", title: "Object-Oriented Programming" },
-  { code: "CS301", title: "Database Systems" },
-  { code: "CS302", title: "Software Engineering" },
-  { code: "CS401", title: "Computer Networks" },
-  { code: "CS402", title: "Operating Systems" },
-  { code: "MATH101", title: "College Algebra" },
-  { code: "MATH102", title: "Trigonometry" },
-  { code: "MATH201", title: "Calculus I" },
-  { code: "MATH202", title: "Calculus II" },
-  { code: "PHYS101", title: "General Physics I" },
-  { code: "PHYS102", title: "General Physics II" },
-  { code: "ENG101", title: "English Composition" },
-  { code: "ENG102", title: "Literature" },
-  { code: "HIST101", title: "Philippine History" },
-  { code: "HIST102", title: "World History" },
-  { code: "PE101", title: "Physical Education I" },
-  { code: "PE102", title: "Physical Education II" },
-  { code: "NSTP101", title: "National Service Training Program I" },
-  { code: "NSTP102", title: "National Service Training Program II" },
-];
 
 export default function ManualGradeEntry() {
   const [academicYear, setAcademicYear] = useState<string>("");
@@ -124,7 +99,9 @@ export default function ManualGradeEntry() {
   const [reExam, setReExam] = useState<string>("");
   const [remarks, setRemarks] = useState<string>("");
   const [instructor, setInstructor] = useState<string>("");
-
+  const [courseOptions, setCourseOptions] = useState<
+    { code: string; title: string }[]
+  >([]);
   const [courseCodeOpen, setCourseCodeOpen] = useState(false);
   const [courseTitleOpen, setCourseTitleOpen] = useState(false);
 
@@ -181,6 +158,10 @@ export default function ManualGradeEntry() {
     setShowStudentDetails(false);
     setStudentDetails(null);
     setValidationError("");
+
+    // Update course options based on student's program
+    const options = getCourseOptions(student.course);
+    setCourseOptions(options);
   };
 
   const handleViewStudentDetails = async (student: Student) => {
@@ -715,6 +696,8 @@ export default function ManualGradeEntry() {
                                   if (selectedCourse) {
                                     setCourseCode(selectedCourse.code);
                                     setCourseTitle(selectedCourse.title);
+                                    // You might also want to set the credit unit here
+                                    // based on the course data
                                   }
                                   setCourseCodeOpen(false);
                                 }}
@@ -727,7 +710,7 @@ export default function ManualGradeEntry() {
                                       : "opacity-0"
                                   )}
                                 />
-                                {course.code}
+                                {course.code} - {course.title}
                               </CommandItem>
                             ))}
                           </CommandGroup>

@@ -120,7 +120,7 @@ export default function UploadStudents() {
     <div className="sm:max-w-3xl lg:max-w-5xl">
       <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
         <DialogTrigger asChild>
-          <Button className="bg-blue-600 hover:bg-blue-700">
+          <Button className="bg-blue-700 hover:bg-blue-900">
             <UploadCloudIcon className="w-4 h-4 mr-2" />
             Upload Students
           </Button>

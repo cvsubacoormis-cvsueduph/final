@@ -306,7 +306,10 @@ export default function CreateStudent() {
               </FormItem>
             )}
           />
-          <Button type="submit" className="w-full">
+          <Button
+            type="submit"
+            className="w-full bg-blue-700 hover:bg-blue-900"
+          >
             Submit
           </Button>
         </form>
