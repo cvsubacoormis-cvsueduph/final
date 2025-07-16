@@ -204,8 +204,19 @@ export function CurriculumChecklist() {
     const parsedGrade = parseFloat(grade ?? "");
     const parsedReExam = parseFloat(reExam ?? "");
 
-    if (!isNaN(parsedGrade) && !isNaN(parsedReExam)) {
+    const isGradeValid = !isNaN(parsedGrade);
+    const isReExamValid = !isNaN(parsedReExam);
+
+    if (isGradeValid && isReExamValid) {
       return parsedGrade < parsedReExam ? grade : reExam;
+    }
+
+    if (!isGradeValid && isReExamValid) {
+      return reExam;
+    }
+
+    if (isGradeValid && !isReExamValid) {
+      return grade;
     }
 
     return grade || reExam || "-";
