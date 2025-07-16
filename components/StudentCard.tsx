@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { LibraryBig, Cloud, Sun, CloudRain } from "lucide-react";
+import { Cloud, Sun, CloudRain } from "lucide-react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 
 export function StudentCard() {

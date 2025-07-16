@@ -144,7 +144,7 @@ export default async function Menu() {
           icon: "/subject.png",
           label: "Seed a Subject Offering",
           href: "/list/subject-offering",
-          visible: ["admin", "superuser"],
+          visible: ["admin"],
         },
       ],
     },
