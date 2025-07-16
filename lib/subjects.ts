@@ -1,6 +1,8 @@
 import {
   BMHRchecklistData,
   BMMMchecklistData,
+  BSEDENGData,
+  BSEDMATHchecklistData,
   CRIMchecklistData,
   CSchecklistData,
   HMchecklistData,
@@ -8,30 +10,42 @@ import {
   PSYchecklistData,
 } from "./data";
 
-export const getCoursesByProgram = (program: string) => {
+export const getCoursesByProgram = (program: string, major: string) => {
   switch (program) {
     case "BSIT":
       return ITchecklistData;
     case "BSCS":
       return CSchecklistData;
-    case "BSBM_MM":
-      return BMMMchecklistData;
-    case "BSBM_HRM":
-      return BMHRchecklistData;
+    case "BSBA":
+      switch (major) {
+        case "MARKETING_MANAGEMENT":
+          return BMMMchecklistData;
+        case "HUMAN_RESOURCE_MANAGEMENT":
+          return BMHRchecklistData;
+        default:
+          return [];
+      }
     case "BSCRIM":
       return CRIMchecklistData;
     case "BSHM":
       return HMchecklistData;
     case "BSPSY":
       return PSYchecklistData;
+    case "BSED":
+      switch (major) {
+        case "ENGLISH":
+          return BSEDENGData;
+        case "MATHEMATICS":
+          return BSEDMATHchecklistData;
+      }
     default:
       return [];
   }
 };
 
 // Then modify your courseOptions to be dynamic based on the selected student
-export const getCourseOptions = (program: string) => {
-  const courses = getCoursesByProgram(program);
+export const getCourseOptions = (program: string, major: string) => {
+  const courses = getCoursesByProgram(program, major);
   return courses.map((course) => ({
     code: course.courseCode,
     title: course.courseTitle,

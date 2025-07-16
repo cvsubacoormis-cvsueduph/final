@@ -1,13 +1,14 @@
 "use server";
 
 import prisma from "@/lib/prisma";
-import { AcademicYear, Semester } from "@prisma/client";
+import { AcademicYear, Major, Semester } from "@prisma/client";
 
 export type StudentSearchResult = {
   studentNumber: string;
   firstName: string;
   lastName: string;
   course: string;
+  major: string;
 };
 
 export type StudentDetails = {
@@ -16,7 +17,7 @@ export type StudentDetails = {
   lastName: string;
   middleInit?: string;
   course: string;
-  major: string | "";
+  major: string;
   status: string;
   email?: string;
   phone?: string;
@@ -54,47 +55,48 @@ export async function searchStudent(
     throw new Error("Search query cannot be empty");
   }
 
-  if (searchType === "studentNumber") {
-    return prisma.student.findMany({
-      where: {
-        studentNumber: {
-          contains: query,
-          mode: "insensitive",
-        },
-      },
-      select: {
-        studentNumber: true,
-        firstName: true,
-        lastName: true,
-        course: true,
-      },
-    });
-  } else {
-    return prisma.student.findMany({
-      where: {
-        OR: [
-          {
-            firstName: {
+  const results = await prisma.student.findMany({
+    where:
+      searchType === "studentNumber"
+        ? {
+            studentNumber: {
               contains: query,
               mode: "insensitive",
             },
+          }
+        : {
+            OR: [
+              {
+                firstName: {
+                  contains: query,
+                  mode: "insensitive",
+                },
+              },
+              {
+                lastName: {
+                  contains: query,
+                  mode: "insensitive",
+                },
+              },
+            ],
           },
-          {
-            lastName: {
-              contains: query,
-              mode: "insensitive",
-            },
-          },
-        ],
-      },
-      select: {
-        studentNumber: true,
-        firstName: true,
-        lastName: true,
-        course: true,
-      },
-    });
-  }
+    select: {
+      studentNumber: true,
+      firstName: true,
+      lastName: true,
+      course: true,
+      major: true,
+    },
+  });
+
+  // Ensure major is a string (not null)
+  return results.map((s) => ({
+    studentNumber: s.studentNumber,
+    firstName: s.firstName,
+    lastName: s.lastName,
+    course: s.course,
+    major: s.major ?? "", // <-- this line resolves the TS error
+  }));
 }
 
 export async function getStudentDetails(

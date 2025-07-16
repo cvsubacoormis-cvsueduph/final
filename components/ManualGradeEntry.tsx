@@ -55,6 +55,13 @@ interface Student {
   firstName: string;
   lastName: string;
   course: string;
+  major: string | "";
+}
+
+interface CourseOption {
+  id: string;
+  code: string;
+  title: string;
 }
 
 interface StudentDetails {
@@ -99,11 +106,20 @@ export default function ManualGradeEntry() {
   const [reExam, setReExam] = useState<string>("");
   const [remarks, setRemarks] = useState<string>("");
   const [instructor, setInstructor] = useState<string>("");
-  const [courseOptions, setCourseOptions] = useState<
-    { code: string; title: string }[]
-  >([]);
+  const [courseOptions, setCourseOptions] = useState<CourseOption[]>([]);
   const [courseCodeOpen, setCourseCodeOpen] = useState(false);
   const [courseTitleOpen, setCourseTitleOpen] = useState(false);
+  const [selectedCourseId, setSelectedCourseId] = useState<string>("");
+
+  // Handle course selection by ID
+  const handleCourseSelect = (id: string) => {
+    const selectedCourse = courseOptions.find((course) => course.id === id);
+    if (selectedCourse) {
+      setSelectedCourseId(id);
+      setCourseCode(selectedCourse.code);
+      setCourseTitle(selectedCourse.title);
+    }
+  };
 
   // Handle course code change and auto-populate course title
   const handleCourseCodeChange = (value: string) => {
@@ -160,7 +176,13 @@ export default function ManualGradeEntry() {
     setValidationError("");
 
     // Update course options based on student's program
-    const options = getCourseOptions(student.course);
+    const options = getCourseOptions(student.course, student.major).map(
+      (course) => ({
+        id: course.code,
+        code: course.code,
+        title: course.title,
+      })
+    );
     setCourseOptions(options);
   };
 
@@ -472,6 +494,7 @@ export default function ManualGradeEntry() {
                           firstName: studentDetails.firstName,
                           lastName: studentDetails.lastName,
                           course: studentDetails.course,
+                          major: studentDetails.major,
                         })
                       }
                       size="sm"
@@ -671,9 +694,9 @@ export default function ManualGradeEntry() {
                         aria-expanded={courseCodeOpen}
                         className="w-full justify-between bg-transparent"
                       >
-                        {courseCode
+                        {selectedCourseId
                           ? courseOptions.find(
-                              (course) => course.code === courseCode
+                              (course) => course.id === selectedCourseId
                             )?.code
                           : "Select course code..."}
                         <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
@@ -687,25 +710,17 @@ export default function ManualGradeEntry() {
                           <CommandGroup>
                             {courseOptions.map((course) => (
                               <CommandItem
-                                key={course.code}
-                                value={course.code}
+                                key={course.id}
+                                value={course.id}
                                 onSelect={(currentValue) => {
-                                  const selectedCourse = courseOptions.find(
-                                    (c) => c.code === currentValue
-                                  );
-                                  if (selectedCourse) {
-                                    setCourseCode(selectedCourse.code);
-                                    setCourseTitle(selectedCourse.title);
-                                    // You might also want to set the credit unit here
-                                    // based on the course data
-                                  }
+                                  handleCourseSelect(currentValue);
                                   setCourseCodeOpen(false);
                                 }}
                               >
                                 <Check
                                   className={cn(
                                     "mr-2 h-4 w-4",
-                                    courseCode === course.code
+                                    selectedCourseId === course.id
                                       ? "opacity-100"
                                       : "opacity-0"
                                   )}
@@ -754,9 +769,9 @@ export default function ManualGradeEntry() {
                       aria-expanded={courseTitleOpen}
                       className="w-full justify-between bg-transparent"
                     >
-                      {courseTitle
+                      {selectedCourseId
                         ? courseOptions.find(
-                            (course) => course.title === courseTitle
+                            (course) => course.id === selectedCourseId
                           )?.title
                         : "Select course title..."}
                       <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
@@ -770,25 +785,17 @@ export default function ManualGradeEntry() {
                         <CommandGroup>
                           {courseOptions.map((course) => (
                             <CommandItem
-                              key={course.title}
-                              value={course.title}
+                              key={course.id}
+                              value={course.id}
                               onSelect={(currentValue) => {
-                                const selectedCourse = courseOptions.find(
-                                  (c) =>
-                                    c.title.toLowerCase() ===
-                                    currentValue.toLowerCase()
-                                );
-                                if (selectedCourse) {
-                                  setCourseCode(selectedCourse.code);
-                                  setCourseTitle(selectedCourse.title);
-                                }
+                                handleCourseSelect(currentValue);
                                 setCourseTitleOpen(false);
                               }}
                             >
                               <Check
                                 className={cn(
                                   "mr-2 h-4 w-4",
-                                  courseTitle === course.title
+                                  selectedCourseId === course.id
                                     ? "opacity-100"
                                     : "opacity-0"
                                 )}
