@@ -3,12 +3,17 @@
 import prisma from "@/lib/prisma";
 import { CurriculumItem } from "@/lib/types";
 import { Courses, Major } from "@prisma/client";
+import { auth } from "@clerk/nextjs/server";
 
 export async function getCurriculumChecklist(
   course: string,
   major: string | null,
   grades?: Array<{ courseCode: string; grade: string }> // Add grades parameter
 ): Promise<CurriculumItem[]> {
+  const { userId } = await auth();
+  if (!userId) {
+    throw new Error("Unauthorized");
+  }
   try {
     const curriculum = await prisma.curriculumChecklist.findMany({
       where: {

@@ -1,12 +1,16 @@
 import prisma from "@/lib/prisma";
-
-
+import { auth } from "@clerk/nextjs/server";
+import { NextResponse } from "next/server";
 
 export const getStudents = async (
   query: string,
   page: number = 1,
   limit: number = 10
 ) => {
+  const { userId } = await auth();
+  if (!userId) {
+    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+  }
   try {
     const students = await prisma.student.findMany({
       where: {

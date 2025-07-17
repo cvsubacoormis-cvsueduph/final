@@ -2,6 +2,7 @@
 
 import prisma from "@/lib/prisma";
 import { AcademicYear, Major, Semester } from "@prisma/client";
+import { auth } from "@clerk/nextjs/server";
 
 export type StudentSearchResult = {
   studentNumber: string;
@@ -51,6 +52,10 @@ export async function searchStudent(
   query: string,
   searchType: "studentNumber" | "name"
 ): Promise<StudentSearchResult[]> {
+  const { userId } = await auth();
+  if (!userId) {
+    throw new Error("Unauthorized");
+  }
   if (!query.trim()) {
     throw new Error("Search query cannot be empty");
   }

@@ -10,8 +10,13 @@ import prisma from "@/lib/prisma";
 import { clerkClient } from "@clerk/nextjs/server";
 import { Courses, Major, Status, UserSex } from "@prisma/client";
 import { revalidatePath } from "next/cache";
+import { auth } from "@clerk/nextjs/server";
 
 export async function getStudents() {
+  const { userId } = await auth();
+  if (!userId) {
+    throw new Error("Unauthorized");
+  }
   try {
     const students = await prisma.student.findMany({
       orderBy: {

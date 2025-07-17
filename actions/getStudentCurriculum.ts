@@ -3,8 +3,13 @@
 
 import { getStudentData } from "./getStudentData";
 import { getCurriculumChecklist } from "./curriculum-actions";
+import { auth } from "@clerk/nextjs/server";
 
 export async function getStudentCurriculum() {
+  const { userId } = await auth();
+  if (!userId) {
+    throw new Error("Unauthorized");
+  }
   try {
     const student = await getStudentData();
     const curriculum = await getCurriculumChecklist(

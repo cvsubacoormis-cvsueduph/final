@@ -4,6 +4,7 @@ import prisma from "@/lib/prisma";
 import { clerkClient } from "@clerk/nextjs/server";
 import { revalidatePath } from "next/cache";
 import { UserSex, Role } from "@prisma/client";
+import { auth } from "@clerk/nextjs/server";
 
 export async function createUser(formData: {
   username: string;
@@ -16,6 +17,10 @@ export async function createUser(formData: {
   sex: UserSex;
   role: Role;
 }) {
+  const { userId } = await auth();
+  if (!userId) {
+    throw new Error("Unauthorized");
+  }
   const clerk = await clerkClient();
   try {
     // Generate password based on role and firstName

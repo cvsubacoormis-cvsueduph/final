@@ -4,8 +4,13 @@ import { CreateStudentSchema } from "@/lib/formValidationSchemas";
 import prisma from "@/lib/prisma";
 import { Courses, Major, Status, UserSex } from "@prisma/client";
 import { mutate } from "swr";
+import { auth } from "@clerk/nextjs/server";
 
 export async function createStudentAction(data: CreateStudentSchema) {
+  const { userId } = await auth();
+  if (!userId) {
+    throw new Error("Unauthorized");
+  }
   try {
     const student = await prisma.student.create({
       data: {
