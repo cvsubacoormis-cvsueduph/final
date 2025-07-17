@@ -1,9 +1,13 @@
 import { EventSchema, eventSchema } from "@/lib/formValidationSchemas";
 import prisma from "@/lib/prisma";
-
 import { NextRequest, NextResponse } from "next/server";
+import { auth } from "@clerk/nextjs/server";
 
 export async function GET(request: NextRequest) {
+  const { userId } = await auth();
+  if (!userId) {
+    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+  }
   try {
     const url = new URL(request.nextUrl);
     const page = Number(url.searchParams.get("page")) || 1;

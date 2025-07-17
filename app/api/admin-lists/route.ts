@@ -3,8 +3,14 @@ import prisma from "@/lib/prisma";
 import { createAdminSchema } from "@/lib/formValidationSchemas";
 import { clerkClient } from "@clerk/nextjs/server";
 import { UserSex } from "@prisma/client";
+import { auth } from "@clerk/nextjs/server";
 
 export async function GET() {
+  const { userId } = await auth();
+  if (!userId) {
+    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+  }
+
   try {
     const admins = await prisma.admin.findMany();
     return NextResponse.json(admins, { status: 200 });
@@ -18,6 +24,10 @@ export async function GET() {
 }
 
 export async function DELETE(request: NextRequest) {
+  const { userId } = await auth();
+  if (!userId) {
+    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+  }
   try {
     const id = request.nextUrl.searchParams.get("id");
 
@@ -60,6 +70,10 @@ export async function DELETE(request: NextRequest) {
 }
 
 export async function PATCH(request: NextRequest) {
+  const { userId } = await auth();
+  if (!userId) {
+    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+  }
   const id = request.nextUrl.searchParams.get("id");
 
   if (!id) {
@@ -91,6 +105,11 @@ export async function PATCH(request: NextRequest) {
 }
 
 export async function POST(request: NextRequest) {
+  const { userId } = await auth();
+  if (!userId) {
+    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+  }
+
   const data = await request.json();
   const result = createAdminSchema.safeParse(data);
 

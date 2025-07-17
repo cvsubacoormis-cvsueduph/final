@@ -15,7 +15,7 @@ export async function GET(request: NextRequest) {
   try {
     const student = await prisma.student.findUnique({
       where: { studentNumber: String(studentNumber) },
-      select: { course: true, major: true }, // Fetch only necessary fields
+      select: { course: true, major: true },
     });
 
     if (!student) {
