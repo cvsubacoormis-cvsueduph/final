@@ -9,10 +9,7 @@ export async function GET() {
     const { userId } = authResult;
 
     if (!userId) {
-      return NextResponse.json(
-        { error: "Unauthorized. Please log in." },
-        { status: 401 }
-      );
+      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
 
     // Fetch the student data associated with the logged-in user

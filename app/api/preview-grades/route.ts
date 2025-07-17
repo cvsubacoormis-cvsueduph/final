@@ -1,9 +1,13 @@
 import { NextResponse } from "next/server";
 import prisma from "@/lib/prisma";
 import { AcademicYear, Semester } from "@prisma/client";
+import { auth } from "@clerk/nextjs/server";
 
 export async function GET(request: Request) {
-  // Parse query parameters from the request URL
+  const { userId } = await auth();
+  if (!userId) {
+    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+  }
   const { searchParams } = new URL(request.url);
   const studentNumber = searchParams.get("studentNumber");
   const academicYear = searchParams.get("academicYear");

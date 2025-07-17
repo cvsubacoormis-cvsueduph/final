@@ -5,6 +5,7 @@ import { Courses, Major, Status, UserSex } from "@prisma/client";
 import { CreateStudentSchema } from "@/lib/formValidationSchemas";
 import { clerkClient } from "@clerk/nextjs/server";
 import { RateLimiterMemory } from "rate-limiter-flexible";
+import { auth } from "@clerk/nextjs/server";
 
 // Rate limiter: 20 requests per 10 seconds
 const rateLimiter = new RateLimiterMemory({
@@ -21,6 +22,10 @@ const getClientIp = (request: NextRequest) => {
 };
 
 export async function POST(request: NextRequest) {
+  const { userId } = await auth();
+  if (!userId) {
+    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+  }
   const ip = getClientIp(request);
   const clerk = await clerkClient();
 

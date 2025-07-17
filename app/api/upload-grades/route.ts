@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import prisma from "@/lib/prisma";
 import { Major } from "@prisma/client";
+import { auth } from "@clerk/nextjs/server";
 
 const GRADE_HIERARCHY = [
   "1.00",
@@ -21,6 +22,10 @@ const GRADE_HIERARCHY = [
 ];
 
 export async function POST(req: Request) {
+  const { userId } = await auth();
+  if (!userId) {
+    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+  }
   const grades = await req.json();
 
   if (!grades || !Array.isArray(grades)) {
