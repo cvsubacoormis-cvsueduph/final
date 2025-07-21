@@ -28,6 +28,7 @@ import {
   coursePositionMap,
   formatMajor,
 } from "@/lib/courses";
+import toast from "react-hot-toast";
 
 const yearLevels = ["FIRST YEAR", "SECOND YEAR", "THIRD YEAR", "FOURTH YEAR"];
 const purposes = [
@@ -123,8 +124,19 @@ export default function GenerateCOG() {
       );
       generatePDF(data as StudentData, filteredGrades as Grade[]);
       setIsDialogOpen(false);
-    } catch (error) {
-      console.error("Failed to fetch grades:", error);
+    } catch (error: any) {
+      if (
+        error?.message ===
+        "Too many requests. Please wait a minute before trying again."
+      ) {
+        toast.error(
+          "You have reached the limit for generating this document. Please wait a minute and try again."
+        );
+      } else {
+        toast.error(
+          "Something went wrong while generating your COG. Please try again."
+        );
+      }
     } finally {
       setIsLoading(false);
     }

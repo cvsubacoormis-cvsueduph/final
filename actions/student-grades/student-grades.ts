@@ -3,12 +3,25 @@
 import prisma from "@/lib/prisma";
 import { auth } from "@clerk/nextjs/server";
 import { AcademicYear, Semester } from "@prisma/client";
+import { RateLimiterMemory } from "rate-limiter-flexible";
+
+const rateLimiter = new RateLimiterMemory({
+  points: 3, // Max requests
+  duration: 60, // Per 60 seconds
+  blockDuration: 60, // Block for 60 seconds
+});
 
 export async function getGrades(year?: string, semester?: string) {
   const { userId } = await auth();
 
   if (!userId) {
     throw new Error("Unauthorized");
+  }
+
+  try {
+    await rateLimiter.consume(userId);
+  } catch (rateLimitRes) {
+    throw new Error("Too many requests");
   }
   const student = await prisma.student.findUnique({
     where: { id: userId },

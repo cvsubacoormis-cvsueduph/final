@@ -111,6 +111,45 @@ export default function ManualGradeEntry() {
   const [courseTitleOpen, setCourseTitleOpen] = useState(false);
   const [selectedCourseId, setSelectedCourseId] = useState<string>("");
 
+  const handleGradeChange = (value: string) => {
+    setGrade(value);
+
+    // Automatically set remarks based on grade
+    switch (value) {
+      case "1.00":
+      case "1.25":
+      case "1.50":
+      case "1.75":
+      case "2.00":
+      case "2.25":
+      case "2.50":
+      case "2.75":
+      case "3.00":
+        setRemarks("PASSED");
+        break;
+      case "4.00":
+        setRemarks("CON. FAILURE");
+        break;
+      case "5.00":
+        setRemarks("FAILED");
+        break;
+      case "INC":
+        setRemarks("LACK OF REQ");
+        break;
+      case "DRP":
+        setRemarks("DROPPED");
+        break;
+      case "S":
+        setRemarks("SATISFACTORY");
+        break;
+      case "US":
+        setRemarks("UNSATISFACTORY");
+        break;
+      default:
+        setRemarks("");
+    }
+  };
+
   // Handle course selection by ID
   const handleCourseSelect = (id: string) => {
     const selectedCourse = courseOptions.find((course) => course.id === id);
@@ -120,29 +159,6 @@ export default function ManualGradeEntry() {
       setCourseTitle(selectedCourse.title);
     }
   };
-
-  // Handle course code change and auto-populate course title
-  const handleCourseCodeChange = (value: string) => {
-    setCourseCode(value);
-    const selectedCourse = courseOptions.find(
-      (course) => course.code === value
-    );
-    if (selectedCourse) {
-      setCourseTitle(selectedCourse.title);
-    }
-  };
-
-  // Handle course title change and auto-populate course code
-  const handleCourseTitleChange = (value: string) => {
-    setCourseTitle(value);
-    const selectedCourse = courseOptions.find(
-      (course) => course.title === value
-    );
-    if (selectedCourse) {
-      setCourseCode(selectedCourse.code);
-    }
-  };
-
   const handleSearch = async () => {
     if (!academicYear || !semester) {
       setValidationError("Please select both academic year and semester first");
@@ -177,8 +193,8 @@ export default function ManualGradeEntry() {
 
     // Update course options based on student's program
     const options = getCourseOptions(student.course, student.major).map(
-      (course) => ({
-        id: course.code,
+      (course, index) => ({
+        id: `${course.code}_${index}_${Date.now()}`, // Create unique ID
         code: course.code,
         title: course.title,
       })
@@ -206,7 +222,11 @@ export default function ManualGradeEntry() {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!selectedStudent || !academicYear || !semester) return;
+    if (!selectedStudent || !academicYear || !semester || !selectedCourseId)
+      return;
+
+    const selectedCourse = courseOptions.find((c) => c.id === selectedCourseId);
+    if (!selectedCourse) return;
 
     setIsSubmitting(true);
     setSubmitStatus("idle");
@@ -217,9 +237,9 @@ export default function ManualGradeEntry() {
         lastName: selectedStudent.lastName,
         academicYear,
         semester,
-        courseCode,
+        courseCode: selectedCourse.code,
         creditUnit: Number.parseFloat(creditUnit),
-        courseTitle,
+        courseTitle: selectedCourse.title,
         grade,
         reExam,
         remarks,
@@ -234,9 +254,8 @@ export default function ManualGradeEntry() {
 
       setSubmitStatus("success");
       // Reset form
-      setCourseCode("");
+      setSelectedCourseId("");
       setCreditUnit("");
-      setCourseTitle("");
       setGrade("");
       setReExam("");
       setRemarks("");
@@ -813,7 +832,11 @@ export default function ManualGradeEntry() {
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div className="space-y-2">
                   <Label htmlFor="grade">Grade *</Label>
-                  <Select value={grade} onValueChange={setGrade} required>
+                  <Select
+                    value={grade}
+                    onValueChange={handleGradeChange}
+                    required
+                  >
                     <SelectTrigger>
                       <SelectValue placeholder="Select grade" />
                     </SelectTrigger>
@@ -838,15 +861,29 @@ export default function ManualGradeEntry() {
                 </div>
                 <div className="space-y-2">
                   <Label htmlFor="remarks">Remarks *</Label>
-                  <Select value={remarks} onValueChange={setRemarks} required>
+                  <Select
+                    value={remarks}
+                    onValueChange={setRemarks}
+                    required
+                    disabled={!!grade}
+                  >
                     <SelectTrigger>
-                      <SelectValue placeholder="Select remarks" />
+                      <SelectValue
+                        placeholder={
+                          grade ? "Auto-set from grade" : "Select remarks"
+                        }
+                      />
                     </SelectTrigger>
                     <SelectContent>
                       <SelectItem value="PASSED">PASSED</SelectItem>
+                      <SelectItem value="CON. FAILURE">CON. FAILURE</SelectItem>
                       <SelectItem value="FAILED">FAILED</SelectItem>
                       <SelectItem value="DROPPED">DROPPED</SelectItem>
                       <SelectItem value="LACK OF REQ">LACK OF REQ</SelectItem>
+                      <SelectItem value="SATISFACTORY">SATISFACTORY</SelectItem>
+                      <SelectItem value="UNSATISFACTORY">
+                        UNSATISFACTORY
+                      </SelectItem>
                     </SelectContent>
                   </Select>
                 </div>

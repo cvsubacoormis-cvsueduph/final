@@ -27,6 +27,7 @@ export async function POST(request: NextRequest) {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   }
   const ip = getClientIp(request);
+  console.log("Current IP:", ip); // Log the current IP
   const clerk = await clerkClient();
 
   // Rate limiting check
@@ -154,7 +155,7 @@ export async function POST(request: NextRequest) {
         })
       );
 
-      await delay(3000); // Rate limit Clerk API calls
+      await delay(10000); // Rate limit Clerk API calls
     }
 
     // Handle duplicates (export to XLSX if any)

@@ -29,7 +29,7 @@ export const getCoursesByProgram = (program: string, major: string) => {
       return CRIMchecklistData;
     case "BSHM":
       return HMchecklistData;
-    case "BSPSY":
+    case "BSP":
       return PSYchecklistData;
     case "BSED":
       switch (major) {
