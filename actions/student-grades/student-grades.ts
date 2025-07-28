@@ -1,9 +1,9 @@
 "use server";
 
 import prisma from "@/lib/prisma";
+import { checkRateLimit } from "@/lib/rate-limit-postgres";
 import { auth } from "@clerk/nextjs/server";
 import { AcademicYear, Semester } from "@prisma/client";
-import rateLimiter from "@/lib/rate-limit-postgres";
 
 export async function getGrades(year?: string, semester?: string) {
   const { userId } = await auth();
@@ -11,15 +11,11 @@ export async function getGrades(year?: string, semester?: string) {
     throw new Error("Unauthorized");
   }
 
-  try {
-    await rateLimiter.consume(userId);
-  } catch (rejRes: any) {
-    throw new Error(
-      `Too many requests. Please try again in ${Math.ceil(
-        rejRes.msBeforeNext / 1000
-      )} seconds.`
-    );
-  }
+  await checkRateLimit({
+    action: "getGrades",
+    limit: 5,
+    windowSeconds: 60,
+  });
 
   const student = await prisma.student.findUnique({
     where: { id: userId },
@@ -43,15 +39,11 @@ export async function getStudentGradesWithReExam() {
   const { userId } = await auth();
   if (!userId) throw new Error("Unauthorized");
 
-  try {
-    await rateLimiter.consume(userId);
-  } catch (rejRes: any) {
-    throw new Error(
-      `Too many requests. Please try again in ${Math.ceil(
-        rejRes.msBeforeNext / 1000
-      )} seconds.`
-    );
-  }
+  await checkRateLimit({
+    action: "getStudentGradesWithReExam",
+    limit: 5,
+    windowSeconds: 60,
+  });
 
   const student = await prisma.student.findUnique({
     where: { id: userId },

@@ -58,24 +58,36 @@ export default function GradesPage() {
   const semester = searchParams.get("semester") || Semesters[0];
 
   useEffect(() => {
+    let isMounted = true;
     const fetchGrades = async () => {
+      setLoading(true);
       try {
-        setLoading(true);
         const data = await getGrades(year, semester);
-        setGrades(
-          data.map((grade) => ({
-            ...grade,
-            remarks: grade.remarks || "",
-          }))
-        );
+        if (isMounted) {
+          setGrades(
+            data.map((grade) => ({
+              ...grade,
+              remarks: grade.remarks || "",
+            }))
+          );
+          setError(null);
+        }
       } catch (err) {
-        setError(err instanceof Error ? err.message : "Failed to fetch grades");
+        if (isMounted) {
+          setError(
+            err instanceof Error ? err.message : "Failed to fetch grades"
+          );
+        }
       } finally {
-        setLoading(false);
+        if (isMounted) setLoading(false);
       }
     };
 
     fetchGrades();
+
+    return () => {
+      isMounted = false;
+    };
   }, [year, semester]);
 
   const getFinalGradeToUse = (grade: Grade): number | null => {

@@ -228,6 +228,15 @@ model News {
   updatedAt DateTime @default(now())
 }
 
+model RateLimit {
+  id        Int      @id @default(autoincrement())
+  userId    String
+  action    String
+  timestamp DateTime @default(now())
+
+  @@index([userId, action, timestamp])
+}
+
 enum UserSex {
   MALE
   FEMALE
