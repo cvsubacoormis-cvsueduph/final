@@ -84,23 +84,34 @@ export default function GenerateCOG() {
   }, []);
 
   const getFinalGradeToUse = (grade: Grade): number | null => {
-    const originalGrade = parseFloat(grade.grade);
-    const reExamGrade = grade.reExam !== null ? parseFloat(grade.reExam) : null;
-
     if (["INC", "DRP"].includes(grade.grade)) {
-      if (reExamGrade === null || ["INC", "DRP"].includes(grade.reExam || "")) {
+      if (
+        grade.reExam === null ||
+        ["INC", "DRP"].includes(grade.reExam || "")
+      ) {
         return null;
       }
+      return parseFloat(grade.reExam);
+    }
+
+    const originalGrade = !isNaN(parseFloat(grade.grade))
+      ? parseFloat(grade.grade)
+      : null;
+    const reExamGrade =
+      grade.reExam && !isNaN(parseFloat(grade.reExam))
+        ? parseFloat(grade.reExam)
+        : null;
+
+    if (originalGrade === null && reExamGrade === null) {
+      return null;
+    }
+    if (originalGrade === null) {
       return reExamGrade;
     }
-
     if (reExamGrade === null) {
-      return isNaN(originalGrade) ? null : originalGrade;
+      return originalGrade;
     }
-
-    return isNaN(originalGrade) || isNaN(reExamGrade)
-      ? null
-      : Math.min(originalGrade, reExamGrade);
+    return Math.min(originalGrade, reExamGrade);
   };
 
   const handleGenerate = async () => {

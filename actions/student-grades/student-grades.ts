@@ -3,26 +3,24 @@
 import prisma from "@/lib/prisma";
 import { auth } from "@clerk/nextjs/server";
 import { AcademicYear, Semester } from "@prisma/client";
-import { RateLimiterMemory } from "rate-limiter-flexible";
-
-const rateLimiter = new RateLimiterMemory({
-  points: 3, // Max requests
-  duration: 60, // Per 60 seconds
-  blockDuration: 60, // Block for 60 seconds
-});
+import rateLimiter from "@/lib/rate-limit-postgres";
 
 export async function getGrades(year?: string, semester?: string) {
   const { userId } = await auth();
-
   if (!userId) {
     throw new Error("Unauthorized");
   }
 
   try {
     await rateLimiter.consume(userId);
-  } catch (rateLimitRes) {
-    throw new Error("Too many requests");
+  } catch (rejRes: any) {
+    throw new Error(
+      `Too many requests. Please try again in ${Math.ceil(
+        rejRes.msBeforeNext / 1000
+      )} seconds.`
+    );
   }
+
   const student = await prisma.student.findUnique({
     where: { id: userId },
     include: {
@@ -36,18 +34,23 @@ export async function getGrades(year?: string, semester?: string) {
     },
   });
 
-  if (!student) {
-    throw new Error("Student not found");
-  }
+  if (!student) throw new Error("Student not found");
 
   return student.grades;
 }
 
 export async function getStudentGradesWithReExam() {
   const { userId } = await auth();
+  if (!userId) throw new Error("Unauthorized");
 
-  if (!userId) {
-    throw new Error("Unauthorized");
+  try {
+    await rateLimiter.consume(userId);
+  } catch (rejRes: any) {
+    throw new Error(
+      `Too many requests. Please try again in ${Math.ceil(
+        rejRes.msBeforeNext / 1000
+      )} seconds.`
+    );
   }
 
   const student = await prisma.student.findUnique({
@@ -70,7 +73,7 @@ export async function getStudentGradesWithReExam() {
           courseTitle: true,
           creditUnit: true,
           grade: true,
-          reExam: true, // ✅ Included
+          reExam: true,
           remarks: true,
           instructor: true,
           attemptNumber: true,
@@ -83,9 +86,7 @@ export async function getStudentGradesWithReExam() {
     },
   });
 
-  if (!student) {
-    throw new Error("Student not found");
-  }
+  if (!student) throw new Error("Student not found");
 
   return student;
 }
@@ -108,5 +109,6 @@ export async function getAvailableAcademicOptions() {
   });
 
   if (!student) throw new Error("Student not found");
+
   return student.grades;
 }
