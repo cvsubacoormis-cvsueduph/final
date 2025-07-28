@@ -1,6 +1,6 @@
 {
   "crons": [{
     "path": "/api/cron/rate-limit-clean",
-    "schedule": "*/5 * * * *"
+    "schedule": "0 0 * * * "
   }]
 }
