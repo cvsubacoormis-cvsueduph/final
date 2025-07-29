@@ -1,7 +1,7 @@
 "use client";
 
 import { Suspense, useState } from "react";
-import { useUser } from "@clerk/nextjs";
+import { RedirectToSignIn, SignedIn, SignedOut, useUser } from "@clerk/nextjs";
 
 import StudentsTable from "@/components/StudentsTable";
 import UploadStudents from "@/components/students/upload-students";
@@ -20,30 +20,42 @@ export default function StudentLists() {
   const [page, setPage] = useState(1);
 
   return (
-    <div className="bg-white p-4 rounded-md flex-1 m-4 mt-0">
-      <div className="flex items-center justify-between">
-        <h1 className="hidden md:block text-lg font-semibold">All Students</h1>
-        <div className="flex flex-col md:flex-row items-center gap-4 w-full md:w-auto">
-          <SearchStudent query={searchQuery} setSearchQuery={setSearchQuery} />
-          <div className="flex items-center gap-4 self-end">
-            {(role === "admin" || role === "superuser") && (
-              <>
-                <Link href="/list/students/create">
-                  <Button className="bg-blue-700 hover:bg-blue-900">
-                    <PlusCircleIcon />
-                    Create Student
-                  </Button>
-                </Link>
-                <UploadStudents />
-                <BulkDeleteStudent />
-              </>
-            )}
+    <>
+      <SignedIn>
+        <div className="bg-white p-4 rounded-md flex-1 m-4 mt-0">
+          <div className="flex items-center justify-between">
+            <h1 className="hidden md:block text-lg font-semibold">
+              All Students
+            </h1>
+            <div className="flex flex-col md:flex-row items-center gap-4 w-full md:w-auto">
+              <SearchStudent
+                query={searchQuery}
+                setSearchQuery={setSearchQuery}
+              />
+              <div className="flex items-center gap-4 self-end">
+                {(role === "admin" || role === "superuser") && (
+                  <>
+                    <Link href="/list/students/create">
+                      <Button className="bg-blue-700 hover:bg-blue-900">
+                        <PlusCircleIcon />
+                        Create Student
+                      </Button>
+                    </Link>
+                    <UploadStudents />
+                    <BulkDeleteStudent />
+                  </>
+                )}
+              </div>
+            </div>
           </div>
+          <Suspense fallback={<HashLoader />}>
+            <StudentsTable query={searchQuery} page={page} setPage={setPage} />
+          </Suspense>
         </div>
-      </div>
-      <Suspense fallback={<HashLoader />}>
-        <StudentsTable query={searchQuery} page={page} setPage={setPage} />
-      </Suspense>
-    </div>
+      </SignedIn>
+      <SignedOut>
+        <RedirectToSignIn />
+      </SignedOut>
+    </>
   );
 }

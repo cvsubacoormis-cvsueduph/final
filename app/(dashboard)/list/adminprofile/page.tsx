@@ -1,11 +1,19 @@
 "use client";
 
 import AdminProfileComp from "@/components/AdminProfile";
+import { RedirectToSignIn, SignedIn, SignedOut } from "@clerk/nextjs";
 
 export default function AdminProfile() {
   return (
-    <div>
-      <AdminProfileComp />
-    </div>
+    <>
+      <SignedIn>
+        <div>
+          <AdminProfileComp />
+        </div>
+      </SignedIn>
+      <SignedOut>
+        <RedirectToSignIn />
+      </SignedOut>
+    </>
   );
 }

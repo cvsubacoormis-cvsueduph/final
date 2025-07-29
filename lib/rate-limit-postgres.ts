@@ -17,7 +17,6 @@ export async function checkRateLimit({
 
   const since = new Date(Date.now() - windowSeconds * 1000);
 
-  // Count requests in the last N seconds
   const recentRequests = await prisma.rateLimit.count({
     where: {
       userId,

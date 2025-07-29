@@ -13,7 +13,7 @@ export async function getGrades(year?: string, semester?: string) {
 
   await checkRateLimit({
     action: "getGrades",
-    limit: 5,
+    limit: 7,
     windowSeconds: 60,
   });
 
@@ -41,7 +41,7 @@ export async function getStudentGradesWithReExam() {
 
   await checkRateLimit({
     action: "getStudentGradesWithReExam",
-    limit: 5,
+    limit: 7,
     windowSeconds: 60,
   });
 
