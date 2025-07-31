@@ -40,6 +40,12 @@ export default async function Menu() {
           visible: ["admin", "superuser", "registrar"],
         },
         {
+          icon: "/student.png",
+          label: "Pending Approvals",
+          href: "/list/approve-students",
+          visible: ["admin", "superuser", "registrar"],
+        },
+        {
           icon: "/profile.png",
           label: "Admins",
           href: "/list/admin-lists",

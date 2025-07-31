@@ -1,20 +1,25 @@
-import React from "react";
+"use client";
+
+import React, { useEffect, useState, useCallback } from "react";
 import Link from "next/link";
+import Image from "next/image";
+import { useUser } from "@clerk/nextjs";
+import { useRouter } from "next/navigation";
+import { MoonLoader } from "react-spinners";
+
 import DataPrivacy from "@/components/DataPrivacy";
 import DataPrivacyEmployee from "@/components/DataPrivacyEmployee";
+
 import {
+  AlertDialog,
   AlertDialogContent,
   AlertDialogHeader,
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
 import { Button } from "@/components/ui/button";
+
 import * as Clerk from "@clerk/elements/common";
 import * as SignIn from "@clerk/elements/sign-in";
-import { useUser } from "@clerk/nextjs";
-import { AlertDialog } from "@radix-ui/react-alert-dialog";
-import { useRouter } from "next/navigation";
-import { useEffect, useState } from "react";
-import { MoonLoader } from "react-spinners";
 
 export default function LoginForm({
   className,
@@ -23,34 +28,46 @@ export default function LoginForm({
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [hasAgreedToPrivacy, setHasAgreedToPrivacy] = useState(false);
 
-  const { user } = useUser();
+  const { user, isLoaded } = useUser();
   const router = useRouter();
 
   const role = user?.publicMetadata.role;
-  const [isLoading, setIsLoading] = useState(false);
+
+  const redirectByRole = useCallback(
+    (role: string) => {
+      switch (role) {
+        case "admin":
+        case "superuser":
+        case "faculty":
+        case "registrar":
+          router.push("/admin");
+          break;
+        case "student":
+          router.push("/student");
+          break;
+        default:
+          router.push("/404");
+      }
+    },
+    [router]
+  );
 
   useEffect(() => {
+    if (!isLoaded) return;
+
     if (user && !hasAgreedToPrivacy) {
       setIsDialogOpen(true);
     }
-  }, [user, hasAgreedToPrivacy]);
+  }, [isLoaded, user, hasAgreedToPrivacy]);
 
   useEffect(() => {
+    if (!isLoaded) return;
+
     if (user && hasAgreedToPrivacy) {
-      const role = user?.publicMetadata.role;
-      if (role === "admin") {
-        router.push("/admin");
-      } else if (role === "superuser") {
-        router.push("/admin");
-      } else if (role === "student") {
-        router.push("/student");
-      } else if (role === "faculty") {
-        router.push("/admin");
-      } else if (role === "registrar") {
-        router.push("/admin");
-      }
+      redirectByRole(user.publicMetadata.role as string);
     }
-  }, [user, hasAgreedToPrivacy, router]);
+  }, [isLoaded, user, hasAgreedToPrivacy, redirectByRole]);
+
   return (
     <div>
       <SignIn.Root>
@@ -61,20 +78,21 @@ export default function LoginForm({
                 Login to your account
               </h1>
               <Clerk.GlobalError className="block text-sm text-red-400" />
-              <p className="text-balance text-xs text-muted-foreground">
+              <p className="text-xs text-muted-foreground">
                 Enter your username and password below to login to your account
               </p>
             </div>
+
             <div className="grid gap-6">
               <Clerk.Field name="identifier" className="grid gap-2">
                 <Clerk.Label
-                  htmlFor="email"
+                  htmlFor="username"
                   className="text-[#4169E1] text-sm font-semibold"
                 >
                   Username
                 </Clerk.Label>
                 <Clerk.Input
-                  id="email"
+                  id="username"
                   type="text"
                   placeholder="19010825name"
                   className="text-[#4169E1] p-3 border border-blue-700 rounded-md text-sm focus:border-blue-900 focus:outline-none focus:ring-0 focus:border-2"
@@ -82,6 +100,7 @@ export default function LoginForm({
                 <Clerk.FieldError className="block text-sm text-red-400" />
               </Clerk.Field>
             </div>
+
             <div className="grid gap-2">
               <Clerk.Field name="password" className="grid gap-2">
                 <div className="flex items-center">
@@ -101,7 +120,9 @@ export default function LoginForm({
                 <Clerk.FieldError className="block text-sm text-red-400" />
               </Clerk.Field>
             </div>
+
             <div id="clerk-captcha" />
+
             <SignIn.Action
               submit
               className="w-full bg-blue-700 hover:bg-blue-900 p-2 rounded-md text-white"
@@ -119,6 +140,7 @@ export default function LoginForm({
               </Clerk.Loading>
             </SignIn.Action>
           </div>
+
           <div className="text-center text-sm text-blue-700 hover:text-blue-900 mt-4">
             Don&apos;t have an account?{" "}
             <Link
@@ -131,6 +153,7 @@ export default function LoginForm({
           </div>
         </SignIn.Step>
       </SignIn.Root>
+
       <AlertDialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
         <AlertDialogContent className="max-w-lg w-full bg-white p-6 rounded-lg shadow-lg max-h-[90vh] overflow-y-auto">
           <AlertDialogHeader>
@@ -140,7 +163,7 @@ export default function LoginForm({
           </AlertDialogHeader>
           {role === "student" ? <DataPrivacy /> : <DataPrivacyEmployee />}
           <Button
-            className="w-full bg-blue-700 hover:bg-blue-900"
+            className="w-full bg-blue-700 hover:bg-blue-900 mt-4"
             onClick={() => {
               setHasAgreedToPrivacy(true);
               setIsDialogOpen(false);

@@ -51,6 +51,8 @@ type Grade = {
   reExam: string | null;
   remarks: string;
   instructor: string;
+  academicYear: string;
+  semester: string;
 };
 
 type StudentData = {
@@ -119,7 +121,8 @@ export default function GenerateCOG() {
 
     setIsLoading(true);
     try {
-      const data = await getStudentGradesWithReExam();
+      const { student } = await getStudentGradesWithReExam();
+      const data = student as StudentData;
       setStudentData({
         ...data,
         grades: data.grades.map((grade) => ({
@@ -135,9 +138,10 @@ export default function GenerateCOG() {
       );
       generatePDF(data as StudentData, filteredGrades as Grade[]);
       setIsDialogOpen(false);
-    } catch (error: any) {
+    } catch (error) {
+      const err = error as { message: string };
       if (
-        error?.message ===
+        err.message ===
         "Too many requests. Please wait a minute before trying again."
       ) {
         toast.error(
@@ -218,7 +222,7 @@ export default function GenerateCOG() {
     doc.text("Academic Year:", 120, 65);
     doc.setTextColor(0, 0, 139);
     doc.setFont("helvetica", "italic");
-    doc.text(academicYear?.replace(/_/g, "-") || "", 140, 65);
+    doc.text(academicYear ? academicYear.replace(/_/g, "-") : "", 140, 65);
 
     doc.setTextColor(139, 0, 0);
     doc.setFont("helvetica", "bold");

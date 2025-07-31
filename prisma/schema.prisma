@@ -62,6 +62,8 @@ model Student {
   role          Role     @default(student)
   createdAt     DateTime @default(now())
   grades        Grade[]
+  isPasswordSet Boolean  @default(false)
+  isApproved    Boolean  @default(false)
 }
 
 model CurriculumChecklist {
@@ -103,9 +105,10 @@ model AcademicTerm {
 }
 
 model Grade {
-  id            String       @id @default(cuid())
+  id            String  @id @default(cuid())
   studentNumber String
-  student       Student      @relation(fields: [studentNumber], references: [studentNumber])
+  student       Student @relation(fields: [studentNumber], references: [studentNumber], onDelete: Cascade)
+
   courseCode    String
   courseTitle   String
   creditUnit    Int
@@ -113,9 +116,9 @@ model Grade {
   reExam        String?
   remarks       String?
   instructor    String
-  attemptNumber Int          @default(1) // 1 = first attempt, 2 = first retake, etc.
+  attemptNumber Int          @default(1)
   isRetaken     Boolean      @default(false)
-  retakenAYSem  String? // Format: "AY 2023-2024 / 1st Sem (Attempt 2)"
+  retakenAYSem  String?
   academicYear  AcademicYear
   semester      Semester
   academicTerm  AcademicTerm @relation(fields: [academicYear, semester], references: [academicYear, semester])

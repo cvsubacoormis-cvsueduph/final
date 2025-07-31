@@ -6,6 +6,7 @@ import { Button } from "./ui/button";
 import { getCurriculumChecklist } from "@/actions/curriculum-actions";
 import { CurriculumItem, GradeAttempt } from "@/lib/types";
 import { getStudentData } from "@/actions/getStudentData";
+import toast from "react-hot-toast";
 
 type CourseRowProps = {
   code: string;
@@ -36,6 +37,7 @@ const GenerateChecklistPDF = () => {
   } | null>(null);
   const [loading, setLoading] = useState(false);
   const [generating, setGenerating] = useState(false);
+  const [rateLimited, setRateLimited] = useState(false);
 
   function getBetterGrade(
     grade?: string | null,
@@ -74,6 +76,7 @@ const GenerateChecklistPDF = () => {
     const fetchData = async () => {
       try {
         setLoading(true);
+
         const student = await getStudentData();
 
         setStudentData({
@@ -95,7 +98,6 @@ const GenerateChecklistPDF = () => {
             (g) => g.courseCode === item.courseCode
           );
 
-          // Get all attempts for this course
           const allAttempts = gradeInfos.map((gradeInfo) => {
             const [_, startYear, endYear] = gradeInfo.academicYear.split("_");
             const shortAY = `${startYear.slice(2)}/${endYear.slice(2)}`;
@@ -116,10 +118,7 @@ const GenerateChecklistPDF = () => {
             };
           });
 
-          // Sort attempts by attempt number (oldest first)
           allAttempts.sort((a, b) => a.attemptNumber - b.attemptNumber);
-
-          // Get the latest attempt (for the main display)
           const latestAttempt = allAttempts[allAttempts.length - 1] || {};
 
           return {
@@ -130,7 +129,7 @@ const GenerateChecklistPDF = () => {
             academicYear: latestAttempt.academicYear || "",
             semesterTaken: gradeInfos[0]?.semester || "",
             isRetaken: gradeInfos.some((g) => g.isRetaken),
-            allAttempts: allAttempts,
+            allAttempts,
             retakeCount: allAttempts.length > 1 ? allAttempts.length - 1 : 0,
           };
         });
@@ -150,6 +149,21 @@ const GenerateChecklistPDF = () => {
           }))
         );
       } catch (error) {
+        const message =
+          error instanceof Error ? error.message : "Unknown error";
+
+        if (message.toLowerCase().includes("too many requests")) {
+          toast.error(
+            "Too many requests. Please wait a minute before trying again."
+          );
+          setRateLimited(true);
+          setTimeout(() => setRateLimited(false), 60000);
+        } else {
+          toast.error(
+            "An unexpected error occurred while loading your curriculum."
+          );
+        }
+
         console.error("Error fetching data:", error);
       } finally {
         setLoading(false);
@@ -778,7 +792,13 @@ const GenerateChecklistPDF = () => {
       ref={buttonRef}
       className="bg-blue-700 hover:bg-blue-900 text-white"
       onClick={generateChecklistPDF}
-      disabled={loading || generating || !studentData || !checklistData.length}
+      disabled={
+        loading ||
+        generating ||
+        !studentData ||
+        !checklistData.length ||
+        rateLimited
+      }
     >
       {loading
         ? "Loading Data..."

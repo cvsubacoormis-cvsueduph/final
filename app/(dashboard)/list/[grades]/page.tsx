@@ -127,13 +127,47 @@ export default function GradesPage() {
   };
 
   if (error) {
-    return <div className="p-4 text-red-500">{error}</div>;
+    const isRateLimitError = error.includes("Too many requests");
+
+    return (
+      <div className="flex items-center justify-center h-screen">
+        <div className="text-center space-y-4 p-6 border border-red-200 bg-red-50 rounded-md shadow-md max-w-md">
+          <div className="text-2xl font-bold text-red-600">
+            {isRateLimitError ? "Too Many Requests" : "Something Went Wrong"}
+          </div>
+          <p className="text-gray-700">
+            {isRateLimitError
+              ? "You’ve made too many requests. Please wait a moment and try again."
+              : error}
+          </p>
+          <Button
+            onClick={() => location.reload()}
+            className="bg-blue-600 hover:bg-blue-800 text-white"
+          >
+            Try Again
+          </Button>
+        </div>
+      </div>
+    );
   }
 
   if (loading) {
     return (
       <div className="flex items-center justify-center h-screen">
         <HashLoader color="#1976D2" size={150} />
+      </div>
+    );
+  }
+
+  if (grades.length > 100) {
+    return (
+      <div className="flex items-center justify-center h-screen">
+        <div className="text-center p-4">
+          <p className="text-red-500 font-semibold text-lg">
+            Too Many Requests
+          </p>
+          <p className="text-gray-600">Please try again in a minute</p>
+        </div>
       </div>
     );
   }

@@ -29,6 +29,7 @@ import { AcademicProgress, Subject } from "@/lib/types";
 import { courseMap, formatMajor } from "@/lib/courses";
 import GenerateChecklistPDF from "./GenerateChecklistsPDF";
 import { getStudentGradesWithReExam } from "@/actions/student-grades/student-grades";
+import toast from "react-hot-toast";
 
 export function CurriculumChecklist() {
   const [selectedYear, setSelectedYear] = useState<string>("all");
@@ -48,15 +49,16 @@ export function CurriculumChecklist() {
     async function loadCurriculum() {
       try {
         const student = await getStudentGradesWithReExam();
-        console.log(student.grades);
+        console.log(student.student.grades);
         const curriculum = await getCurriculumChecklist(
-          student.course,
-          student.major
+          student.student.course,
+          student.student.major
         );
 
         // Group grades by course code to track retakes
-        const gradesByCourse: Record<string, typeof student.grades> = {};
-        student.grades.forEach((grade) => {
+        const gradesByCourse: Record<string, typeof student.student.grades> =
+          {};
+        student.student.grades.forEach((grade: any) => {
           if (!gradesByCourse[grade.courseCode]) {
             gradesByCourse[grade.courseCode] = [];
           }
@@ -66,7 +68,7 @@ export function CurriculumChecklist() {
         // Process retakes and assign attempt numbers
         Object.entries(gradesByCourse).forEach(([courseCode, grades]) => {
           if (grades.length > 1) {
-            grades.sort((a, b) => {
+            grades.sort((a: any, b: any) => {
               // Sort by academic year and semester
               const yearA = a.academicYear;
               const yearB = b.academicYear;
@@ -111,7 +113,10 @@ export function CurriculumChecklist() {
           }));
 
           const completion = latestGrade
-            ? latestGrade.remarks?.includes("FAILED")
+            ? latestGrade.grade === "INC" ||
+              latestGrade.remarks?.includes("LACK OF REQ.")
+              ? "Incomplete"
+              : latestGrade.remarks?.includes("FAILED")
               ? "Failed"
               : latestGrade.remarks?.includes("UNSATISFACTORY")
               ? "Unsatisfactory"
@@ -119,8 +124,6 @@ export function CurriculumChecklist() {
               ? "Con. Failure"
               : latestGrade.remarks?.includes("DROPPED")
               ? "Dropped"
-              : latestGrade.remarks?.includes("LACK OF REQ.")
-              ? "Lack of Req."
               : "Completed"
             : "Not Taken";
 
@@ -185,13 +188,13 @@ export function CurriculumChecklist() {
             ).length,
           },
           studentInfo: {
-            fullName: `${student.firstName} ${student.lastName}`,
-            studentNumber: student.studentNumber,
-            course: student.course,
-            major: student.major,
+            fullName: `${student.student.firstName} ${student.student.lastName}`,
+            studentNumber: student.student.studentNumber,
+            course: student.student.course,
+            major: student.student.major,
           },
         });
-      } catch (error) {
+      } catch (error: any) {
         console.error("Error fetching curriculum:", error);
       } finally {
         setLoading(false);
@@ -236,8 +239,9 @@ export function CurriculumChecklist() {
       case "Dropped":
       case "Con. Failure":
       case "Lack of Req.":
+      case "Incomplete":
         return <XCircle className="h-4 w-4 text-orange-600" />;
-      default: // "Not Taken"
+      default:
         return (
           <div className="h-4 w-4 rounded-full border-2 border-gray-300" />
         );
@@ -256,7 +260,7 @@ export function CurriculumChecklist() {
       case "Unsatisfactory":
         return "bg-red-100 text-red-800 border-red-200 hover:bg-red-100";
       case "Dropped":
-      case "Con. Failure":
+      case "Incomplete":
       case "Lack of Req.":
         return "bg-orange-100 text-orange-800 border-orange-200 hover:bg-orange-100";
       default: // "Not Taken"
@@ -284,7 +288,21 @@ export function CurriculumChecklist() {
   if (!data) {
     return (
       <div className="flex items-center justify-center h-64">
-        <p className="text-gray-500">Failed to load curriculum data</p>
+        <div className="text-center space-y-4 p-6 border border-red-200 bg-red-50 rounded-md shadow-md max-w-md">
+          <div className="text-2xl font-bold text-red-600">
+            Failed to Load Data
+          </div>
+          <p className="text-gray-700">
+            We couldn’t load the curriculum data. This might be due to too many
+            requests or a temporary issue.
+          </p>
+          <Button
+            onClick={() => location.reload()}
+            className="bg-blue-600 hover:bg-blue-800 text-white"
+          >
+            Try Again
+          </Button>
+        </div>
       </div>
     );
   }

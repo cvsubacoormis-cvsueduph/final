@@ -80,7 +80,7 @@ export async function getStudentGradesWithReExam() {
 
   if (!student) throw new Error("Student not found");
 
-  return student;
+  return { student };
 }
 
 export async function getAvailableAcademicOptions() {

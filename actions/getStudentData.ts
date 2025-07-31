@@ -2,6 +2,7 @@
 "use server";
 
 import prisma from "@/lib/prisma";
+import { checkRateLimit } from "@/lib/rate-limit-postgres";
 import { StudentData } from "@/lib/types";
 import { auth } from "@clerk/nextjs/server";
 
@@ -9,6 +10,12 @@ export async function getStudentData(): Promise<StudentData> {
   try {
     const { userId } = await auth();
     if (!userId) throw new Error("User not authenticated");
+
+    await checkRateLimit({
+      action: "getStudentData",
+      limit: 7,
+      windowSeconds: 60,
+    });
 
     const student = await prisma.student.findUnique({
       where: { id: userId },

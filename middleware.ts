@@ -1,34 +1,43 @@
-import { clerkMiddleware, createRouteMatcher } from "@clerk/nextjs/server";
-import { routeAccessMap } from "./lib/settings";
+// middleware.ts
+
+import { clerkMiddleware } from "@clerk/nextjs/server";
 import { NextResponse } from "next/server";
-
-const matchers = Object.keys(routeAccessMap).map((route) => ({
-  matcher: createRouteMatcher([route]),
-  allowedRoles: routeAccessMap[route],
-}));
-
-console.log(matchers);
+import { routeAccessMap } from "./lib/settings";
 
 export default clerkMiddleware(async (auth, req) => {
-  // if (isProtectedRoute(req)) auth().protect()
+  const url = new URL(req.url);
+  const pathname = url.pathname;
 
-  const authResult = await auth();
-  const { sessionClaims } = authResult;
-
+  const { sessionClaims } = await auth();
   const role = (sessionClaims?.metadata as { role?: string })?.role;
 
-  for (const { matcher, allowedRoles } of matchers) {
-    if (matcher(req) && !allowedRoles.includes(role!)) {
-      return NextResponse.redirect(new URL(`/${role}`, req.url));
+  if (!role) {
+    return NextResponse.redirect(new URL("/sign-in", req.url));
+  }
+
+  // Prevent redirect loop (skip if already on /role)
+  if (pathname === `/${role}`) {
+    return NextResponse.next();
+  }
+
+  // Check allowed roles for the current path
+  for (const pattern in routeAccessMap) {
+    const regex = new RegExp(`^${pattern}$`);
+    if (regex.test(pathname)) {
+      const allowedRoles = routeAccessMap[pattern];
+      if (!allowedRoles.includes(role)) {
+        return NextResponse.redirect(new URL(`/${role}`, req.url));
+      }
+      break;
     }
   }
+
+  return NextResponse.next();
 });
 
 export const config = {
   matcher: [
-    // Skip Next.js internals and all static files, unless found in search params
-    "/((?!_next|[^?]*\\.(?:html?|css|js(?!on)|jpe?g|webp|png|gif|svg|ttf|woff2?|ico|csv|docx?|xlsx?|zip|webmanifest)).*)",
-    // Always run for API routes
+    "/((?!_next|.*\\.(?:js|css|png|jpg|jpeg|svg|ico|json)|sign-in|sign-up|favicon.ico).*)",
     "/(api|trpc)(.*)",
   ],
 };

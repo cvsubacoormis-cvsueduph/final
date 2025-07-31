@@ -16,8 +16,8 @@ export async function GET(req: Request) {
   }
   try {
     await pool.query(`
-      DELETE FROM rate_limit
-      WHERE expire < NOW()
+      DELETE FROM "RateLimit"
+      WHERE timestamp < NOW() - INTERVAL '1 hour'
     `);
     return NextResponse.json({
       success: true,

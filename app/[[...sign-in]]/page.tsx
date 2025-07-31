@@ -13,29 +13,40 @@ const Homepage = () => {
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [hasAgreedToPrivacy, setHasAgreedToPrivacy] = useState(false);
 
-  const { user } = useUser();
+  const { user, isLoaded } = useUser();
   const router = useRouter();
 
   const role = user?.publicMetadata.role;
 
   useEffect(() => {
+    if (!isLoaded) return;
+
     if (user && !hasAgreedToPrivacy) {
       setIsDialogOpen(true);
     }
-  }, [user, hasAgreedToPrivacy]);
+  }, [isLoaded, user, hasAgreedToPrivacy]);
 
   useEffect(() => {
-    if (user && hasAgreedToPrivacy) {
-      const role = user?.publicMetadata.role;
-      if (role === "admin") {
-        router.push("/admin");
-      } else if (role === "superuser") {
-        router.push("/admin");
-      } else if (role === "student") {
-        router.push("/student");
+    if (!isLoaded) return;
+
+    const redirectByRole = (role: string) => {
+      switch (role) {
+        case "admin":
+        case "superuser":
+          router.push("/admin");
+          break;
+        case "student":
+          router.push("/student");
+          break;
+        default:
+          router.push("/");
       }
+    };
+
+    if (user && hasAgreedToPrivacy) {
+      redirectByRole(user.publicMetadata.role as string);
     }
-  }, [user, hasAgreedToPrivacy, router]);
+  }, [isLoaded, user, hasAgreedToPrivacy, router]);
 
   return (
     <div className="grid min-h-svh lg:grid-cols-2">
