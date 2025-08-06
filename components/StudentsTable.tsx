@@ -136,6 +136,8 @@ export default function StudentsTable({
                       <DeleteStudent id={student.id} />
                       <UpdateStudent
                         student={{
+                          ...student,
+                          username: student.username,
                           id: student.id,
                           studentNumber: student.studentNumber,
                           firstName: student.firstName,

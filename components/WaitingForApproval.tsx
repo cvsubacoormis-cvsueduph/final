@@ -1,5 +1,6 @@
 "use client";
 
+import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import {
   Card,
@@ -8,7 +9,8 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
-import { Clock, LogOut, Mail, CheckCircle } from "lucide-react";
+import { Clock, LogOut, Mail, CheckCircle, RefreshCcw } from "lucide-react";
+import { SignOutButton } from "@clerk/nextjs";
 
 interface User {
   id: string;
@@ -16,17 +18,36 @@ interface User {
   name: string;
   status: string;
   hasPassword: boolean;
+  isApproved: boolean;
 }
 
-interface WaitingApprovalProps {
-  user: User;
-  onLogout: () => void;
-}
+export function WaitingApproval({ user }: { user: User }) {
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState("");
 
-export function WaitingApproval({ user, onLogout }: WaitingApprovalProps) {
+  const refetchApprovalStatus = async () => {
+    setLoading(true);
+    setError("");
+
+    try {
+      const res = await fetch("/api/check-approval");
+      const data = await res.json();
+
+      if (data.isApproved) {
+        window.location.reload();
+      } else {
+        setError("Still pending approval. Please check again later.");
+      }
+    } catch (err) {
+      setError("Failed to check approval status.");
+    } finally {
+      setLoading(false);
+    }
+  };
+
   return (
     <div className="min-h-screen flex items-center justify-center bg-gray-50 p-4">
-      <Card className="w-full max-w-md">
+      <Card className="w-full max-w-md" role="alert" aria-live="polite">
         <CardHeader className="text-center">
           <div className="mx-auto mb-4 flex h-12 w-12 items-center justify-center rounded-full bg-yellow-100">
             <Clock className="h-6 w-6 text-yellow-600" />
@@ -70,7 +91,7 @@ export function WaitingApproval({ user, onLogout }: WaitingApprovalProps) {
                   <span className="font-medium">Email:</span> {user.email}
                 </p>
                 <p>
-                  <span className="font-medium">Status:</span> Pending Approval
+                  <span className="font-medium">Status:</span> {user.status}
                 </p>
               </div>
             </div>
@@ -87,17 +108,28 @@ export function WaitingApproval({ user, onLogout }: WaitingApprovalProps) {
                 have questions.
               </p>
             </div>
+
+            {error && <p className="text-sm text-red-600">{error}</p>}
           </div>
 
-          <div className="pt-4 border-t">
+          <div className="pt-4 border-t space-y-2">
             <Button
-              variant="outline"
-              onClick={onLogout}
-              className="w-full bg-transparent"
+              onClick={refetchApprovalStatus}
+              variant="secondary"
+              disabled={loading}
+              className="w-full"
+              aria-label="Check approval status"
             >
-              <LogOut className="h-4 w-4 mr-2" />
-              Sign Out
+              <RefreshCcw className="h-4 w-4 mr-2" />
+              {loading ? "Checking..." : "Refresh Status"}
             </Button>
+
+            <SignOutButton>
+              <Button variant="outline" className="w-full bg-transparent">
+                <LogOut className="h-4 w-4 mr-2" />
+                Sign Out
+              </Button>
+            </SignOutButton>
           </div>
         </CardContent>
       </Card>

@@ -73,6 +73,9 @@ export async function createStudent(data: CreateStudentSchema) {
         course: studentData.course as Courses,
         major: studentData.major as Major,
         status: studentData.status as Status,
+        isApproved: true,
+        isPasswordSet: true,
+        createdAt: new Date(),
       },
     });
 

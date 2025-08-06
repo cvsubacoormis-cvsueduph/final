@@ -20,6 +20,7 @@ import { Button } from "@/components/ui/button";
 
 import * as Clerk from "@clerk/elements/common";
 import * as SignIn from "@clerk/elements/sign-in";
+import { EyeIcon, EyeOffIcon } from "lucide-react";
 
 export default function LoginForm({
   className,
@@ -27,6 +28,7 @@ export default function LoginForm({
 }: React.ComponentProps<"form">) {
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [hasAgreedToPrivacy, setHasAgreedToPrivacy] = useState(false);
+  const [isPasswordVisible, setIsPasswordVisible] = useState(false);
 
   const { user, isLoaded } = useUser();
   const router = useRouter();
@@ -74,9 +76,7 @@ export default function LoginForm({
         <SignIn.Step name="start">
           <div className="flex flex-col gap-6">
             <div className="flex flex-col items-center gap-2 text-center">
-              <h1 className="text-2xl font-bold text-[#4169E1]">
-                Login to your account
-              </h1>
+              <h1 className="text-2xl font-bold">Login to your account</h1>
               <Clerk.GlobalError className="block text-sm text-red-400" />
               <p className="text-xs text-muted-foreground">
                 Enter your username and password below to login to your account
@@ -87,7 +87,7 @@ export default function LoginForm({
               <Clerk.Field name="identifier" className="grid gap-2">
                 <Clerk.Label
                   htmlFor="username"
-                  className="text-[#4169E1] text-sm font-semibold"
+                  className="text-sm font-semibold"
                 >
                   Username
                 </Clerk.Label>
@@ -95,7 +95,7 @@ export default function LoginForm({
                   id="username"
                   type="text"
                   placeholder="19010825name"
-                  className="text-[#4169E1] p-3 border border-blue-700 rounded-md text-sm focus:border-blue-900 focus:outline-none focus:ring-0 focus:border-2"
+                  className="p-3 border border-blue-700 rounded-md text-sm focus:border-blue-900 focus:outline-none focus:ring-0 focus:border-2"
                 />
                 <Clerk.FieldError className="block text-sm text-red-400" />
               </Clerk.Field>
@@ -106,26 +106,37 @@ export default function LoginForm({
                 <div className="flex items-center">
                   <Clerk.Label
                     htmlFor="password"
-                    className="text-[#4169E1] text-sm font-semibold"
+                    className=" text-sm font-semibold"
                   >
                     Password
                   </Clerk.Label>
                 </div>
-                <Clerk.Input
-                  id="password"
-                  type="password"
-                  placeholder="•••••••••••"
-                  className="text-[#4169E1] p-3 border border-blue-700 rounded-md text-sm focus:border-blue-900 focus:outline-none focus:ring-0 focus:border-2"
-                />
+                <div className="relative">
+                  <Clerk.Input
+                    id="password"
+                    type={isPasswordVisible ? "text" : "password"}
+                    placeholder="•••••••••••"
+                    className="w-full p-3 border border-blue-700 rounded-md text-sm focus:border-blue-900 focus:outline-none focus:ring-0 focus:border-2"
+                  />
+                  <button
+                    type="button"
+                    className="absolute right-3 top-1/2 transform -translate-y-1/2"
+                    onClick={() => setIsPasswordVisible(!isPasswordVisible)}
+                  >
+                    {isPasswordVisible ? (
+                      <EyeIcon className="w-5 h-5 text-blue-700" />
+                    ) : (
+                      <EyeOffIcon className="w-5 h-5 text-blue-700" />
+                    )}
+                  </button>
+                </div>
                 <Clerk.FieldError className="block text-sm text-red-400" />
               </Clerk.Field>
             </div>
-
             <div id="clerk-captcha" />
-
             <SignIn.Action
               submit
-              className="w-full bg-blue-700 hover:bg-blue-900 p-2 rounded-md text-white"
+              className="w-full bg-blue-700 hover:bg-blue-600 p-2 rounded-md text-white"
             >
               <Clerk.Loading>
                 {(isLoading) =>
@@ -134,21 +145,17 @@ export default function LoginForm({
                       <MoonLoader size={15} color="white" />
                     </div>
                   ) : (
-                    "Submit"
+                    "Login"
                   )
                 }
               </Clerk.Loading>
             </SignIn.Action>
           </div>
 
-          <div className="text-center text-sm text-blue-700 hover:text-blue-900 mt-4">
+          <div className="text-center text-sm hover:text-blue-600 mt-4">
             Don&apos;t have an account?{" "}
-            <Link
-              href="https://forms.gle/5YYZkPbHP1mbQBTLA"
-              target="_blank"
-              className="underline underline-offset-4"
-            >
-              Fill up this form
+            <Link href="/sign-up" className="underline underline-offset-4">
+              Register now
             </Link>
           </div>
         </SignIn.Step>
@@ -163,7 +170,7 @@ export default function LoginForm({
           </AlertDialogHeader>
           {role === "student" ? <DataPrivacy /> : <DataPrivacyEmployee />}
           <Button
-            className="w-full bg-blue-700 hover:bg-blue-900 mt-4"
+            className="w-full bg-blue-700 hover:bg-blue-600 mt-4"
             onClick={() => {
               setHasAgreedToPrivacy(true);
               setIsDialogOpen(false);
