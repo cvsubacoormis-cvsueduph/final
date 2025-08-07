@@ -74,7 +74,7 @@ export async function registerStudent(formData: CreateStudentSchema) {
         username: data.username,
         firstName: data.firstName.toUpperCase(),
         lastName: data.lastName.toUpperCase(),
-        middleInit: data.middleInit?.toUpperCase() || null,
+        middleInit: data.middleInit?.toUpperCase().charAt(0) || null,
         email: data.email,
         phone: data.phone,
         address: data.address,

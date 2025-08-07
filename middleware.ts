@@ -1,7 +1,6 @@
 import { clerkMiddleware } from "@clerk/nextjs/server";
 import { NextResponse } from "next/server";
 import { routeAccessMap } from "./lib/settings";
-import axios from "axios";
 
 export default clerkMiddleware(async (auth, req) => {
   const url = new URL(req.url);
@@ -14,33 +13,36 @@ export default clerkMiddleware(async (auth, req) => {
     return NextResponse.redirect(new URL("/sign-in", req.url));
   }
 
-  // Skip infinite loop on role homepage
-  if (pathname === `/${role}`) {
-    return NextResponse.next();
-  }
+  // 🔐 1. Student approval check should come FIRST
+  if (role === "student" && userId) {
+    const allowlist = ["/sign-in", "/sign-up", "/pending-approval"];
+    const isAllowedWhileUnapproved = allowlist.some((allowed) =>
+      pathname.startsWith(allowed)
+    );
 
-  // Student approval check
-  if (role === "student" && userId && pathname !== "/pending-approval") {
     try {
-      const { data } = await axios.get(
-        `${req.nextUrl.origin}/api/check-approval`,
-        {
-          headers: {
-            "x-user-id": userId,
-          },
-        }
-      );
+      const res = await fetch(`${req.nextUrl.origin}/api/check-approval`, {
+        headers: { "x-user-id": userId },
+        cache: "no-store",
+      });
 
-      if (!data?.isApproved) {
+      const data = await res.json();
+
+      if (!data?.isApproved && !isAllowedWhileUnapproved) {
         return NextResponse.redirect(new URL("/pending-approval", req.url));
       }
     } catch (err) {
-      console.error("Error checking student approval status", err);
+      console.error("Error checking student approval:", err);
       return NextResponse.redirect(new URL("/sign-in", req.url));
     }
   }
 
-  // Role-based access guard
+  // 🔁 2. Skip infinite redirect to homepage only AFTER approval check
+  if (pathname === `/${role}`) {
+    return NextResponse.next();
+  }
+
+  // 🔒 3. Role-based access
   for (const pattern in routeAccessMap) {
     const regex = new RegExp(`^${pattern}$`);
     if (regex.test(pathname)) {
@@ -57,7 +59,6 @@ export default clerkMiddleware(async (auth, req) => {
 
 export const config = {
   matcher: [
-    "/((?!_next|.*\\.(?:js|css|png|jpg|jpeg|svg|ico|json)|sign-in|sign-up|favicon.ico).*)",
-    "/(api|trpc)(.*)",
+    "/((?!_next|.*\\.(?:js|css|png|jpg|jpeg|svg|ico|json)|sign-in|sign-up|favicon.ico|api/check-approval).*)",
   ],
 };
