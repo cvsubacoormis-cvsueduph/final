@@ -1,3 +1,4 @@
+import { RedirectToSignIn, SignedIn, SignedOut } from "@clerk/nextjs";
 import { columns } from "./columns";
 import { DataTable } from "./data-table";
 import prisma from "@/lib/prisma";
@@ -43,8 +44,23 @@ export default async function ApprovalPage() {
   const data = await getData();
 
   return (
-    <div className="container mx-auto py-10">
-      <DataTable columns={columns} data={data as unknown as Student[]} />
-    </div>
+    <>
+      <SignedIn>
+        <div className="bg-white p-4 rounded-md flex-1 m-4 mt-0">
+          <h1 className="hidden md:block text-lg font-semibold">
+            Pending Approval Lists
+          </h1>
+          <span className="text-xs flex text-gray-500 font-semibold">
+            List of pending approvals
+          </span>
+          <div className="container mx-auto">
+            <DataTable columns={columns} data={data as unknown as Student[]} />
+          </div>
+        </div>
+      </SignedIn>
+      <SignedOut>
+        <RedirectToSignIn />
+      </SignedOut>
+    </>
   );
 }
