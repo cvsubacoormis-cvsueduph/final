@@ -16,6 +16,8 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
+import { approveStudent } from "@/actions/student/student-actions-for-approval";
+import { StudentActionsMenu } from "@/components/StudentActionsMenu";
 
 export type Grades = {
   id: string;
@@ -144,29 +146,11 @@ export const columns: ColumnDef<Student>[] = [
     id: "actions",
     cell: ({ row }) => {
       const student = row.original;
-
       return (
-        <DropdownMenu>
-          <DropdownMenuTrigger asChild>
-            <Button variant="ghost" className="h-8 w-8 p-0">
-              <span className="sr-only">Open menu</span>
-              <MoreHorizontal className="h-4 w-4" />
-            </Button>
-          </DropdownMenuTrigger>
-          <DropdownMenuContent align="end">
-            <DropdownMenuLabel>Actions</DropdownMenuLabel>
-            <DropdownMenuItem
-              onClick={() =>
-                navigator.clipboard.writeText(student.studentNumber)
-              }
-            >
-              Copy Student Number
-            </DropdownMenuItem>
-            <DropdownMenuSeparator />
-            <DropdownMenuItem>Approve</DropdownMenuItem>
-            <DropdownMenuItem>Reject</DropdownMenuItem>
-          </DropdownMenuContent>
-        </DropdownMenu>
+        <StudentActionsMenu
+          studentId={student.id}
+          studentNumber={student.studentNumber}
+        />
       );
     },
   },

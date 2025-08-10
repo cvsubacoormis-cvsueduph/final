@@ -234,7 +234,7 @@ export default function ForgotPasswordDialog() {
   return (
     <Dialog open={open} onOpenChange={setOpen}>
       <DialogTrigger asChild>
-        <Button variant="link" className="px-0 text-blue-700">
+        <Button variant="link" className="px-0 hover:text-blue-600">
           Forgot password?
         </Button>
       </DialogTrigger>
