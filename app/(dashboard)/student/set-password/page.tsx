@@ -30,7 +30,7 @@ interface PasswordSetupFormProps {
   onLogout: () => void;
 }
 
-export function PasswordSetupForm({
+export default function PasswordSetupForm({
   user,
   onPasswordSetup,
   onLogout,
