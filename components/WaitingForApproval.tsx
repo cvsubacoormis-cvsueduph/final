@@ -43,7 +43,9 @@ export function WaitingApproval({ user }: { user: User }) {
       if (data.isApproved) {
         router.push("/student");
       } else {
-        setError("Still pending approval. Please check again later.");
+        setError(
+          "Still pending approval. Please contact the the admin or check again later."
+        );
       }
     } catch (err) {
       console.error("Failed to check approval:", err);
