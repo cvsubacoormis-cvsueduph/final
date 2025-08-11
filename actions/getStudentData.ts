@@ -85,7 +85,7 @@ export async function getStudentData(): Promise<StudentData> {
       grades: student.grades.map((grade) => ({
         courseCode: grade.courseCode,
         courseTitle:
-          grade.subjectOffering?.curriculum.courseTitle || grade.courseCode,
+          grade.subjectOffering?.curriculum.courseTitle || grade.courseTitle,
         grade: grade.grade,
         reExam: grade.reExam || "",
         remarks: grade.remarks || "",
@@ -95,14 +95,11 @@ export async function getStudentData(): Promise<StudentData> {
         attemptNumber: grade.attemptNumber || 1,
         isRetaken: grade.isRetaken || false,
         retakenAYSem: grade.retakenAYSem || "",
-        creditUnit:
-          (grade.subjectOffering?.curriculum.creditLec || 0) +
-          (grade.subjectOffering?.curriculum.creditLab || 0),
+        creditUnit: grade.creditUnit,
         createdAt: grade.createdAt,
       })),
       status: student.status,
       email: student.email || "",
-      img: student.img || "",
       sex: student.sex,
       role: student.role,
       isApproved: student.isApproved,

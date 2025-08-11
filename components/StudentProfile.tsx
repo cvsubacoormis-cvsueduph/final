@@ -45,7 +45,7 @@ import {
 } from "lucide-react";
 import { Grade } from "@/lib/types";
 import { useUser } from "@clerk/nextjs";
-import { courseMap } from "@/lib/courses";
+import { courseMap, formatMajor } from "@/lib/courses";
 
 // Prisma-enum-aligned types (condensed to what's needed in the UI)
 type UserSex = "MALE" | "FEMALE";
@@ -178,15 +178,13 @@ export default function StudentProfile({ data }: { data: Student }) {
   return (
     <section aria-label="Student profile">
       <Card className="overflow-hidden border-0 shadow-sm">
-        <CardHeader className="pb-4 md:pb-6">
-          <div className="flex flex-col gap-3 md:flex-row md:items-center md:justify-between">
-            <div className="flex items-start gap-4">
-              <Avatar className="size-20 md:size-24">
+        {/* Header */}
+        <CardHeader className="pb-4 sm:pb-5 md:pb-6">
+          <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
+            <div className="flex items-start gap-3 sm:gap-4">
+              <Avatar className="size-16 sm:size-20 md:size-24">
                 <AvatarImage
-                  src={
-                    user?.imageUrl ||
-                    "/placeholder.svg?height=160&width=160&query=student%20portrait"
-                  }
+                  src={user?.imageUrl || ""}
                   alt={`${displayName} profile photo`}
                 />
                 <AvatarFallback className="bg-blue-600 text-white">
@@ -195,12 +193,14 @@ export default function StudentProfile({ data }: { data: Student }) {
               </Avatar>
               <div className="space-y-2">
                 <div className="flex flex-wrap items-center gap-2">
-                  <h1 className="text-2xl font-semibold tracking-tight text-foreground md:text-3xl">
+                  <h1 className="text-xl sm:text-2xl md:text-3xl font-semibold tracking-tight text-foreground">
                     {displayName}
                   </h1>
                   <Badge variant="secondary" className="gap-1">
                     <IdCard className="size-3.5" />
-                    {student.studentNumber}
+                    <span className="tabular-nums">
+                      {student.studentNumber}
+                    </span>
                   </Badge>
                   <Badge variant="secondary" className="gap-1">
                     <User2 className="size-3.5" />
@@ -217,16 +217,15 @@ export default function StudentProfile({ data }: { data: Student }) {
                   </Badge>
                   <Badge variant="outline" className="gap-1">
                     <Shield className="size-3.5" />
-                    {student.role.charAt(0).toUpperCase() +
-                      student.role.slice(1)}
+                    {student.role}
                   </Badge>
                   {student.isApproved ? (
-                    <Badge className="gap-1 bg-blue-600 text-white hover:bg-blue-600/90">
+                    <Badge className="gap-1 bg-blue-600 text-white">
                       <CheckCheck className="size-3.5" />
                       Approved
                     </Badge>
                   ) : (
-                    <Badge className="gap-1 bg-blue-100 text-blue-800 hover:bg-blue-200 dark:bg-blue-900/40 dark:text-blue-300 dark:hover:bg-blue-900/60">
+                    <Badge className="gap-1 bg-amber-100 text-amber-800 dark:bg-amber-900/40 dark:text-amber-300">
                       <CircleAlert className="size-3.5" />
                       Not approved
                     </Badge>
@@ -243,14 +242,14 @@ export default function StudentProfile({ data }: { data: Student }) {
                     </Badge>
                   )}
                 </div>
-                <div className="flex flex-wrap items-center gap-x-4 gap-y-2 text-sm text-muted-foreground">
+                <div className="flex flex-wrap items-center gap-x-4 gap-y-2 text-xs sm:text-sm text-muted-foreground">
                   <span className="inline-flex items-center gap-1.5">
                     <GraduationCap className="size-4 text-blue-600" />
                     {courseMap(student.course)}
                   </span>
                   <span className="inline-flex items-center gap-1.5">
-                    <BookOpen className="size-4 text-blue-600" />
-                    {humanizeMajor(student.major)}
+                    <BadgeCheck className="size-4 text-blue-600" />
+                    {formatMajor(humanizeMajor(student.major))}
                   </span>
                   <span className="inline-flex items-center gap-1.5">
                     <CalendarClock className="size-4 text-blue-600" />
@@ -265,10 +264,11 @@ export default function StudentProfile({ data }: { data: Student }) {
                 <DialogTrigger asChild>
                   <Button className="gap-2 bg-blue-600 text-white hover:bg-blue-600/90">
                     <Edit3 className="size-4" />
-                    Edit Profile
+                    <span className="hidden sm:inline">Edit Profile</span>
+                    <span className="sm:hidden">Edit</span>
                   </Button>
                 </DialogTrigger>
-                <DialogContent className="max-w-xl">
+                <DialogContent className="w-[calc(100vw-2rem)] sm:max-w-xl">
                   <DialogHeader>
                     <DialogTitle>Edit profile</DialogTitle>
                   </DialogHeader>
@@ -282,7 +282,7 @@ export default function StudentProfile({ data }: { data: Student }) {
                     className="grid gap-5"
                   >
                     {/* Only editable: username, email, phone, address, sex */}
-                    <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
+                    <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
                       <div className="space-y-2">
                         <Label htmlFor="username">Username</Label>
                         <Input
@@ -320,7 +320,7 @@ export default function StudentProfile({ data }: { data: Student }) {
                           <option value="FEMALE">Female</option>
                         </select>
                       </div>
-                      <div className="space-y-2 md:col-span-2">
+                      <div className="space-y-2 sm:col-span-2">
                         <Label htmlFor="address">Address</Label>
                         <Input
                           id="address"
@@ -365,11 +365,15 @@ export default function StudentProfile({ data }: { data: Student }) {
           </div>
         </CardHeader>
 
-        <CardContent className="grid gap-6 md:grid-cols-5">
-          <div className="md:col-span-3 space-y-6">
-            <div className="rounded-lg border p-4">
-              <h3 className="mb-3 font-medium">Academic overview</h3>
-              <dl className="grid grid-cols-2 gap-4 text-sm md:grid-cols-3">
+        <CardContent className="grid gap-6 lg:grid-cols-5">
+          {/* Overview and Grades */}
+          <div className="space-y-6 lg:col-span-3">
+            {/* Academic overview (no GPA) */}
+            <div className="rounded-lg border p-4 sm:p-5">
+              <h3 className="mb-3 text-base sm:text-lg font-medium">
+                Academic overview
+              </h3>
+              <dl className="grid grid-cols-2 gap-4 text-sm sm:text-base md:grid-cols-3">
                 <div>
                   <dt className="text-muted-foreground">Sex</dt>
                   <dd className="mt-1 font-medium">
@@ -401,16 +405,58 @@ export default function StudentProfile({ data }: { data: Student }) {
               </dl>
             </div>
 
-            {/* Grades with pagination */}
+            {/* Grades: mobile cards + desktop table, with pagination */}
             <div className="rounded-lg border">
               <div className="flex items-center justify-between p-4">
-                <h3 className="font-medium">Recent grades</h3>
-                <span className="text-sm text-muted-foreground">
+                <h3 className="font-medium text-base sm:text-lg">
+                  Recent grades
+                </h3>
+                <span className="text-xs sm:text-sm text-muted-foreground">
                   {totalGrades} records
                 </span>
               </div>
               <Separator />
-              <div className="overflow-x-auto">
+
+              {/* Mobile list (md:hidden) */}
+              <ul className="md:hidden divide-y">
+                {pagedGrades.map((g) => (
+                  <li
+                    key={`${g.courseCode}-${g.academicYear}-${g.semester}`}
+                    className="p-4"
+                  >
+                    <div className="flex items-start justify-between gap-3">
+                      <div>
+                        <div className="font-medium">
+                          {g.courseCode} — {g.courseTitle}
+                        </div>
+                        <div className="mt-1 flex flex-wrap items-center gap-x-3 gap-y-1 text-xs text-muted-foreground">
+                          <span>{g.academicYear}</span>
+                          <span>{g.semester}</span>
+                          <span className="tabular-nums">
+                            {g.creditUnit} unit{g.creditUnit === 1 ? "" : "s"}
+                          </span>
+                        </div>
+                      </div>
+                      <div className="text-right">
+                        <div className="text-sm font-semibold tabular-nums">
+                          {g.grade}
+                        </div>
+                        <div className="text-xs text-muted-foreground">
+                          {g.instructor}
+                        </div>
+                      </div>
+                    </div>
+                  </li>
+                ))}
+                {pagedGrades.length === 0 && (
+                  <li className="p-4 text-center text-muted-foreground">
+                    No grades to display
+                  </li>
+                )}
+              </ul>
+
+              {/* Desktop table (hidden on mobile) */}
+              <div className="hidden md:block overflow-x-auto">
                 <Table>
                   <TableHeaderComp>
                     <TableRow>
@@ -424,8 +470,8 @@ export default function StudentProfile({ data }: { data: Student }) {
                       <TableHead className="min-w-[100px]">Semester</TableHead>
                       <TableHead className="text-right">Credit Unit</TableHead>
                       <TableHead className="text-right">Grade</TableHead>
-                      <TableHead className="text-right">Re Exam</TableHead>
-                      <TableHead className="text-right">Remarks</TableHead>
+                      <TableHead className="">Re-Exam</TableHead>
+                      <TableHead className="text-right">Instructor</TableHead>
                     </TableRow>
                   </TableHeaderComp>
                   <TableBody>
@@ -441,11 +487,9 @@ export default function StudentProfile({ data }: { data: Student }) {
                           {g.creditUnit}
                         </TableCell>
                         <TableCell className="text-right">{g.grade}</TableCell>
+                        <TableCell className="text-right">{g.reExam}</TableCell>
                         <TableCell className="text-right">
-                          {g.reExam || "-"}
-                        </TableCell>
-                        <TableCell className="text-right">
-                          {g.remarks}
+                          {g.instructor}
                         </TableCell>
                       </TableRow>
                     ))}
@@ -465,7 +509,7 @@ export default function StudentProfile({ data }: { data: Student }) {
 
               {/* Pagination controls */}
               <div className="flex flex-col items-center justify-between gap-3 p-4 text-sm md:flex-row">
-                <div className="flex items-center gap-2">
+                <div className="flex flex-wrap items-center gap-2">
                   <span className="text-muted-foreground">Rows per page</span>
                   <select
                     value={rowsPerPage}
@@ -523,14 +567,14 @@ export default function StudentProfile({ data }: { data: Student }) {
             </div>
           </div>
 
-          {/* Contact (no email/call action buttons) */}
-          <div className="md:col-span-2 space-y-6">
-            <div className="rounded-lg border p-4">
-              <h3 className="mb-3 font-medium">Contact</h3>
-              <ul className="space-y-3 text-sm">
+          {/* Contact */}
+          <div className="space-y-6 lg:col-span-2">
+            <div className="rounded-lg border p-4 sm:p-5">
+              <h3 className="mb-3 font-medium text-base sm:text-lg">Contact</h3>
+              <ul className="space-y-3 text-sm sm:text-base">
                 <li className="flex items-start gap-2">
                   <Mail className="mt-0.5 size-4 text-blue-600" />
-                  <div>
+                  <div className="min-w-0">
                     <div className="text-muted-foreground">Email</div>
                     {student.email ? (
                       <span className="font-medium break-all">
@@ -554,9 +598,11 @@ export default function StudentProfile({ data }: { data: Student }) {
                 </li>
                 <li className="flex items-start gap-2">
                   <MapPin className="mt-0.5 size-4 text-blue-600" />
-                  <div>
+                  <div className="min-w-0">
                     <div className="text-muted-foreground">Address</div>
-                    <div className="font-medium">{student.address}</div>
+                    <div className="font-medium break-words">
+                      {student.address}
+                    </div>
                   </div>
                 </li>
               </ul>
