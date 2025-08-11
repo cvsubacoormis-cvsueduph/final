@@ -251,15 +251,21 @@ export default function AdminProfileComp() {
                 </SelectTrigger>
                 <SelectContent>
                   <SelectItem value="ADMIN">Admin</SelectItem>
-                  <SelectItem value="SUPER_ADMIN">Super Admin</SelectItem>
-                  <SelectItem value="MODERATOR">Moderator</SelectItem>
+                  <SelectItem value="SUPERUSER">Superuser</SelectItem>
+                  <SelectItem value="REGISTRAR">Registrar</SelectItem>
+                  <SelectItem value="FACULTY">Faculty</SelectItem>
                 </SelectContent>
               </Select>
             </div>
 
             <div className="space-y-2">
               <Label htmlFor="id">User ID</Label>
-              <Input id="id" value={admin.id} disabled className="bg-muted" />
+              <Input
+                id="id"
+                value={admin.id.slice(0, -18) + "*****"}
+                disabled
+                className="bg-muted"
+              />
             </div>
           </div>
         </CardContent>

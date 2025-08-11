@@ -54,7 +54,6 @@ model Student {
   email         String?
   phone         String?
   address       String
-  img           String?
   sex           UserSex
   course        Courses
   major         Major?
@@ -105,10 +104,9 @@ model AcademicTerm {
 }
 
 model Grade {
-  id            String  @id @default(cuid())
+  id            String       @id @default(cuid())
   studentNumber String
-  student       Student @relation(fields: [studentNumber], references: [studentNumber], onDelete: Cascade)
-
+  student       Student      @relation(fields: [studentNumber], references: [studentNumber], onDelete: Cascade)
   courseCode    String
   courseTitle   String
   creditUnit    Int

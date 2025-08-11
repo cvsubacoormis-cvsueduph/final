@@ -13,7 +13,7 @@ export async function getStudentData(): Promise<StudentData> {
 
     await checkRateLimit({
       action: "getStudentData",
-      limit: 7,
+      limit: 10,
       windowSeconds: 60,
     });
 
@@ -61,8 +61,8 @@ export async function getStudentData(): Promise<StudentData> {
             grade.semester === "FIRST"
               ? "1st"
               : grade.semester === "SECOND"
-              ? "2nd"
-              : "Midyear"
+                ? "2nd"
+                : "Midyear"
           } Sem (Attempt ${index + 1})`;
         });
       } else {
@@ -73,6 +73,7 @@ export async function getStudentData(): Promise<StudentData> {
 
     return {
       id: student.id,
+      username: student.username,
       firstName: student.firstName,
       lastName: student.lastName,
       middleInit: student.middleInit || "",
@@ -104,6 +105,8 @@ export async function getStudentData(): Promise<StudentData> {
       img: student.img || "",
       sex: student.sex,
       role: student.role,
+      isApproved: student.isApproved,
+      isPasswordSet: student.isPasswordSet,
       createdAt: student.createdAt,
     };
   } catch (error) {

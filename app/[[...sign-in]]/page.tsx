@@ -16,16 +16,6 @@ const Homepage = () => {
   const { user, isLoaded } = useUser();
   const router = useRouter();
 
-  const role = user?.publicMetadata.role;
-
-  useEffect(() => {
-    if (!isLoaded) return;
-
-    if (user && !hasAgreedToPrivacy) {
-      setIsDialogOpen(true);
-    }
-  }, [isLoaded, user, hasAgreedToPrivacy]);
-
   useEffect(() => {
     if (!isLoaded) return;
 
@@ -33,13 +23,13 @@ const Homepage = () => {
       switch (role) {
         case "admin":
         case "superuser":
-          router.push("/admin");
+          router.replace("/admin");
           break;
         case "student":
-          router.push("/student");
+          router.replace("/student");
           break;
         default:
-          router.push("/");
+          router.replace("/");
       }
     };
 

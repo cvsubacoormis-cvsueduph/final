@@ -1,4 +1,4 @@
-import { Role, UserSex } from "@prisma/client";
+import { Courses, Major, Role, Status, UserSex } from "@prisma/client";
 
 export interface Grade {
   courseCode: string;
@@ -39,20 +39,23 @@ export interface GradeAttempt {
 
 export interface StudentData {
   id: string;
+  username: string;
   firstName: string;
   middleInit?: string;
   lastName: string;
   studentNumber: string;
   address: string;
   phone: string;
-  course: string;
-  major: string | null;
+  course: Courses;
+  major: Major | null;
   grades: Grade[];
-  status: string;
+  status: Status;
   email?: string;
   img?: string;
   sex: UserSex;
   role: Role;
+  isPasswordSet: boolean;
+  isApproved: boolean;
   createdAt: Date;
 }
 
