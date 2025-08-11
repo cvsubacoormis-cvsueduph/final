@@ -25,8 +25,6 @@ export default function GlobalError({
           primaryLabel="Go to Dashboard"
           secondaryHref="/status"
           secondaryLabel="View System Status"
-          extraHref="mailto:support@campus.example.edu"
-          extraLabel="Contact Support"
           showRetry
           onRetry={reset}
           illustrationQuery="university%20server%20error%20system%20maintenance%20illustration"

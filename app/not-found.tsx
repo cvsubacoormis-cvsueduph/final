@@ -10,8 +10,6 @@ export default function NotFound() {
       primaryLabel="Go to Dashboard"
       secondaryHref="/help"
       secondaryLabel="Help Center"
-      extraHref="mailto:support@campus.example.edu"
-      extraLabel="Contact Support"
       illustrationQuery="student%20portal%20page%20not%20found%20illustration"
     />
   );

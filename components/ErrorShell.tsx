@@ -88,8 +88,6 @@ export default function ErrorShell({
   primaryLabel = "Back to Home",
   secondaryHref = "/help",
   secondaryLabel = "Help Center",
-  extraHref = "mailto:support@campus.example.edu",
-  extraLabel = "Contact Support",
   showRetry = false,
   onRetry,
   illustrationQuery = "university%20campus%20illustration%20students%20studying",
@@ -168,17 +166,6 @@ export default function ErrorShell({
               </Button>
             </Link>
           </div>
-
-          <div className="mt-6 text-sm text-neutral-600">
-            Need assistance?{" "}
-            <Link
-              href={extraHref}
-              className="inline-flex items-center gap-1 font-medium underline underline-offset-4"
-            >
-              <Mail className="h-3.5 w-3.5" />
-              {extraLabel}
-            </Link>
-          </div>
         </section>
 
         {/* Right: Illustration / Visual */}
@@ -199,7 +186,7 @@ export default function ErrorShell({
             </div>
             <div className="mt-3 flex items-center gap-2">
               <span className={cn("rounded-full px-2.5 py-1 text-xs", v.badge)}>
-                {"Campus resources · Registrar · Help Desk"}
+                {"MIS Office"}
               </span>
             </div>
           </div>
@@ -217,17 +204,11 @@ function Header() {
       <nav className="mx-auto flex w-full max-w-6xl items-center justify-between px-6 py-3">
         <Link href="/" className="flex items-center gap-2 font-semibold">
           <GraduationCap className="h-5 w-5 text-emerald-700" />
-          <span>{"Campus Portal"}</span>
+          <span>{"Campus Student Portal"}</span>
         </Link>
         <div className="hidden items-center gap-4 text-sm text-neutral-600 sm:flex">
           <Link href="/help" className="hover:underline underline-offset-4">
             {"Help Center"}
-          </Link>
-          <Link
-            href="mailto:support@campus.example.edu"
-            className="hover:underline underline-offset-4"
-          >
-            {"Support"}
           </Link>
         </div>
       </nav>
@@ -241,16 +222,8 @@ function Footer() {
       <div className="mx-auto flex w-full max-w-6xl flex-col items-center justify-between gap-3 px-6 py-4 text-sm text-neutral-600 sm:flex-row">
         <p className="order-2 sm:order-1">
           {"© "} {new Date().getFullYear()}{" "}
-          {"Campus Portal · Registrar & IT Services"}
+          {"Campus Student Portal · Registrar & MIS Office"}
         </p>
-        <div className="order-1 flex items-center gap-4 sm:order-2">
-          <Link href="/policies" className="hover:underline underline-offset-4">
-            {"Policies"}
-          </Link>
-          <Link href="/status" className="hover:underline underline-offset-4">
-            {"System Status"}
-          </Link>
-        </div>
       </div>
     </footer>
   );
