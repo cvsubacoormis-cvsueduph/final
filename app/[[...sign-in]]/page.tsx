@@ -10,7 +10,6 @@ import PortalGuide from "@/components/PortalGuide";
 import ForgotPassword from "@/components/ForgotPassword";
 
 const Homepage = () => {
-  const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [hasAgreedToPrivacy, setHasAgreedToPrivacy] = useState(false);
 
   const { user, isLoaded } = useUser();
@@ -29,7 +28,7 @@ const Homepage = () => {
           router.replace("/student");
           break;
         default:
-          router.replace("/");
+          router.replace("/sign-in");
       }
     };
 

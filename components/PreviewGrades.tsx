@@ -40,7 +40,6 @@ type AcademicTerm = {
   semester: string;
 };
 
-// Note: We added an "id" field to the Grade type so it can be used for updates.
 export type Grade = {
   id: string;
   studentNumber: string;

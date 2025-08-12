@@ -42,11 +42,9 @@ export async function getStudentGradesWithReExam(studentId?: string) {
   if (!userId) throw new Error("Unauthorized");
   const clerk = await clerkClient();
 
-  // Fetch role from Clerk securely
   const user = await clerk.users.getUser(userId);
   const role = user.publicMetadata?.role;
 
-  // Server-side role check
   if (role !== "student" && role !== "admin") {
     throw new Error("Forbidden");
   }
@@ -99,7 +97,6 @@ export async function getAvailableAcademicOptions() {
   const { userId } = await auth();
   if (!userId) throw new Error("Unauthorized");
 
-  // Get role from Clerk publicMetadata
   const user = await clerk.users.getUser(userId);
   const role = user.publicMetadata.role;
 
@@ -120,7 +117,6 @@ export async function getAvailableAcademicOptions() {
     if (!student) throw new Error("Student not found");
     return student.grades;
   } else if (role === "admin" || role === "registrar") {
-    // For admin / registrar — return all available academic years + semesters
     const allOptions = await prisma.grade.findMany({
       distinct: ["academicYear", "semester"],
       select: { academicYear: true, semester: true },
