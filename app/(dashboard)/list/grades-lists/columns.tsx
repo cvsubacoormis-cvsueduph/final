@@ -7,6 +7,7 @@ import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
 import { PreviewGrades } from "@/components/PreviewGrades";
 import { SelectToPrint } from "@/components/SelectToPrint";
+import GenerateCOGAdmin from "@/components/GenerateCOGForAdmin";
 
 export type Grades = {
   id: string;
@@ -145,7 +146,7 @@ export const columns: ColumnDef<Grades>[] = [
             firstName={student.firstName}
             lastName={student.lastName}
           />
-          <SelectToPrint studentId={student.id} />
+          <GenerateCOGAdmin studentId={student.id} />
         </div>
       );
     },

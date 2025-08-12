@@ -2,8 +2,10 @@
 
 import prisma from "@/lib/prisma";
 import { checkRateLimit } from "@/lib/rate-limit-postgres";
-import { auth } from "@clerk/nextjs/server";
+import { auth, clerkClient } from "@clerk/nextjs/server";
 import { AcademicYear, Semester } from "@prisma/client";
+
+const clerk = await clerkClient();
 
 export async function getGrades(year?: string, semester?: string) {
   const { userId } = await auth();
@@ -35,9 +37,19 @@ export async function getGrades(year?: string, semester?: string) {
   return student.grades;
 }
 
-export async function getStudentGradesWithReExam() {
+export async function getStudentGradesWithReExam(studentId?: string) {
   const { userId } = await auth();
   if (!userId) throw new Error("Unauthorized");
+  const clerk = await clerkClient();
+
+  // Fetch role from Clerk securely
+  const user = await clerk.users.getUser(userId);
+  const role = user.publicMetadata?.role;
+
+  // Server-side role check
+  if (role !== "student" && role !== "admin") {
+    throw new Error("Forbidden");
+  }
 
   await checkRateLimit({
     action: "getStudentGradesWithReExam",
@@ -46,7 +58,7 @@ export async function getStudentGradesWithReExam() {
   });
 
   const student = await prisma.student.findUnique({
-    where: { id: userId },
+    where: { id: studentId || userId }, // Allow optional param only for admin
     select: {
       studentNumber: true,
       firstName: true,
@@ -87,20 +99,35 @@ export async function getAvailableAcademicOptions() {
   const { userId } = await auth();
   if (!userId) throw new Error("Unauthorized");
 
-  const student = await prisma.student.findUnique({
-    where: { id: userId },
-    select: {
-      grades: {
-        distinct: ["academicYear", "semester"],
-        select: {
-          academicYear: true,
-          semester: true,
+  // Get role from Clerk publicMetadata
+  const user = await clerk.users.getUser(userId);
+  const role = user.publicMetadata.role;
+
+  if (!role) throw new Error("Role not found");
+
+  if (role === "student") {
+    // For students — filter by their own grades
+    const student = await prisma.student.findUnique({
+      where: { id: userId },
+      select: {
+        grades: {
+          distinct: ["academicYear", "semester"],
+          select: { academicYear: true, semester: true },
         },
       },
-    },
-  });
+    });
 
-  if (!student) throw new Error("Student not found");
+    if (!student) throw new Error("Student not found");
+    return student.grades;
+  } else if (role === "admin" || role === "registrar") {
+    // For admin / registrar — return all available academic years + semesters
+    const allOptions = await prisma.grade.findMany({
+      distinct: ["academicYear", "semester"],
+      select: { academicYear: true, semester: true },
+    });
 
-  return student.grades;
+    return allOptions;
+  }
+
+  throw new Error("Unauthorized role");
 }
