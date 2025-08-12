@@ -21,11 +21,12 @@ export default clerkMiddleware(async (auth, req) => {
     );
 
     try {
-      const res = await fetch(`${req.nextUrl.origin}/api/check-approval`, {
-        headers: { "x-user-id": userId },
-        cache: "no-store",
-      });
-
+      const res = await fetch(
+        `${req.nextUrl.origin}/api/check-approval?id=${userId}`,
+        {
+          cache: "no-store",
+        }
+      );
       const data = await res.json();
 
       if (!data?.isApproved && !isAllowedWhileUnapproved) {
