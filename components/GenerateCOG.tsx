@@ -469,10 +469,10 @@ export default function GenerateCOG() {
                       {sem === "FIRST"
                         ? "First Semester"
                         : sem === "SECOND"
-                        ? "Second Semester"
-                        : sem === "MIDYEAR"
-                        ? "Midyear"
-                        : sem}
+                          ? "Second Semester"
+                          : sem === "MIDYEAR"
+                            ? "Midyear"
+                            : sem}
                     </SelectItem>
                   )
                 )}
@@ -493,6 +493,10 @@ export default function GenerateCOG() {
                 ))}
               </SelectContent>
             </Select>
+            <p className="text-xs text-muted-foreground mt-1">
+              Note: Year level selection is for year standing only. The grades
+              shown are based on the selected academic year and semester.
+            </p>
           </div>
           <div>
             <label className="text-sm">Purpose</label>

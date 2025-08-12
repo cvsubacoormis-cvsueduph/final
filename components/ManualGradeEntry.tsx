@@ -275,6 +275,14 @@ export default function ManualGradeEntry() {
     }
   };
 
+  const startYear = 2024;
+  const numberOfYears = 6; // generate next 5 academic years
+  const academicYears = Array.from({ length: numberOfYears }, (_, i) => {
+    const ayStart = startYear + i;
+    const ayEnd = ayStart + 1;
+    return `AY_${ayStart}_${ayEnd}`;
+  });
+
   return (
     <div className="space-y-6">
       {/* Academic Year and Semester Selection */}
@@ -284,31 +292,16 @@ export default function ManualGradeEntry() {
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div className="space-y-2">
               <Label htmlFor="academic-year">Academic Year *</Label>
-              <Select
-                value={academicYear}
-                onValueChange={(value) => {
-                  setAcademicYear(value);
-                  setValidationError("");
-                }}
-              >
+              <Select value={academicYear} onValueChange={setAcademicYear}>
                 <SelectTrigger>
                   <SelectValue placeholder="Select academic year" />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="AY_2024_2025">2024-2025</SelectItem>
-                  <SelectItem value="AY_2025_2026">2025-2026</SelectItem>
-                  <SelectItem disabled value="AY_2026_2027">
-                    2026-2027
-                  </SelectItem>
-                  <SelectItem disabled value="AY_2027_2028">
-                    2027-2028
-                  </SelectItem>
-                  <SelectItem disabled value="AY_2028_2029">
-                    2028-2029
-                  </SelectItem>
-                  <SelectItem disabled value="AY_2029_2030">
-                    2029-2030
-                  </SelectItem>
+                  {academicYears.map((year: string) => (
+                    <SelectItem key={year} value={year}>
+                      {year}
+                    </SelectItem>
+                  ))}
                 </SelectContent>
               </Select>
             </div>

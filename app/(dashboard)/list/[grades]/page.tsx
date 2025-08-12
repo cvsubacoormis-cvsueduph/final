@@ -25,15 +25,6 @@ import { HashLoader } from "react-spinners";
 import GenerateCOG from "@/components/GenerateCOG";
 import { RedirectToSignIn, SignedIn, SignedOut } from "@clerk/nextjs";
 
-// Define academic years and semesters in chronological order
-const AcademicYears = [
-  "AY_2024_2025",
-  "AY_2025_2026",
-  "AY_2026_2027",
-  "AY_2027_2028",
-];
-const Semesters = ["FIRST", "SECOND", "MIDYEAR"];
-
 interface Grade {
   id: string;
   courseCode: string;
@@ -50,27 +41,44 @@ interface Grade {
 export default function GradesPage() {
   const searchParams = useSearchParams();
   const router = useRouter();
+
   const [grades, setGrades] = useState<Grade[]>([]);
+  const [availableYears, setAvailableYears] = useState<string[]>([]);
+  const [availableSemesters, setAvailableSemesters] = useState<string[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
-  // Default to oldest academic year and first semester if no params are provided
-  const year = searchParams.get("year") || AcademicYears[0];
-  const semester = searchParams.get("semester") || Semesters[0];
+  const year = searchParams.get("year") || "";
+  const semester = searchParams.get("semester") || "";
 
+  // Fetch grades for filter options first
   useEffect(() => {
     let isMounted = true;
-    const fetchGrades = async () => {
+    const fetchAllGrades = async () => {
       setLoading(true);
       try {
-        const data = await getGrades(year, semester);
+        // Fetch all grades without filtering first
+        const allGrades = await getGrades(undefined, undefined);
+
         if (isMounted) {
           setGrades(
-            data.map((grade) => ({
+            allGrades.map((grade) => ({
               ...grade,
-              remarks: grade.remarks || "",
+              remarks: grade.remarks || "", // Convert null remarks to empty string
             }))
           );
+
+          // Extract unique years & semesters
+          const years = Array.from(
+            new Set(allGrades.map((g) => g.academicYear))
+          ).sort();
+          const semesters = Array.from(
+            new Set(allGrades.map((g) => g.semester))
+          );
+
+          setAvailableYears(years);
+          setAvailableSemesters(semesters);
+
           setError(null);
         }
       } catch (err) {
@@ -84,31 +92,35 @@ export default function GradesPage() {
       }
     };
 
-    fetchGrades();
-
+    fetchAllGrades();
     return () => {
       isMounted = false;
     };
-  }, [year, semester]);
+  }, []);
+
+  // Filtered grades based on selected year and semester
+  const filteredGrades = grades.filter((g) => {
+    return (
+      (!year || g.academicYear === year) &&
+      (!semester || g.semester === semester)
+    );
+  });
 
   const getFinalGradeToUse = (grade: Grade): number | null => {
     const originalGrade = parseFloat(grade.grade);
     const reExamGrade = grade.reExam !== null ? parseFloat(grade.reExam) : null;
 
-    // Handle special cases (INC, DRP) - these should be excluded from calculations
     if (["INC", "DRP"].includes(grade.grade)) {
       if (reExamGrade === null || ["INC", "DRP"].includes(grade.reExam || "")) {
-        return null; // Exclude from calculations
+        return null;
       }
-      return reExamGrade; // Use re-exam if original is special case
+      return reExamGrade;
     }
 
-    // If no re-exam, use original grade
     if (reExamGrade === null) {
       return originalGrade;
     }
 
-    // Compare grades - lower is better (1.00 is highest, 5.00 is failing)
     return reExamGrade < originalGrade ? reExamGrade : originalGrade;
   };
 
@@ -120,26 +132,20 @@ export default function GradesPage() {
     const yearValue = formData.get("year") as string;
     const semesterValue = formData.get("semester") as string;
 
-    params.set("year", yearValue);
-    params.set("semester", semesterValue);
+    if (yearValue) params.set("year", yearValue);
+    if (semesterValue) params.set("semester", semesterValue);
 
     router.push(`?${params.toString()}`);
   };
 
   if (error) {
-    const isRateLimitError = error.includes("Too many requests");
-
     return (
       <div className="flex items-center justify-center h-screen">
         <div className="text-center space-y-4 p-6 border border-red-200 bg-red-50 rounded-md shadow-md max-w-md">
           <div className="text-2xl font-bold text-red-600">
-            {isRateLimitError ? "Too Many Requests" : "Something Went Wrong"}
+            Something Went Wrong
           </div>
-          <p className="text-gray-700">
-            {isRateLimitError
-              ? "You’ve made too many requests. Please wait a moment and try again."
-              : error}
-          </p>
+          <p className="text-gray-700">{error}</p>
           <Button
             onClick={() => location.reload()}
             className="bg-blue-600 hover:bg-blue-800 text-white"
@@ -159,34 +165,18 @@ export default function GradesPage() {
     );
   }
 
-  if (grades.length > 100) {
-    return (
-      <div className="flex items-center justify-center h-screen">
-        <div className="text-center p-4">
-          <p className="text-red-500 font-semibold text-lg">
-            Too Many Requests
-          </p>
-          <p className="text-gray-600">Please try again in a minute</p>
-        </div>
-      </div>
-    );
-  }
-
-  // Calculate totals
-  const totalSubjectsEnrolled = grades.length;
-
-  const totalCreditsEnrolled = grades.reduce((acc, cur) => {
+  // Totals
+  const totalSubjectsEnrolled = filteredGrades.length;
+  const totalCreditsEnrolled = filteredGrades.reduce((acc, cur) => {
     const finalGrade = getFinalGradeToUse(cur);
     if (finalGrade === null || isNaN(finalGrade)) return acc;
     return acc + cur.creditUnit;
   }, 0);
-
-  const totalCreditsEarned = grades.reduce((acc, cur) => {
+  const totalCreditsEarned = filteredGrades.reduce((acc, cur) => {
     const finalGrade = getFinalGradeToUse(cur);
     if (finalGrade === null || isNaN(finalGrade)) return acc;
     return acc + cur.creditUnit * finalGrade;
   }, 0);
-
   const gpa =
     totalCreditsEnrolled > 0 && !isNaN(totalCreditsEarned)
       ? (totalCreditsEarned / totalCreditsEnrolled).toFixed(2)
@@ -196,10 +186,7 @@ export default function GradesPage() {
     <>
       <SignedIn>
         <div className="bg-white p-4 rounded-md flex-1 m-4 mt-0">
-          <h1 className="text-lg font-semibold mb-4">
-            Grades{" "}
-            <span className="flex text-xs text-gray-500">Lists of Grades</span>
-          </h1>
+          <h1 className="text-lg font-semibold mb-4">Grades</h1>
 
           {/* Filter Dropdowns */}
           <form
@@ -211,7 +198,7 @@ export default function GradesPage() {
                 <SelectValue placeholder="Select Academic Year" />
               </SelectTrigger>
               <SelectContent>
-                {AcademicYears.map((yr) => (
+                {availableYears.map((yr) => (
                   <SelectItem key={yr} value={yr}>
                     {yr.replace("_", "-")}
                   </SelectItem>
@@ -224,13 +211,13 @@ export default function GradesPage() {
                 <SelectValue placeholder="Select Semester" />
               </SelectTrigger>
               <SelectContent>
-                {Semesters.map((sem) => (
+                {availableSemesters.map((sem) => (
                   <SelectItem key={sem} value={sem}>
                     {sem === "FIRST"
                       ? "First Semester"
                       : sem === "SECOND"
-                      ? "Second Semester"
-                      : "Midyear"}
+                        ? "Second Semester"
+                        : "Midyear"}
                   </SelectItem>
                 ))}
               </SelectContent>
@@ -243,7 +230,7 @@ export default function GradesPage() {
           </form>
 
           {/* Grades Table */}
-          {grades.length === 0 ? (
+          {filteredGrades.length === 0 ? (
             <p className="text-center font-semibold">
               You have no grades here.
             </p>
@@ -253,74 +240,51 @@ export default function GradesPage() {
                 <TableCaption>List of your Grades</TableCaption>
                 <TableHeader>
                   <TableRow>
-                    <TableHead className="p-4 text-center font-semibold">
-                      Course Code
-                    </TableHead>
-                    <TableHead className="p-4 text-center font-semibold">
-                      Credit Unit
-                    </TableHead>
-                    <TableHead className="p-4 text-center font-semibold">
-                      Course Title
-                    </TableHead>
-                    <TableHead className="p-4 text-center font-semibold">
-                      Final Grade
-                    </TableHead>
-                    <TableHead className="p-4 text-center font-semibold">
-                      Re-Exam
-                    </TableHead>
-                    <TableHead className="p-4 text-center font-semibold">
-                      Remarks
-                    </TableHead>
-                    <TableHead className="p-4 text-center font-semibold">
-                      Instructor
-                    </TableHead>
+                    <TableHead className="text-center">Course Code</TableHead>
+                    <TableHead className="text-center">Credit Unit</TableHead>
+                    <TableHead className="text-center">Course Title</TableHead>
+                    <TableHead className="text-center">Final Grade</TableHead>
+                    <TableHead className="text-center">Re-Exam</TableHead>
+                    <TableHead className="text-center">Remarks</TableHead>
+                    <TableHead className="text-center">Instructor</TableHead>
                   </TableRow>
                 </TableHeader>
                 <TableBody>
-                  {grades.map((grade) => {
-                    const finalGradeToUse = getFinalGradeToUse(grade);
+                  {filteredGrades.map((grade) => {
                     const displayGrade = ["INC", "DRP"].includes(grade.grade)
                       ? grade.grade
                       : !isNaN(parseFloat(grade.grade))
-                      ? parseFloat(grade.grade).toFixed(2)
-                      : "";
+                        ? parseFloat(grade.grade).toFixed(2)
+                        : "";
 
                     return (
                       <TableRow key={grade.id}>
                         <TableCell className="text-center font-semibold">
                           {grade.courseCode}
                         </TableCell>
-                        <TableCell className="p-4 text-center font-semibold">
+                        <TableCell className="text-center">
                           {grade.creditUnit}
                         </TableCell>
-                        <TableCell className="p-4 text-center font-semibold">
+                        <TableCell className="text-center">
                           {grade.courseTitle}
                         </TableCell>
                         <TableCell
-                          className={
-                            ["INC", "DRP", "FAILED", "4.00", "5.00"].includes(
-                              grade.grade
-                            )
-                              ? "text-red-500 p-4 text-center font-bold"
-                              : "p-4 text-center font-semibold"
-                          }
+                          className={`text-center font-semibold ${["INC", "DRP", "FAILED", "4.00", "5.00"].includes(grade.grade) ? "text-red-500 font-bold" : ""}`}
                         >
                           {displayGrade}
                         </TableCell>
-                        <TableCell className="p-4 text-center">
+                        <TableCell className="text-center">
                           {grade.reExam !== null &&
                           !isNaN(parseFloat(grade.reExam))
                             ? parseFloat(grade.reExam).toFixed(2)
-                            : " "}
+                            : ""}
                         </TableCell>
                         <TableCell
-                          className={`p-4 text-center font-semibold ${
-                            grade.remarks !== "PASSED" ? "text-red-500" : ""
-                          }`}
+                          className={`text-center font-semibold ${grade.remarks !== "PASSED" ? "text-red-500" : ""}`}
                         >
                           {grade.remarks}
                         </TableCell>
-                        <TableCell className="p-4 text-center font-semibold">
+                        <TableCell className="text-center">
                           {grade.instructor}
                         </TableCell>
                       </TableRow>

@@ -202,26 +202,6 @@ export function UploadGrades() {
       setUploadStatus("success");
       setUploadResults(result.results);
 
-      // Group results by status
-      const successResults = result.results.filter((r: UploadResult) =>
-        r.status.includes("✅")
-      );
-      const errorResults = result.results.filter(
-        (r: UploadResult) => !r.status.includes("✅")
-      );
-
-      // Get unique course codes for each group
-      const successCourseCodes = [
-        ...new Set(successResults.map((r: UploadResult) => r.courseCode)),
-      ];
-      const errorCourseCodes = [
-        ...new Set(errorResults.map((r: UploadResult) => r.courseCode)),
-      ];
-
-      // Count successful and failed uploads
-      const successCount = successResults.length;
-      const errorCount = errorResults.length;
-
       Swal.fire({
         icon: "success",
         title: "Upload Complete",
@@ -255,28 +235,37 @@ export function UploadGrades() {
     currentPage * recordsPerPage
   );
 
+  const startYear = 2024;
+  const numberOfYears = 6; // generate next 5 academic years
+  const academicYears = Array.from({ length: numberOfYears }, (_, i) => {
+    const ayStart = startYear + i;
+    const ayEnd = ayStart + 1;
+    return `AY_${ayStart}_${ayEnd}`;
+  });
+
   return (
     <div className="space-y-6">
-      {/* Academic Year and Semester Selection */}
       <Card>
         <CardContent className="pt-6">
           <h3 className="font-medium text-lg mb-4">Select Academic Period</h3>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div className="space-y-2">
-              <Label htmlFor="academic-year">Academic Year</Label>
+              <Label htmlFor="academic-year">Academic Year *</Label>
               <Select value={academicYear} onValueChange={setAcademicYear}>
                 <SelectTrigger>
                   <SelectValue placeholder="Select academic year" />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="AY_2024_2025">AY_2024_2025</SelectItem>
-                  <SelectItem value="AY_2025_2026">AY_2025_2026</SelectItem>
-                  <SelectItem value="AY_2026_2027">AY_2026_2027</SelectItem>
+                  {academicYears.map((year: string) => (
+                    <SelectItem key={year} value={year}>
+                      {year}
+                    </SelectItem>
+                  ))}
                 </SelectContent>
               </Select>
             </div>
             <div className="space-y-2">
-              <Label htmlFor="semester">Semester</Label>
+              <Label htmlFor="semester">Semester *</Label>
               <Select value={semester} onValueChange={setSemester}>
                 <SelectTrigger>
                   <SelectValue placeholder="Select semester" />
@@ -301,8 +290,8 @@ export function UploadGrades() {
           file
             ? "border-green-500 bg-green-50"
             : !academicYear || !semester
-            ? "border-gray-200 bg-gray-50 cursor-not-allowed"
-            : "border-gray-300 hover:border-gray-400"
+              ? "border-gray-200 bg-gray-50 cursor-not-allowed"
+              : "border-gray-300 hover:border-gray-400"
         }`}
         onDrop={!academicYear || !semester ? undefined : handleDrop}
         onDragOver={!academicYear || !semester ? undefined : handleDragOver}

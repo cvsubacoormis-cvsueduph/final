@@ -112,11 +112,12 @@ export async function POST(request: NextRequest) {
             // Create Clerk user
             const user = await clerk.users.createUser({
               username,
-              firstName: student.firstName,
-              lastName: student.lastName,
+              firstName: student.firstName.toUpperCase(),
+              lastName: student.lastName.toUpperCase(),
               emailAddress: [student.email ?? ""],
               password: `cvsubacoor${student.firstName}${student.studentNumber}`,
               skipPasswordChecks: true,
+              publicMetadata: { role: "student" },
             });
 
             // Create student in Prisma
@@ -137,6 +138,9 @@ export async function POST(request: NextRequest) {
                 course: student.course.trim() as Courses,
                 major: student.major ? (student.major.trim() as Major) : null,
                 status: student.status.trim() as Status,
+                createdAt: new Date(),
+                isPasswordSet: true,
+                isApproved: true,
                 id: user.id,
               },
             });
