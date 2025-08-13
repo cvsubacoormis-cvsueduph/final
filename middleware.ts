@@ -3,7 +3,7 @@ import { NextResponse } from "next/server";
 import { routeAccessMap } from "./lib/settings";
 
 export default clerkMiddleware(async (auth, req) => {
-  const url = new URL(req.url);
+  const url = req.nextUrl.clone();
   const pathname = url.pathname;
 
   const { sessionClaims, userId } = await auth();
@@ -13,35 +13,25 @@ export default clerkMiddleware(async (auth, req) => {
     return NextResponse.redirect(new URL("/sign-in", req.url));
   }
 
-  // 🔐 1. Student approval check should come FIRST
-  if (role === "student" && userId) {
-    const allowlist = ["/sign-in", "/sign-up", "/pending-approval"];
-    const isAllowedWhileUnapproved = allowlist.some((allowed) =>
-      pathname.startsWith(allowed)
-    );
+  if (!userId) return NextResponse.redirect(new URL("/sign-in", req.url));
 
-    try {
-      const res = await fetch(
-        `${req.nextUrl.origin}/api/check-approval?id=${userId}`,
-        {
-          cache: "no-store",
-        }
-      );
+  const res = await fetch(`${req.nextUrl.origin}/api/check-approval`, {
+    headers: {
+      "x-user-id": userId,
+    },
+    cache: "no-store",
+  });
 
-      if (!res.ok) {
-        console.error("Approval check failed with status", res.status);
-        return NextResponse.redirect(new URL("/sign-in", req.url));
-      }
+  const data = await res.json();
 
-      const data = await res.json();
+  if (!data.isApproved && url.pathname !== "/pending-approval") {
+    url.pathname = "/pending-approval";
+    return NextResponse.redirect(url);
+  }
 
-      if (!data?.isApproved && !isAllowedWhileUnapproved) {
-        return NextResponse.redirect(new URL("/pending-approval", req.url));
-      }
-    } catch (err) {
-      console.error("Error checking student approval:", err);
-      return NextResponse.redirect(new URL("/sign-in", req.url));
-    }
+  if (data.isApproved && url.pathname === "/pending-approval") {
+    url.pathname = "/student";
+    return NextResponse.redirect(url);
   }
 
   // 🔁 2. Skip infinite redirect to homepage only AFTER approval check
