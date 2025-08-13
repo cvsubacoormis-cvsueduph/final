@@ -8,8 +8,6 @@ export default function NotFound() {
       description="The page may have been moved or no longer exists. Check the URL or return to the portal home."
       primaryHref="/"
       primaryLabel="Go to Dashboard"
-      secondaryHref="/help"
-      secondaryLabel="Help Center"
       illustrationQuery="student%20portal%20page%20not%20found%20illustration"
     />
   );

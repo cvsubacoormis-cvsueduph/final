@@ -217,17 +217,18 @@ export default function StudentProfile({ data }: { data: Student }) {
                   </Badge>
                   <Badge variant="outline" className="gap-1">
                     <Shield className="size-3.5" />
-                    {student.role}
+                    {student.role.charAt(0).toUpperCase() +
+                      student.role.slice(1)}
                   </Badge>
                   {student.isApproved ? (
-                    <Badge className="gap-1 bg-blue-600 text-white">
+                    <Badge className="gap-1 bg-blue-600 hover:bg-blue-700 text-white">
                       <CheckCheck className="size-3.5" />
-                      Approved
+                      Verified
                     </Badge>
                   ) : (
-                    <Badge className="gap-1 bg-amber-100 text-amber-800 dark:bg-amber-900/40 dark:text-amber-300">
+                    <Badge className="gap-1 bg-blue-700 hover:bg-blue-500 text-white">
                       <CircleAlert className="size-3.5" />
-                      Not approved
+                      Not verified
                     </Badge>
                   )}
                   {student.isPasswordSet ? (
@@ -431,7 +432,11 @@ export default function StudentProfile({ data }: { data: Student }) {
                         </div>
                         <div className="mt-1 flex flex-wrap items-center gap-x-3 gap-y-1 text-xs text-muted-foreground">
                           <span>{g.academicYear}</span>
-                          <span>{g.semester}</span>
+                          <span>
+                            {g.semester === "FIRST"
+                              ? "First Semester"
+                              : "Second Semester"}
+                          </span>
                           <span className="tabular-nums">
                             {g.creditUnit} unit{g.creditUnit === 1 ? "" : "s"}
                           </span>
@@ -482,7 +487,11 @@ export default function StudentProfile({ data }: { data: Student }) {
                         </TableCell>
                         <TableCell>{g.courseTitle}</TableCell>
                         <TableCell>{g.academicYear}</TableCell>
-                        <TableCell>{g.semester}</TableCell>
+                        <TableCell>
+                          {g.semester === "FIRST"
+                            ? "First Semester"
+                            : "Second Semester"}
+                        </TableCell>
                         <TableCell className="text-right">
                           {g.creditUnit}
                         </TableCell>

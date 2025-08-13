@@ -83,7 +83,7 @@ interface ErrorShellProps {
 export default function ErrorShell({
   variant = "500",
   title = "Something went wrong",
-  description = "An unexpected error occurred. If the issue persists, please contact support.",
+  description = "An unexpected error occurred. If the issue persists, please us",
   primaryHref = "/",
   primaryLabel = "Back to Home",
   secondaryHref = "/help",
@@ -97,8 +97,6 @@ export default function ErrorShell({
 
   return (
     <div className="relative min-h-dvh overflow-hidden">
-      <Header />
-
       {/* Background */}
       <div
         className={cn(
@@ -177,13 +175,6 @@ export default function ErrorShell({
                 v.ring
               )}
             />
-            <div className="overflow-hidden rounded-2xl border bg-white shadow-sm">
-              <Image
-                src={`/placeholder.svg?height=380&width=560&query=${illustrationQuery}`}
-                alt="Illustration representing the student portal"
-                className="h-auto w-full object-cover"
-              />
-            </div>
             <div className="mt-3 flex items-center gap-2">
               <span className={cn("rounded-full px-2.5 py-1 text-xs", v.badge)}>
                 {"MIS Office"}
@@ -198,31 +189,13 @@ export default function ErrorShell({
   );
 }
 
-function Header() {
-  return (
-    <header className="sticky top-0 z-10 border-b bg-white/70 backdrop-blur supports-[backdrop-filter]:bg-white/60">
-      <nav className="mx-auto flex w-full max-w-6xl items-center justify-between px-6 py-3">
-        <Link href="/" className="flex items-center gap-2 font-semibold">
-          <GraduationCap className="h-5 w-5 text-emerald-700" />
-          <span>{"Campus Student Portal"}</span>
-        </Link>
-        <div className="hidden items-center gap-4 text-sm text-neutral-600 sm:flex">
-          <Link href="/help" className="hover:underline underline-offset-4">
-            {"Help Center"}
-          </Link>
-        </div>
-      </nav>
-    </header>
-  );
-}
-
 function Footer() {
   return (
     <footer className="border-t bg-white/70 backdrop-blur supports-[backdrop-filter]:bg-white/60">
       <div className="mx-auto flex w-full max-w-6xl flex-col items-center justify-between gap-3 px-6 py-4 text-sm text-neutral-600 sm:flex-row">
         <p className="order-2 sm:order-1">
           {"© "} {new Date().getFullYear()}{" "}
-          {"Campus Student Portal · Registrar & MIS Office"}
+          {"Bacoor City Campus Student Portal · Registrar & MIS Office"}
         </p>
       </div>
     </footer>

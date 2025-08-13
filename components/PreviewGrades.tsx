@@ -224,13 +224,9 @@ export function PreviewGrades({
       const updatedGrades = await Promise.all(updatePromises);
       setGrades(updatedGrades);
       setEditedGrades(updatedGrades);
-
-      // Close all edit modes
       setEditingRows({});
 
       toast.success("Grades updated successfully");
-
-      // Close the dialog after successful save
       setIsDialogOpen(false);
     } catch (error) {
       console.error("Error updating grades", error);
@@ -437,7 +433,10 @@ export function PreviewGrades({
                       )}
                     </TableCell>
                     <TableCell>
-                      <Button onClick={() => toggleEditRow(index)}>
+                      <Button
+                        onClick={() => toggleEditRow(index)}
+                        className="bg-blue-700 hover:bg-blue-500"
+                      >
                         {editingRows[index] ? (
                           <CheckIcon className="w-4 h-4" />
                         ) : (
@@ -452,7 +451,7 @@ export function PreviewGrades({
           )}
           <DialogFooter>
             <Button
-              className="bg-blue-700 hover:bg-blue-900"
+              className="bg-blue-700 hover:bg-blue-500"
               type="submit"
               onClick={handleSaveChanges}
             >
