@@ -27,6 +27,12 @@ export default clerkMiddleware(async (auth, req) => {
           cache: "no-store",
         }
       );
+
+      if (!res.ok) {
+        console.error("Approval check failed with status", res.status);
+        return NextResponse.redirect(new URL("/sign-in", req.url));
+      }
+
       const data = await res.json();
 
       if (!data?.isApproved && !isAllowedWhileUnapproved) {
