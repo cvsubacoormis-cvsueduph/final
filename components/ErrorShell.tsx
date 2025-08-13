@@ -17,6 +17,7 @@ import {
   RefreshCw,
   HelpCircle,
 } from "lucide-react";
+import Image from "next/image";
 
 type Variant = "404" | "401" | "403" | "429" | "500";
 
@@ -200,7 +201,7 @@ export default function ErrorShell({
               )}
             />
             <div className="overflow-hidden rounded-2xl border bg-white shadow-sm">
-              <img
+              <Image
                 src={`/placeholder.svg?height=380&width=560&query=${illustrationQuery}`}
                 alt="Illustration representing the student portal"
                 className="h-auto w-full object-cover"
