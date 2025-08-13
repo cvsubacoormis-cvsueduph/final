@@ -1,6 +1,7 @@
 import { clerkMiddleware } from "@clerk/nextjs/server";
 import { NextResponse } from "next/server";
 import { routeAccessMap } from "./lib/settings";
+import axios from "axios";
 
 export default clerkMiddleware(async (auth, req) => {
   const url = req.nextUrl.clone();
@@ -16,14 +17,14 @@ export default clerkMiddleware(async (auth, req) => {
   if (!userId) return NextResponse.redirect(new URL("/sign-in", req.url));
 
   if (role === "student") {
-    const res = await fetch(`${req.nextUrl.origin}/api/check-approval`, {
-      headers: {
-        "x-user-id": userId,
-      },
-      cache: "no-store",
-    });
-
-    const data = await res.json();
+    const { data } = await axios.get(
+      `${req.nextUrl.origin}/api/check-approval`,
+      {
+        headers: {
+          "x-user-id": userId,
+        },
+      }
+    );
 
     if (!data.isApproved && url.pathname !== "/pending-approval") {
       url.pathname = "/pending-approval";
