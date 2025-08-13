@@ -15,23 +15,25 @@ export default clerkMiddleware(async (auth, req) => {
 
   if (!userId) return NextResponse.redirect(new URL("/sign-in", req.url));
 
-  const res = await fetch(`${req.nextUrl.origin}/api/check-approval`, {
-    headers: {
-      "x-user-id": userId,
-    },
-    cache: "no-store",
-  });
+  if (role === "student") {
+    const res = await fetch(`${req.nextUrl.origin}/api/check-approval`, {
+      headers: {
+        "x-user-id": userId,
+      },
+      cache: "no-store",
+    });
 
-  const data = await res.json();
+    const data = await res.json();
 
-  if (!data.isApproved && url.pathname !== "/pending-approval") {
-    url.pathname = "/pending-approval";
-    return NextResponse.redirect(url);
-  }
+    if (!data.isApproved && url.pathname !== "/pending-approval") {
+      url.pathname = "/pending-approval";
+      return NextResponse.redirect(url);
+    }
 
-  if (data.isApproved && url.pathname === "/pending-approval") {
-    url.pathname = "/student";
-    return NextResponse.redirect(url);
+    if (data.isApproved && url.pathname === "/pending-approval") {
+      url.pathname = "/student";
+      return NextResponse.redirect(url);
+    }
   }
 
   // 🔁 2. Skip infinite redirect to homepage only AFTER approval check
