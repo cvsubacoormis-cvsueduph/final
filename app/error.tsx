@@ -23,6 +23,10 @@ export default function GlobalError({
           description="Our systems ran into an error. Please try again. If the problem continues, our support team can help."
           primaryHref="/"
           primaryLabel="Go to Dashboard"
+          secondaryHref="/status"
+          secondaryLabel="View System Status"
+          extraHref="mailto:support@campus.example.edu"
+          extraLabel="Contact Support"
           showRetry
           onRetry={reset}
           illustrationQuery="university%20server%20error%20system%20maintenance%20illustration"

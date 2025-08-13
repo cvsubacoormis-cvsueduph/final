@@ -11,14 +11,14 @@ import {
   ShieldAlert,
   Ban,
   CircleX,
+  Clock,
   Home,
   Mail,
   RefreshCw,
   HelpCircle,
 } from "lucide-react";
-import Image from "next/image";
 
-type Variant = "404" | "401" | "403" | "500";
+type Variant = "404" | "401" | "403" | "429" | "500";
 
 const VARIANTS: Record<
   Variant,
@@ -55,6 +55,14 @@ const VARIANTS: Record<
     tone: "text-zinc-800",
     badge: "bg-zinc-100 text-zinc-900 ring-1 ring-inset ring-zinc-200",
   },
+  "429": {
+    label: "429",
+    icon: Clock,
+    gradient: "from-orange-100 via-orange-50 to-white",
+    ring: "ring-orange-200",
+    tone: "text-orange-700",
+    badge: "bg-orange-100 text-orange-900 ring-1 ring-inset ring-orange-200",
+  },
   "500": {
     label: "500",
     icon: CircleX,
@@ -83,11 +91,13 @@ interface ErrorShellProps {
 export default function ErrorShell({
   variant = "500",
   title = "Something went wrong",
-  description = "An unexpected error occurred. If the issue persists, please us",
+  description = "An unexpected error occurred. If the issue persists, please contact support.",
   primaryHref = "/",
   primaryLabel = "Back to Home",
   secondaryHref = "/help",
   secondaryLabel = "Help Center",
+  extraHref = "mailto:support@campus.example.edu",
+  extraLabel = "Contact Support",
   showRetry = false,
   onRetry,
   illustrationQuery = "university%20campus%20illustration%20students%20studying",
@@ -97,6 +107,8 @@ export default function ErrorShell({
 
   return (
     <div className="relative min-h-dvh overflow-hidden">
+      <Header />
+
       {/* Background */}
       <div
         className={cn(
@@ -114,6 +126,7 @@ export default function ErrorShell({
             "bg-amber-200": variant === "401",
             "bg-zinc-300": variant === "403",
             "bg-rose-200": variant === "500",
+            "bg-orange-200": variant === "429",
           }
         )}
       />
@@ -164,6 +177,17 @@ export default function ErrorShell({
               </Button>
             </Link>
           </div>
+
+          <div className="mt-6 text-sm text-neutral-600">
+            Need assistance?{" "}
+            <Link
+              href={extraHref}
+              className="inline-flex items-center gap-1 font-medium underline underline-offset-4"
+            >
+              <Mail className="h-3.5 w-3.5" />
+              {extraLabel}
+            </Link>
+          </div>
         </section>
 
         {/* Right: Illustration / Visual */}
@@ -175,9 +199,16 @@ export default function ErrorShell({
                 v.ring
               )}
             />
+            <div className="overflow-hidden rounded-2xl border bg-white shadow-sm">
+              <img
+                src={`/placeholder.svg?height=380&width=560&query=${illustrationQuery}`}
+                alt="Illustration representing the student portal"
+                className="h-auto w-full object-cover"
+              />
+            </div>
             <div className="mt-3 flex items-center gap-2">
               <span className={cn("rounded-full px-2.5 py-1 text-xs", v.badge)}>
-                {"MIS Office"}
+                {"Campus resources · Registrar · Help Desk"}
               </span>
             </div>
           </div>
@@ -189,14 +220,46 @@ export default function ErrorShell({
   );
 }
 
+function Header() {
+  return (
+    <header className="sticky top-0 z-10 border-b bg-white/70 backdrop-blur supports-[backdrop-filter]:bg-white/60">
+      <nav className="mx-auto flex w-full max-w-6xl items-center justify-between px-6 py-3">
+        <Link href="/" className="flex items-center gap-2 font-semibold">
+          <GraduationCap className="h-5 w-5 text-emerald-700" />
+          <span>{"Campus Portal"}</span>
+        </Link>
+        <div className="hidden items-center gap-4 text-sm text-neutral-600 sm:flex">
+          <Link href="/help" className="hover:underline underline-offset-4">
+            {"Help Center"}
+          </Link>
+          <Link
+            href="mailto:support@campus.example.edu"
+            className="hover:underline underline-offset-4"
+          >
+            {"Support"}
+          </Link>
+        </div>
+      </nav>
+    </header>
+  );
+}
+
 function Footer() {
   return (
     <footer className="border-t bg-white/70 backdrop-blur supports-[backdrop-filter]:bg-white/60">
       <div className="mx-auto flex w-full max-w-6xl flex-col items-center justify-between gap-3 px-6 py-4 text-sm text-neutral-600 sm:flex-row">
         <p className="order-2 sm:order-1">
           {"© "} {new Date().getFullYear()}{" "}
-          {"Bacoor City Campus Student Portal · Registrar & MIS Office"}
+          {"Campus Portal · Registrar & IT Services"}
         </p>
+        <div className="order-1 flex items-center gap-4 sm:order-2">
+          <Link href="/policies" className="hover:underline underline-offset-4">
+            {"Policies"}
+          </Link>
+          <Link href="/status" className="hover:underline underline-offset-4">
+            {"System Status"}
+          </Link>
+        </div>
       </div>
     </footer>
   );

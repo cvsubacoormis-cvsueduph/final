@@ -106,8 +106,11 @@ export async function getStudentData(): Promise<StudentData> {
       isPasswordSet: student.isPasswordSet,
       createdAt: student.createdAt,
     };
-  } catch (error) {
-    console.error("Error fetching student data:", error);
-    throw error;
+  } catch (err: any) {
+    if (err.code === "RATE_LIMIT_EXCEEDED") {
+      throw err;
+    }
+    console.error("Error fetching student data:", err);
+    throw new Error("Internal server error");
   }
 }

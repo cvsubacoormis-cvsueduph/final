@@ -32,7 +32,6 @@ import {
   Mail,
   Phone,
   MapPin,
-  Edit3,
   CircleAlert,
   CheckCheck,
   CalendarClock,
@@ -41,7 +40,6 @@ import {
   ChevronLeft,
   ChevronRight,
   OptionIcon,
-  BookOpen,
 } from "lucide-react";
 import { Grade } from "@/lib/types";
 import { useUser } from "@clerk/nextjs";
@@ -162,19 +160,6 @@ export default function StudentProfile({ data }: { data: Student }) {
     if (pageIndex > nextTotalPages - 1) setPageIndex(nextTotalPages - 1);
   }, [totalGrades, rowsPerPage, pageIndex]);
 
-  function onSaveProfile(formData: FormData) {
-    const next: Student = {
-      ...student,
-      username: (formData.get("username") as string) || student.username,
-      email: (formData.get("email") as string) || student.email,
-      phone: (formData.get("phone") as string) || student.phone,
-      address: (formData.get("address") as string) || student.address,
-      sex: ((formData.get("sex") as string) || student.sex) as UserSex,
-    };
-    setStudent(next);
-    setOpenEdit(false);
-  }
-
   return (
     <section aria-label="Student profile">
       <Card className="overflow-hidden border-0 shadow-sm">
@@ -258,110 +243,6 @@ export default function StudentProfile({ data }: { data: Student }) {
                   </span>
                 </div>
               </div>
-            </div>
-
-            <div className="flex items-center gap-2">
-              <Dialog open={openEdit} onOpenChange={setOpenEdit}>
-                <DialogTrigger asChild>
-                  <Button className="gap-2 bg-blue-600 text-white hover:bg-blue-600/90">
-                    <Edit3 className="size-4" />
-                    <span className="hidden sm:inline">Edit Profile</span>
-                    <span className="sm:hidden">Edit</span>
-                  </Button>
-                </DialogTrigger>
-                <DialogContent className="w-[calc(100vw-2rem)] sm:max-w-xl">
-                  <DialogHeader>
-                    <DialogTitle>Edit profile</DialogTitle>
-                  </DialogHeader>
-                  <form
-                    onSubmit={(e) => {
-                      e.preventDefault();
-                      onSaveProfile(
-                        new FormData(e.currentTarget as HTMLFormElement)
-                      );
-                    }}
-                    className="grid gap-5"
-                  >
-                    {/* Only editable: username, email, phone, address, sex */}
-                    <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
-                      <div className="space-y-2">
-                        <Label htmlFor="username">Username</Label>
-                        <Input
-                          id="username"
-                          name="username"
-                          defaultValue={student.username}
-                        />
-                      </div>
-                      <div className="space-y-2">
-                        <Label htmlFor="email">Email</Label>
-                        <Input
-                          id="email"
-                          name="email"
-                          type="email"
-                          defaultValue={student.email ?? ""}
-                        />
-                      </div>
-                      <div className="space-y-2">
-                        <Label htmlFor="phone">Phone</Label>
-                        <Input
-                          id="phone"
-                          name="phone"
-                          defaultValue={student.phone ?? ""}
-                        />
-                      </div>
-                      <div className="space-y-2">
-                        <Label htmlFor="sex">Sex</Label>
-                        <select
-                          id="sex"
-                          name="sex"
-                          defaultValue={student.sex}
-                          className="h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-600 focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
-                        >
-                          <option value="MALE">Male</option>
-                          <option value="FEMALE">Female</option>
-                        </select>
-                      </div>
-                      <div className="space-y-2 sm:col-span-2">
-                        <Label htmlFor="address">Address</Label>
-                        <Input
-                          id="address"
-                          name="address"
-                          defaultValue={student.address}
-                        />
-                      </div>
-
-                      {/* Read-only context */}
-                      <div className="space-y-2">
-                        <Label htmlFor="studentNumber">Student number</Label>
-                        <Input
-                          id="studentNumber"
-                          value={student.studentNumber}
-                          disabled
-                        />
-                      </div>
-                      <div className="space-y-2">
-                        <Label htmlFor="course">Course</Label>
-                        <Input id="course" value={student.course} disabled />
-                      </div>
-                    </div>
-                    <DialogFooter className="gap-2">
-                      <Button
-                        type="button"
-                        variant="outline"
-                        onClick={() => setOpenEdit(false)}
-                      >
-                        Cancel
-                      </Button>
-                      <Button
-                        type="submit"
-                        className="bg-blue-600 text-white hover:bg-blue-600/90"
-                      >
-                        Save changes
-                      </Button>
-                    </DialogFooter>
-                  </form>
-                </DialogContent>
-              </Dialog>
             </div>
           </div>
         </CardHeader>

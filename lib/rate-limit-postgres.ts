@@ -26,7 +26,11 @@ export async function checkRateLimit({
   });
 
   if (recentRequests >= limit) {
-    throw new Error("Too many requests. Please try again in a minute.");
+    const err: any = new Error(
+      "Too many requests. Please try again in a minute."
+    );
+    err.code = "RATE_LIMIT_EXCEEDED"; // 👈 important
+    throw err;
   }
 
   // Log this request
