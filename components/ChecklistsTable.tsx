@@ -86,8 +86,8 @@ export function CurriculumChecklist() {
                 grade.semester === "FIRST"
                   ? "1st"
                   : grade.semester === "SECOND"
-                  ? "2nd"
-                  : "Midyear"
+                    ? "2nd"
+                    : "Midyear"
               } Sem (Attempt ${index + 1})`;
             });
           } else {
@@ -117,14 +117,14 @@ export function CurriculumChecklist() {
               latestGrade.remarks?.includes("LACK OF REQ.")
               ? "Incomplete"
               : latestGrade.remarks?.includes("FAILED")
-              ? "Failed"
-              : latestGrade.remarks?.includes("UNSATISFACTORY")
-              ? "Unsatisfactory"
-              : latestGrade.remarks?.includes("CON. FAILURE")
-              ? "Con. Failure"
-              : latestGrade.remarks?.includes("DROPPED")
-              ? "Dropped"
-              : "Completed"
+                ? "Failed"
+                : latestGrade.remarks?.includes("UNSATISFACTORY")
+                  ? "Unsatisfactory"
+                  : latestGrade.remarks?.includes("CON. FAILURE")
+                    ? "Con. Failure"
+                    : latestGrade.remarks?.includes("DROPPED")
+                      ? "Dropped"
+                      : "Completed"
             : "Not Taken";
 
           return {
@@ -348,13 +348,6 @@ export function CurriculumChecklist() {
                 <SelectItem value="Fourth Year">Fourth Year</SelectItem>
               </SelectContent>
             </Select>
-            {/* Link to print checklist page with print button */}
-            {/* <<Link href="/printChecklist">
-              <Button className="bg-blue-700 hover:bg-blue-900">
-                <Printer className="h-4 w-4 mr-2" />
-                Print
-              </Button>
-            </Link> >> */}
             <GenerateChecklistPDF />
           </div>
         </div>
@@ -484,20 +477,23 @@ export function CurriculumChecklist() {
                                     {subject.completion === "Not Taken"
                                       ? "Not Taken"
                                       : subject.completion === "Completed"
-                                      ? "Completed"
-                                      : subject.completion === "Enrolled"
-                                      ? "Enrolled"
-                                      : subject.completion === "Failed"
-                                      ? "Failed"
-                                      : subject.completion === "Unsatisfactory"
-                                      ? "Unsatisfactory"
-                                      : subject.completion === "Dropped"
-                                      ? "Dropped"
-                                      : subject.completion === "Con. Failure"
-                                      ? "Con. Failure"
-                                      : subject.completion === "Lack of Req."
-                                      ? "Lack of Req."
-                                      : subject.completion}
+                                        ? "Completed"
+                                        : subject.completion === "Enrolled"
+                                          ? "Enrolled"
+                                          : subject.completion === "Failed"
+                                            ? "Failed"
+                                            : subject.completion ===
+                                                "Unsatisfactory"
+                                              ? "Unsatisfactory"
+                                              : subject.completion === "Dropped"
+                                                ? "Dropped"
+                                                : subject.completion ===
+                                                    "Con. Failure"
+                                                  ? "Con. Failure"
+                                                  : subject.completion ===
+                                                      "Lack of Req."
+                                                    ? "Lack of Req."
+                                                    : subject.completion}
                                   </Badge>
                                 </div>
                               </td>
@@ -546,8 +542,8 @@ export function CurriculumChecklist() {
                                             attempt.semester === "FIRST"
                                               ? "1st"
                                               : attempt.semester === "SECOND"
-                                              ? "2nd"
-                                              : "Midyear"
+                                                ? "2nd"
+                                                : "Midyear"
                                           } Sem (Attempt ${
                                             attempt.attemptNumber
                                           })`}{" "}
@@ -591,27 +587,33 @@ export function CurriculumChecklist() {
       </div>
 
       {/* Legend */}
-      <Card className="print:shadow-none print:border print:border-gray-300">
+      <Card className="print:shadow-none print:border print:border-gray-300 w-full">
         <CardContent className="pt-6 print:pt-2">
-          <h4 className="font-medium text-gray-900 mb-3 print:text-sm print:mb-2">
+          <h4 className="font-medium text-gray-900 mb-3 print:text-sm print:mb-2 text-base sm:text-lg">
             Legend
           </h4>
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-4 print:grid-cols-4 print:gap-2 print:text-xs">
+          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-4 print:grid-cols-4 print:gap-2 print:text-xs">
             <div className="flex items-center gap-2">
-              <CheckCircle className="h-4 w-4 text-green-600 print:h-3 print:w-3" />
-              <span>Completed/Passed/Satisfactory</span>
+              <CheckCircle className="h-4 w-4 text-green-600 print:h-3 print:w-3 flex-shrink-0" />
+              <span className="text-sm sm:text-base">
+                Completed/Passed/Satisfactory
+              </span>
             </div>
             <div className="flex items-center gap-2">
-              <XCircle className="h-4 w-4 text-red-600 print:h-3 print:w-3" />
-              <span>Failed/Unsatisfactory</span>
+              <XCircle className="h-4 w-4 text-red-600 print:h-3 print:w-3 flex-shrink-0" />
+              <span className="text-sm sm:text-base">
+                Failed/Unsatisfactory
+              </span>
             </div>
             <div className="flex items-center gap-2">
-              <XCircle className="h-4 w-4 text-orange-600 print:h-3 print:w-3" />
-              <span>Conditional Failure/Dropped/Lack of Requirements</span>
+              <XCircle className="h-4 w-4 text-orange-600 print:h-3 print:w-3 flex-shrink-0" />
+              <span className="text-sm sm:text-base">
+                Conditional Failure/Dropped/Lack of Requirements
+              </span>
             </div>
             <div className="flex items-center gap-2">
-              <div className="h-4 w-4 rounded-full border-2 border-gray-300 print:h-3 print:w-3" />
-              <span>Not Taken</span>
+              <div className="h-4 w-4 rounded-full border-2 border-gray-300 print:h-3 print:w-3 flex-shrink-0" />
+              <span className="text-sm sm:text-base">Not Taken</span>
             </div>
           </div>
         </CardContent>

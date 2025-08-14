@@ -7,6 +7,7 @@ import { getCurriculumChecklist } from "@/actions/curriculum-actions";
 import { CurriculumItem, GradeAttempt } from "@/lib/types";
 import { getStudentData } from "@/actions/getStudentData";
 import toast from "react-hot-toast";
+import { DownloadIcon } from "lucide-react";
 
 type CourseRowProps = {
   code: string;
@@ -105,8 +106,8 @@ const GenerateChecklistPDF = () => {
               gradeInfo.semester === "FIRST"
                 ? "1"
                 : gradeInfo.semester === "SECOND"
-                ? "2"
-                : "MIDYEAR";
+                  ? "2"
+                  : "MIDYEAR";
             return {
               academicYear: `AY/${shortAY} - ${semesterNum}`,
               grade: getBetterGrade(gradeInfo.grade, gradeInfo.reExam),
@@ -143,8 +144,8 @@ const GenerateChecklistPDF = () => {
                 attempt.retakenAYSem?.split("-")[1]?.trim() === "1"
                   ? "FIRST"
                   : attempt.retakenAYSem?.split("-")[1]?.trim() === "2"
-                  ? "SECOND"
-                  : "MIDYEAR",
+                    ? "SECOND"
+                    : "MIDYEAR",
             })),
           }))
         );
@@ -519,10 +520,10 @@ const GenerateChecklistPDF = () => {
                 yearLevel === "FIRST"
                   ? "First"
                   : yearLevel === "SECOND"
-                  ? "Second"
-                  : yearLevel === "THIRD"
-                  ? "Third"
-                  : "Fourth"
+                    ? "Second"
+                    : yearLevel === "THIRD"
+                      ? "Third"
+                      : "Fourth"
               } Year`,
               sem1Lec,
               sem1Lab,
@@ -624,10 +625,10 @@ const GenerateChecklistPDF = () => {
           yearLevel === "FIRST"
             ? "First Year"
             : yearLevel === "SECOND"
-            ? "Second Year"
-            : yearLevel === "THIRD"
-            ? "Third Year"
-            : "Fourth Year";
+              ? "Second Year"
+              : yearLevel === "THIRD"
+                ? "Third Year"
+                : "Fourth Year";
 
         addSemesterHeader(yearLabel, true);
 
@@ -790,7 +791,7 @@ const GenerateChecklistPDF = () => {
   return (
     <Button
       ref={buttonRef}
-      className="bg-blue-700 hover:bg-blue-900 text-white"
+      className="bg-blue-700 hover:bg-blue-500 w-full sm:w-auto text-sm px-4 py-2 rounded-lg"
       onClick={generateChecklistPDF}
       disabled={
         loading ||
@@ -800,11 +801,13 @@ const GenerateChecklistPDF = () => {
         rateLimited
       }
     >
-      {loading
-        ? "Loading Data..."
-        : generating
-        ? "Generating PDF..."
-        : "Download Course Checklist"}
+      {loading ? (
+        "Loading Data..."
+      ) : generating ? (
+        "Generating PDF..."
+      ) : (
+        <DownloadIcon />
+      )}
     </Button>
   );
 };

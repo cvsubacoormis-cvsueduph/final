@@ -186,12 +186,13 @@ export default function GradesPage() {
     <>
       <SignedIn>
         <div className="bg-white p-4 rounded-md flex-1 m-4 mt-0">
-          <h1 className="text-lg font-semibold mb-4">Grades</h1>
-
+          <h1 className="text-lg font-semibold mb-4">
+            Grades <p className="text-xs text-gray-500">List of grades</p>
+          </h1>
           {/* Filter Dropdowns */}
           <form
             onSubmit={handleFilterSubmit}
-            className="mb-4 flex gap-4 items-center"
+            className="mb-4 flex flex-col sm:flex-row gap-4 items-stretch sm:items-center"
           >
             <Select name="year" defaultValue={year}>
               <SelectTrigger className="w-[180px]">
@@ -205,7 +206,6 @@ export default function GradesPage() {
                 ))}
               </SelectContent>
             </Select>
-
             <Select name="semester" defaultValue={semester}>
               <SelectTrigger className="w-[180px]">
                 <SelectValue placeholder="Select Semester" />
@@ -222,13 +222,11 @@ export default function GradesPage() {
                 ))}
               </SelectContent>
             </Select>
-
             <Button type="submit" className="bg-blue-700 hover:bg-blue-900">
               Filter
             </Button>
             <GenerateCOG />
           </form>
-
           {/* Grades Table */}
           {filteredGrades.length === 0 ? (
             <p className="text-center font-semibold">
