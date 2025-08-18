@@ -51,16 +51,21 @@ export async function POST(req: Request) {
         semester,
       } = entry;
 
+      // ✅ Normalize studentNumber (remove dashes if any)
+      const normalizedStudentNumber = studentNumber
+        ? String(studentNumber).replace(/-/g, "")
+        : null;
+
       // Validate required fields
       if (
-        (!studentNumber && (!firstName || !lastName)) ||
+        (!normalizedStudentNumber && (!firstName || !lastName)) ||
         !courseCode ||
         grade == null ||
         !academicYear ||
         !semester
       ) {
         results.push({
-          identifier: studentNumber || `${firstName} ${lastName}`,
+          identifier: normalizedStudentNumber || `${firstName} ${lastName}`,
           courseCode,
           status:
             "❌ Missing required fields (need studentNumber OR firstName+lastName)",
@@ -76,7 +81,7 @@ export async function POST(req: Request) {
 
       if (!GRADE_HIERARCHY.includes(standardizedGrade)) {
         results.push({
-          identifier: studentNumber || `${firstName} ${lastName}`,
+          identifier: normalizedStudentNumber || `${firstName} ${lastName}`,
           courseCode,
           status: "❌ Invalid grade value",
         });
@@ -90,7 +95,7 @@ export async function POST(req: Request) {
 
       if (!academicTerm) {
         results.push({
-          identifier: studentNumber || `${firstName} ${lastName}`,
+          identifier: normalizedStudentNumber || `${firstName} ${lastName}`,
           courseCode,
           status: "❌ Academic term not found",
         });
@@ -99,9 +104,9 @@ export async function POST(req: Request) {
 
       // Find student
       let student;
-      if (studentNumber) {
+      if (normalizedStudentNumber) {
         student = await prisma.student.findUnique({
-          where: { studentNumber: String(studentNumber) },
+          where: { studentNumber: normalizedStudentNumber },
         });
       } else {
         // Search by name if no studentNumber provided
@@ -142,7 +147,7 @@ export async function POST(req: Request) {
 
       if (!student) {
         results.push({
-          identifier: studentNumber || `${firstName} ${lastName}`,
+          identifier: normalizedStudentNumber || `${firstName} ${lastName}`,
           courseCode,
           status: "❌ Student not found",
         });
@@ -251,6 +256,7 @@ export async function POST(req: Request) {
         },
       });
 
+      // Create log
       await prisma.gradeLog.create({
         data: {
           studentNumber: student.studentNumber,
