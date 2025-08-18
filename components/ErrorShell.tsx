@@ -95,21 +95,15 @@ export default function ErrorShell({
   description = "An unexpected error occurred. If the issue persists, please contact support.",
   primaryHref = "/",
   primaryLabel = "Back to Home",
-  secondaryHref = "/help",
-  secondaryLabel = "Help Center",
-  extraHref = "mailto:support@campus.example.edu",
-  extraLabel = "Contact Support",
   showRetry = false,
   onRetry,
-  illustrationQuery = "university%20campus%20illustration%20students%20studying",
 }: ErrorShellProps) {
   const v = VARIANTS[variant];
   const Icon = v.icon;
 
   return (
-    <div className="relative min-h-dvh overflow-hidden">
+    <div className="relative  min-h-dvh overflow-hidden">
       <Header />
-
       {/* Background */}
       <div
         className={cn(
@@ -132,13 +126,15 @@ export default function ErrorShell({
         )}
       />
 
-      <main className="mx-auto grid w-full max-w-6xl grid-cols-1 items-center gap-10 px-6 py-12 md:grid-cols-2 md:py-20">
+      <main className="mx-auto grid w-full max-w-6xl grid-cols-1 items-center h-screen gap-10 px-6 py-12 md:grid-cols-2 md:py-20">
         {/* Left: Text + Actions */}
         <section className="order-2 md:order-1">
           <div className="mb-4 inline-flex items-center gap-2 rounded-full px-3 py-1 text-sm shadow-sm ring-1 ring-inset bg-white/80 backdrop-blur-sm border border-white/40">
             <span className={cn("font-semibold", v.tone)}>{v.label}</span>
             <span className="h-1 w-1 rounded-full bg-neutral-300" />
-            <span className="text-neutral-600">Student Portal</span>
+            <span className="text-neutral-600">
+              Cavite State University Bacoor City Campus Student Portal
+            </span>
           </div>
 
           <div className="mb-6 flex items-start gap-3">
@@ -160,7 +156,10 @@ export default function ErrorShell({
 
           <div className="flex flex-col gap-3 sm:flex-row sm:items-center">
             {showRetry && (
-              <Button onClick={onRetry} className="gap-2">
+              <Button
+                onClick={onRetry}
+                className="gap-2 bg-blue-700 hover:bg-blue-600"
+              >
                 <RefreshCw className="h-4 w-4" />
                 {"Try again"}
               </Button>
@@ -171,15 +170,8 @@ export default function ErrorShell({
                 {primaryLabel}
               </Button>
             </Link>
-            <Link href={secondaryHref} className="w-full sm:w-auto">
-              <Button variant="ghost" className="w-full gap-2">
-                <HelpCircle className="h-4 w-4" />
-                {secondaryLabel}
-              </Button>
-            </Link>
           </div>
-
-          <div className="mt-6 text-sm text-neutral-600">
+          {/* <div className="mt-6 text-sm text-neutral-600">
             Need assistance?{" "}
             <Link
               href={extraHref}
@@ -188,7 +180,7 @@ export default function ErrorShell({
               <Mail className="h-3.5 w-3.5" />
               {extraLabel}
             </Link>
-          </div>
+          </div> */}
         </section>
 
         {/* Right: Illustration / Visual */}
@@ -200,22 +192,21 @@ export default function ErrorShell({
                 v.ring
               )}
             />
-            <div className="overflow-hidden rounded-2xl border bg-white shadow-sm">
+            {/* <div className="overflow-hidden rounded-2xl border bg-white shadow-sm">
               <Image
                 src={`/placeholder.svg?height=380&width=560&query=${illustrationQuery}`}
                 alt="Illustration representing the student portal"
                 className="h-auto w-full object-cover"
               />
-            </div>
-            <div className="mt-3 flex items-center gap-2">
+            </div> */}
+            {/* <div className="mt-3 flex items-center gap-2">
               <span className={cn("rounded-full px-2.5 py-1 text-xs", v.badge)}>
                 {"Campus resources · Registrar · Help Desk"}
               </span>
-            </div>
+            </div> */}
           </div>
         </section>
       </main>
-
       <Footer />
     </div>
   );
@@ -224,22 +215,18 @@ export default function ErrorShell({
 function Header() {
   return (
     <header className="sticky top-0 z-10 border-b bg-white/70 backdrop-blur supports-[backdrop-filter]:bg-white/60">
-      <nav className="mx-auto flex w-full max-w-6xl items-center justify-between px-6 py-3">
+      <nav className="flex w-full max-w-6xl items-center justify-between px-6 py-3">
         <Link href="/" className="flex items-center gap-2 font-semibold">
           <GraduationCap className="h-5 w-5 text-emerald-700" />
-          <span>{"Campus Portal"}</span>
+          <span>
+            {"Cavite State University Bacoor City Campus Student Portal"}
+          </span>
         </Link>
-        <div className="hidden items-center gap-4 text-sm text-neutral-600 sm:flex">
+        {/* <div className="hidden items-center gap-4 text-sm text-neutral-600 sm:flex">
           <Link href="/help" className="hover:underline underline-offset-4">
             {"Help Center"}
           </Link>
-          <Link
-            href="mailto:support@campus.example.edu"
-            className="hover:underline underline-offset-4"
-          >
-            {"Support"}
-          </Link>
-        </div>
+        </div> */}
       </nav>
     </header>
   );
@@ -248,18 +235,20 @@ function Header() {
 function Footer() {
   return (
     <footer className="border-t bg-white/70 backdrop-blur supports-[backdrop-filter]:bg-white/60">
-      <div className="mx-auto flex w-full max-w-6xl flex-col items-center justify-between gap-3 px-6 py-4 text-sm text-neutral-600 sm:flex-row">
+      <div className="flex w-full max-w-6xl flex-col items-center justify-between gap-3 px-6 py-4 text-sm text-neutral-600 sm:flex-row">
         <p className="order-2 sm:order-1">
           {"© "} {new Date().getFullYear()}{" "}
-          {"Campus Portal · Registrar & IT Services"}
+          {
+            "Cavite State University Bacoor City Campus Student Portal · Registrar"
+          }
         </p>
         <div className="order-1 flex items-center gap-4 sm:order-2">
-          <Link href="/policies" className="hover:underline underline-offset-4">
+          {/* <Link href="/policies" className="hover:underline underline-offset-4">
             {"Policies"}
           </Link>
           <Link href="/status" className="hover:underline underline-offset-4">
             {"System Status"}
-          </Link>
+          </Link> */}
         </div>
       </div>
     </footer>
