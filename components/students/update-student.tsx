@@ -325,7 +325,9 @@ export default function UpdateStudent({
               >
                 Cancel
               </Button>
-              <Button type="submit">Save Changes</Button>
+              <Button type="submit" className="bg-blue-700 hover:bg-blue-600">
+                Save Changes
+              </Button>
             </div>
           </form>
         </Form>
