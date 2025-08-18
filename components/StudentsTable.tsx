@@ -66,14 +66,9 @@ export default function StudentsTable({
       <Table className="w-full mt-4">
         <TableCaption>A list of your recent students.</TableCaption>
         <TableHeader>
-          <TableRow className="text-left text-gray-500 text-sm">
-            <TableHead className="hidden md:table-cell text-left">
-              No.
-            </TableHead>
-            <TableHead className="hidden md:table-cell text-center">
-              Name
-            </TableHead>
-            <TableHead className="hidden md:table-cell text-center">
+          <TableRow>
+            <TableHead className="text-left">Name</TableHead>
+            <TableHead className="hidden sm:table-cell text-center">
               Student Number
             </TableHead>
             <TableHead className="hidden md:table-cell text-center">
@@ -82,82 +77,66 @@ export default function StudentsTable({
             <TableHead className="hidden md:table-cell text-center">
               Status
             </TableHead>
-            <TableHead className="hidden md:table-cell text-center">
+            <TableHead className="hidden lg:table-cell text-center">
               Phone
             </TableHead>
-            <TableHead className="hidden md:table-cell text-center">
+            <TableHead className="hidden lg:table-cell text-center">
               Address
             </TableHead>
             <TableHead>Actions</TableHead>
           </TableRow>
         </TableHeader>
         <TableBody>
-          {data.length === 0 ? (
-            <TableRow className="bg-gray-100">
-              <TableCell
-                colSpan={10}
-                className="text-center items-center py-4 text-gray-600"
-              >
-                No students found. Please try a different search or add new
-                students.
+          {data.map((student, index) => (
+            <TableRow key={student.id}>
+              <TableCell>
+                {student.firstName} {student.lastName}
+                <div className="sm:hidden text-xs text-gray-500">
+                  {student.studentNumber}
+                </div>
+              </TableCell>
+              <TableCell className="hidden sm:table-cell text-center">
+                {student.studentNumber}
+              </TableCell>
+              <TableCell className="hidden md:table-cell text-center">
+                {student.course}
+              </TableCell>
+              <TableCell className="hidden md:table-cell text-center">
+                {student.status}
+              </TableCell>
+              <TableCell className="hidden lg:table-cell text-center">
+                {student.phone}
+              </TableCell>
+              <TableCell className="hidden lg:table-cell text-center">
+                {student.address}
+              </TableCell>
+              <TableCell className="text-right">
+                {(role === "admin" || role === "superuser") && (
+                  <div className="flex items-center gap-2">
+                    <DeleteStudent id={student.id} />
+                    <UpdateStudent
+                      student={{
+                        ...student,
+                        username: student.username,
+                        id: student.id,
+                        studentNumber: student.studentNumber,
+                        firstName: student.firstName,
+                        lastName: student.lastName,
+                        middleInit: student.middleInit || undefined,
+                        email: student.email || undefined,
+                        phone: student.phone || undefined,
+                        address: student.address,
+                        sex: student.sex,
+                        course: student.course,
+                        major: student.major || undefined,
+                        status: student.status,
+                      }}
+                    />
+                  </div>
+                )}
               </TableCell>
             </TableRow>
-          ) : (
-            data.map((student: Student, index: number) => (
-              <TableRow key={student.id}>
-                <TableCell className="hidden md:table-cell text-center">
-                  {(currentPage - 1) * 10 + index + 1}
-                </TableCell>
-                <TableCell className="hidden md:table-cell text-center">
-                  {student.firstName +
-                    " " +
-                    student.middleInit +
-                    " " +
-                    student.lastName}
-                </TableCell>
-                <TableCell className="hidden md:table-cell text-center">
-                  {student.studentNumber}
-                </TableCell>
-                <TableCell className="hidden md:table-cell text-center">
-                  {student.course}
-                </TableCell>
-                <TableCell className="hidden md:table-cell text-center">
-                  {student.status}
-                </TableCell>
-                <TableCell className="hidden md:table-cell text-center">
-                  {student.phone}
-                </TableCell>
-                <TableCell className="hidden md:table-cell text-center">
-                  {student.address}
-                </TableCell>
-                <TableCell className="hidden md:table-cell text-right">
-                  {(role === "admin" || role === "superuser") && (
-                    <div className="flex items-center gap-2">
-                      <DeleteStudent id={student.id} />
-                      <UpdateStudent
-                        student={{
-                          ...student,
-                          username: student.username,
-                          id: student.id,
-                          studentNumber: student.studentNumber,
-                          firstName: student.firstName,
-                          lastName: student.lastName,
-                          middleInit: student.middleInit || undefined,
-                          email: student.email || undefined,
-                          phone: student.phone || undefined,
-                          address: student.address,
-                          sex: student.sex,
-                          course: student.course,
-                          major: student.major || undefined,
-                          status: student.status,
-                        }}
-                      />
-                    </div>
-                  )}
-                </TableCell>
-              </TableRow>
-            ))
-          )}
+          ))}
         </TableBody>
       </Table>
       <Pagination className="cursor-pointer">

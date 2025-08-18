@@ -32,12 +32,12 @@ export default function StudentLists() {
                 query={searchQuery}
                 setSearchQuery={setSearchQuery}
               />
-              <div className="flex items-center gap-4 self-end">
+              <div className="flex flex-wrap items-center gap-2 md:gap-4 self-end">
                 {(role === "admin" || role === "superuser") && (
                   <>
                     <Link href="/list/students/create">
-                      <Button className="bg-blue-700 hover:bg-blue-900">
-                        <PlusCircleIcon />
+                      <Button className="bg-blue-700 hover:bg-blue-900 w-full md:w-auto">
+                        <PlusCircleIcon className="mr-2 h-4 w-4" />
                         Create Student
                       </Button>
                     </Link>
