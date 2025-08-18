@@ -116,7 +116,7 @@ export async function getAvailableAcademicOptions() {
 
     if (!student) throw new Error("Student not found");
     return student.grades;
-  } else if (role === "admin" || role === "registrar") {
+  } else if (role === "faculty" || role === "admin" || role === "registrar") {
     const allOptions = await prisma.grade.findMany({
       distinct: ["academicYear", "semester"],
       select: { academicYear: true, semester: true },
