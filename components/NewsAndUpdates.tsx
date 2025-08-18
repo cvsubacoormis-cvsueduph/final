@@ -68,7 +68,6 @@ export function NewsAndUpdates() {
   const { user } = useUser();
   const role = user?.publicMetadata.role;
 
-  // Fetch news from database
   useEffect(() => {
     const fetchNews = async () => {
       try {
@@ -210,14 +209,6 @@ export function NewsAndUpdates() {
         }),
       });
 
-      console.log({
-        title: editAnnouncementTitle,
-        description: editAnnouncementContent,
-        category: editAnnouncementCategory,
-        important: editAnnouncementImportant,
-        author: user?.firstName + " " + user?.lastName || "Admin User",
-      });
-
       if (!response.ok) {
         throw new Error("Failed to update announcement");
       }
@@ -321,8 +312,7 @@ export function NewsAndUpdates() {
               size="sm"
               onClick={() => setIsPostModalOpen(true)}
             >
-              <Plus className="mr-2 h-4 w-4" />
-              Post News and Updates
+              <Plus className="h-4 w-4" />
             </Button>
           )}
         </CardHeader>
