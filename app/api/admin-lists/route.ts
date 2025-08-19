@@ -140,7 +140,7 @@ export async function POST(request: NextRequest) {
       data: {
         id: user.id,
         firstName: adminData.firstName,
-        middleName: adminData.middleName,
+        middleInit: adminData.middleInit,
         lastName: adminData.lastName,
         username: adminData.username,
         email: adminData.email,
