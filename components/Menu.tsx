@@ -27,12 +27,12 @@ export default async function Menu() {
           href: "/student",
           visible: ["student"],
         },
-        // {
-        //   icon: "/teacher.png",
-        //   label: "Teachers",
-        //   href: "/list/teachers",
-        //   visible: ["admin", "teacher"],
-        // },
+        {
+          icon: "/calendar.png",
+          label: "Course Curriculum",
+          href: "/list/curriculum",
+          visible: ["admin", "superuser", "faculty", "registrar"],
+        },
         {
           icon: "/student.png",
           label: "Students",
