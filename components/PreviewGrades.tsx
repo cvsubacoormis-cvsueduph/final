@@ -288,7 +288,7 @@ export function PreviewGrades({
           </div>
           {loading && (
             <div className="flex items-center justify-center">
-              <SyncLoader color="#111542" size={15} />
+              <SyncLoader color="blue" size={15} />
             </div>
           )}
           {error && <p className="text-red-500">{error}</p>}

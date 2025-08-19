@@ -100,7 +100,7 @@ export async function searchStudent(
     firstName: s.firstName,
     lastName: s.lastName,
     course: s.course,
-    major: s.major ?? "", // <-- this line resolves the TS error
+    major: s.major ?? "",
   }));
 }
 
@@ -257,4 +257,29 @@ export async function addManualGrade(gradeData: GradeData): Promise<void> {
       },
     });
   });
+}
+
+type CheckExsistingGradeParams = {
+  studentNumber: string;
+  courseCode: string;
+  academicYear: AcademicYear;
+  semester: Semester;
+};
+
+export async function checkExsistingGrade({
+  studentNumber,
+  courseCode,
+  academicYear,
+  semester,
+}: CheckExsistingGradeParams) {
+  const existing = await prisma.grade.findFirst({
+    where: {
+      studentNumber,
+      courseCode,
+      academicYear,
+      semester,
+    },
+  });
+
+  return !!existing;
 }

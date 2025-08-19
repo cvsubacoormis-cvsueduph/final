@@ -30,6 +30,7 @@ import {
   searchStudent,
   addManualGrade,
   getStudentDetails,
+  checkExsistingGrade,
 } from "@/actions/grades";
 import type { AcademicYear, Semester } from "@prisma/client";
 import { courseMap, formatMajor } from "@/lib/courses";
@@ -49,6 +50,7 @@ import {
 import { Check, ChevronsUpDown } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { getCourseOptions } from "@/lib/subjects";
+import toast from "react-hot-toast";
 
 interface Student {
   studentNumber: string;
@@ -194,7 +196,7 @@ export default function ManualGradeEntry() {
     // Update course options based on student's program
     const options = getCourseOptions(student.course, student.major).map(
       (course, index) => ({
-        id: `${course.code}_${index}_${Date.now()}`, // Create unique ID
+        id: `${course.code}_${index}_${Date.now()}`,
         code: course.code,
         title: course.title,
       })
@@ -227,6 +229,20 @@ export default function ManualGradeEntry() {
 
     const selectedCourse = courseOptions.find((c) => c.id === selectedCourseId);
     if (!selectedCourse) return;
+
+    const alreadyHasGrade = await checkExsistingGrade({
+      studentNumber: selectedStudent.studentNumber,
+      courseCode: selectedCourse.code,
+      academicYear: academicYear as AcademicYear,
+      semester: semester as Semester,
+    });
+
+    if (alreadyHasGrade) {
+      toast.error(
+        "This student already has a grade for this course. please contact registrar if you want to edit the grade."
+      );
+      return;
+    }
 
     setIsSubmitting(true);
     setSubmitStatus("idle");
