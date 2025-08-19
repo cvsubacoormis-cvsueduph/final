@@ -2,6 +2,7 @@ import Menu from "@/components/Menu";
 import NavBar from "@/components/NavBar";
 import { SpeedInsights } from "@vercel/speed-insights/next";
 import Image from "next/image";
+import { Toaster } from "sonner";
 
 export default function DashboardLayout({
   children,
@@ -21,6 +22,7 @@ export default function DashboardLayout({
       <div className="w-[86%] md:w-[92%] lg:w-[84%] xl:w-[86%] bg-[#F7F8FA] overflow-scroll">
         <NavBar />
         {children}
+        <Toaster position="top-right" />
         <SpeedInsights />
       </div>
     </div>

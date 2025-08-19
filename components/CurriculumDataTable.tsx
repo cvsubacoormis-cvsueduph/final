@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -41,9 +41,22 @@ import {
 } from "@/components/ui/alert-dialog";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { Pencil, Trash2, Plus, Search } from "lucide-react";
+import {
+  Pencil,
+  Trash2,
+  Plus,
+  Search,
+  ChevronLeft,
+  ChevronRight,
+} from "lucide-react";
 import { Courses, Major, Semester, yearLevels } from "@prisma/client";
 import { toast } from "sonner";
+import {
+  createCurriculumChecklist,
+  deleteCurriculumChecklist,
+  getCurriculumChecklistForCourse,
+  updateCurriculumChecklist,
+} from "@/actions/curriculum-actions";
 
 interface CurriculumChecklist {
   id: string;
@@ -57,46 +70,6 @@ interface CurriculumChecklist {
   creditLab: number;
   preRequisite?: string;
 }
-
-// Mock data for demonstration
-const mockData: CurriculumChecklist[] = [
-  {
-    id: "1",
-    course: "BSIT",
-    major: "NONE",
-    yearLevel: "FIRST",
-    semester: "FIRST",
-    courseCode: "IT101",
-    courseTitle: "Introduction to Information Technology",
-    creditLec: 3,
-    creditLab: 0,
-    preRequisite: undefined,
-  },
-  {
-    id: "2",
-    course: "BSIT",
-    major: "NONE",
-    yearLevel: "FIRST",
-    semester: "FIRST",
-    courseCode: "PROG101",
-    courseTitle: "Programming Fundamentals",
-    creditLec: 2,
-    creditLab: 1,
-    preRequisite: "IT101",
-  },
-  {
-    id: "3",
-    course: "BSCS",
-    major: "NONE",
-    yearLevel: "SECOND",
-    semester: "SECOND",
-    courseCode: "DS201",
-    courseTitle: "Data Structures and Algorithms",
-    creditLec: 3,
-    creditLab: 1,
-    preRequisite: "PROG101",
-  },
-];
 
 const courseOptions: Courses[] = [
   "BSIT",
@@ -118,7 +91,10 @@ const yearLevelOptions: yearLevels[] = ["FIRST", "SECOND", "THIRD", "FOURTH"];
 const semesterOptions: Semester[] = ["FIRST", "SECOND", "MIDYEAR"];
 
 export function CurriculumDataTable() {
-  const [data, setData] = useState<CurriculumChecklist[]>(mockData);
+  const [data, setData] = useState<CurriculumChecklist[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [currentPage, setCurrentPage] = useState(1);
+  const [itemsPerPage, setItemsPerPage] = useState(10);
   const [searchTerm, setSearchTerm] = useState("");
   const [isCreateDialogOpen, setIsCreateDialogOpen] = useState(false);
   const [isEditDialogOpen, setIsEditDialogOpen] = useState(false);
@@ -138,7 +114,25 @@ export function CurriculumDataTable() {
     preRequisite: "",
   });
 
-  // Filter data based on search term
+  useEffect(() => {
+    const fetchData = async () => {
+      try {
+        const res = await getCurriculumChecklistForCourse();
+        setData(
+          res.map((item) => ({
+            ...item,
+            preRequisite: item.preRequisite || undefined,
+          }))
+        );
+      } catch (err) {
+        toast.error("Failed to fetch curriculum checklist");
+      } finally {
+        setLoading(false);
+      }
+    };
+    fetchData();
+  }, []);
+
   const filteredData = data.filter(
     (item) =>
       item.courseCode.toLowerCase().includes(searchTerm.toLowerCase()) ||
@@ -146,6 +140,25 @@ export function CurriculumDataTable() {
       item.course.toLowerCase().includes(searchTerm.toLowerCase()) ||
       item.major.toLowerCase().includes(searchTerm.toLowerCase())
   );
+
+  const totalPages = Math.ceil(filteredData.length / itemsPerPage);
+  const startIndex = (currentPage - 1) * itemsPerPage;
+  const endIndex = startIndex + itemsPerPage;
+  const paginatedData = filteredData.slice(startIndex, endIndex);
+
+  const handleSearchChange = (value: string) => {
+    setSearchTerm(value);
+    setCurrentPage(1);
+  };
+
+  const handlePageChange = (page: number) => {
+    setCurrentPage(page);
+  };
+
+  const handleItemsPerPageChange = (value: string) => {
+    setItemsPerPage(Number(value));
+    setCurrentPage(1);
+  };
 
   const resetForm = () => {
     setFormData({
@@ -161,17 +174,19 @@ export function CurriculumDataTable() {
     });
   };
 
-  const handleCreate = () => {
-    const newItem: CurriculumChecklist = {
-      ...formData,
-      id: Date.now().toString(), // Simple ID generation for demo
-      preRequisite: formData.preRequisite || undefined,
-    };
-
-    setData([...data, newItem]);
-    setIsCreateDialogOpen(false);
-    resetForm();
-    toast("Curriculum item created successfully");
+  const handleCreate = async () => {
+    try {
+      const newItem = await createCurriculumChecklist(formData);
+      setData([
+        ...data,
+        { ...newItem, preRequisite: newItem.preRequisite || undefined },
+      ]);
+      setIsCreateDialogOpen(false);
+      resetForm();
+      toast("Curriculum item created successfully");
+    } catch (err) {
+      toast("Failed to create item");
+    }
   };
 
   const handleEdit = (item: CurriculumChecklist) => {
@@ -190,29 +205,41 @@ export function CurriculumDataTable() {
     setIsEditDialogOpen(true);
   };
 
-  const handleUpdate = () => {
+  const handleUpdate = async () => {
     if (!editingItem) return;
-
-    const updatedData = data.map((item) =>
-      item.id === editingItem.id
-        ? {
-            ...formData,
-            id: editingItem.id,
-            preRequisite: formData.preRequisite || undefined,
-          }
-        : item
-    );
-
-    setData(updatedData);
-    setIsEditDialogOpen(false);
-    setEditingItem(null);
-    resetForm();
-    toast("Curriculum item updated successfully");
+    try {
+      const updatedItem = await updateCurriculumChecklist({
+        id: editingItem.id,
+        ...formData,
+        preRequisite: formData.preRequisite || undefined,
+      });
+      setData(
+        data.map((item) =>
+          item.id === updatedItem.id
+            ? {
+                ...updatedItem,
+                preRequisite: updatedItem.preRequisite || undefined,
+              }
+            : item
+        )
+      );
+      setIsEditDialogOpen(false);
+      setEditingItem(null);
+      resetForm();
+      toast("Curriculum item updated successfully");
+    } catch (err) {
+      toast("Failed to update item");
+    }
   };
 
-  const handleDelete = (id: string) => {
-    setData(data.filter((item) => item.id !== id));
-    toast("Curriculum item deleted successfully");
+  const handleDelete = async (id: string) => {
+    try {
+      await deleteCurriculumChecklist(id);
+      setData(data.filter((item) => item.id !== id));
+      toast("Curriculum item deleted successfully");
+    } catch (err) {
+      toast("Failed to delete item");
+    }
   };
 
   const formatLabel = (value: string) => {
@@ -223,15 +250,14 @@ export function CurriculumDataTable() {
   };
 
   return (
-    <div className="space-y-6">
-      {/* Header Actions */}
+    <div className="space-y-6 h-screen">
       <div className="flex flex-col sm:flex-row gap-4 justify-between">
         <div className="relative flex-1 max-w-sm">
           <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-muted-foreground h-4 w-4" />
           <Input
             placeholder="Search curriculum..."
             value={searchTerm}
-            onChange={(e) => setSearchTerm(e.target.value)}
+            onChange={(e) => handleSearchChange(e.target.value)}
             className="pl-10"
           />
         </div>
@@ -261,7 +287,12 @@ export function CurriculumDataTable() {
               >
                 Cancel
               </Button>
-              <Button onClick={handleCreate}>Create</Button>
+              <Button
+                onClick={handleCreate}
+                className="bg-blue-700 hover:bg-blue-600"
+              >
+                Create
+              </Button>
             </DialogFooter>
           </DialogContent>
         </Dialog>
@@ -311,6 +342,31 @@ export function CurriculumDataTable() {
           </CardContent>
         </Card>
       </div>
+      <div className="flex flex-col sm:flex-row gap-4 justify-between items-center">
+        <div className="flex items-center gap-2">
+          <span className="text-sm text-muted-foreground">Show</span>
+          <Select
+            value={itemsPerPage.toString()}
+            onValueChange={handleItemsPerPageChange}
+          >
+            <SelectTrigger className="w-20">
+              <SelectValue />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="5">5</SelectItem>
+              <SelectItem value="10">10</SelectItem>
+              <SelectItem value="20">20</SelectItem>
+              <SelectItem value="50">50</SelectItem>
+            </SelectContent>
+          </Select>
+          <span className="text-sm text-muted-foreground">entries</span>
+        </div>
+
+        <div className="text-sm text-muted-foreground">
+          Showing {startIndex + 1} to {Math.min(endIndex, filteredData.length)}{" "}
+          of {filteredData.length} entries
+        </div>
+      </div>
       <Card>
         <CardContent className="p-0">
           <div className="overflow-x-auto">
@@ -329,7 +385,7 @@ export function CurriculumDataTable() {
                 </TableRow>
               </TableHeader>
               <TableBody>
-                {filteredData.length === 0 ? (
+                {paginatedData.length === 0 ? (
                   <TableRow>
                     <TableCell
                       colSpan={9}
@@ -339,7 +395,7 @@ export function CurriculumDataTable() {
                     </TableCell>
                   </TableRow>
                 ) : (
-                  filteredData.map((item) => (
+                  paginatedData.map((item) => (
                     <TableRow key={item.id}>
                       <TableCell className="font-medium">
                         {item.courseCode}
@@ -409,7 +465,62 @@ export function CurriculumDataTable() {
           </div>
         </CardContent>
       </Card>
+      {totalPages > 1 && (
+        <div className="flex flex-col sm:flex-row gap-4 justify-between items-center">
+          <div className="text-sm text-muted-foreground">
+            Page {currentPage} of {totalPages}
+          </div>
 
+          <div className="flex items-center gap-2">
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={() => handlePageChange(currentPage - 1)}
+              disabled={currentPage === 1}
+            >
+              <ChevronLeft className="h-4 w-4" />
+              Previous
+            </Button>
+
+            <div className="flex gap-1">
+              {Array.from({ length: Math.min(5, totalPages) }, (_, i) => {
+                let pageNumber: number;
+                if (totalPages <= 5) {
+                  pageNumber = i + 1;
+                } else if (currentPage <= 3) {
+                  pageNumber = i + 1;
+                } else if (currentPage >= totalPages - 2) {
+                  pageNumber = totalPages - 4 + i;
+                } else {
+                  pageNumber = currentPage - 2 + i;
+                }
+
+                return (
+                  <Button
+                    key={pageNumber}
+                    variant={currentPage === pageNumber ? "default" : "outline"}
+                    size="sm"
+                    onClick={() => handlePageChange(pageNumber)}
+                    className="w-10 bg-blue-700 text-white hover:bg-blue-600 hover:text-white"
+                  >
+                    {pageNumber}
+                  </Button>
+                );
+              })}
+            </div>
+
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={() => handlePageChange(currentPage + 1)}
+              disabled={currentPage === totalPages}
+            >
+              Next
+              <ChevronRight className="h-4 w-4" />
+            </Button>
+          </div>
+        </div>
+      )}
       {/* Edit Dialog */}
       <Dialog open={isEditDialogOpen} onOpenChange={setIsEditDialogOpen}>
         <DialogContent className="max-w-2xl">

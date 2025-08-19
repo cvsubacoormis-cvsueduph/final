@@ -2,9 +2,9 @@
 
 import prisma from "@/lib/prisma";
 import { CurriculumItem } from "@/lib/types";
-import { Courses, Major } from "@prisma/client";
+import { Courses, Major, Semester, yearLevels } from "@prisma/client";
 import { auth } from "@clerk/nextjs/server";
-
+import { revalidatePath } from "next/cache";
 export async function getCurriculumChecklist(
   course: string,
   major: string | null,
@@ -57,4 +57,110 @@ export async function getCurriculumChecklist(
     console.error("Error fetching curriculum:", error);
     throw error;
   }
+}
+
+export async function createCurriculumChecklist(data: {
+  course: Courses;
+  major: Major;
+  yearLevel: yearLevels;
+  semester: Semester;
+  courseCode: string;
+  courseTitle: string;
+  creditLec: number;
+  creditLab: number;
+  preRequisite?: string | null;
+}) {
+  const { userId, sessionClaims } = await auth();
+
+  if (!userId) {
+    throw new Error("Unauthorized");
+  }
+
+  const role = sessionClaims?.metadata as { role?: string };
+
+  if (
+    role?.role !== "admin" &&
+    role?.role !== "faculty" &&
+    role?.role !== "registrar"
+  ) {
+    throw new Error("Unauthorized");
+  }
+
+  const item = await prisma.curriculumChecklist.create({
+    data: {
+      ...data,
+      preRequisite: data.preRequisite || null,
+    },
+  });
+
+  revalidatePath("/curriculum");
+  return item;
+}
+
+export async function getCurriculumChecklistForCourse() {
+  const { userId, sessionClaims } = await auth();
+  const role = sessionClaims?.metadata as { role?: string };
+
+  if (!userId) throw new Error("Unauthorized");
+
+  if (
+    role?.role !== "admin" &&
+    role?.role !== "faculty" &&
+    role?.role !== "registrar"
+  ) {
+    throw new Error("Unauthorized role");
+  }
+
+  return prisma.curriculumChecklist.findMany({
+    orderBy: { courseCode: "asc" },
+  });
+}
+
+export async function updateCurriculumChecklist(data: {
+  id: string;
+  course: Courses;
+  major: Major;
+  yearLevel: yearLevels;
+  semester: Semester;
+  courseCode: string;
+  courseTitle: string;
+  creditLec: number;
+  creditLab: number;
+  preRequisite?: string | null;
+}) {
+  const { userId, sessionClaims } = await auth();
+  const role = sessionClaims?.metadata as { role?: string };
+
+  if (!userId) {
+    throw new Error("Unauthorized");
+  }
+
+  if (
+    role?.role !== "admin" &&
+    role?.role !== "faculty" &&
+    role?.role !== "registrar"
+  ) {
+    throw new Error("Unauthorized role");
+  }
+
+  const item = await prisma.curriculumChecklist.update({
+    where: { id: data.id },
+    data: {
+      ...data,
+      preRequisite: data.preRequisite || null,
+    },
+  });
+  revalidatePath("/curriculum");
+  return item;
+}
+
+export async function deleteCurriculumChecklist(id: string) {
+  await prisma.curriculumChecklist.delete({
+    where: {
+      id: id,
+    },
+  });
+
+  revalidatePath("/curriculum");
+  return { success: true, message: "Deleted successfully" };
 }
