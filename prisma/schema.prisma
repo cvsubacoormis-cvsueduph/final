@@ -16,7 +16,7 @@ datasource db {
 model Admin {
   id         String  @id @default(uuid()) // Use UUID for id
   firstName  String
-  middleName String?
+  middleInit String?
   lastName   String
   address    String
   phone      String?

@@ -22,7 +22,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { Badge } from "@/components/ui/badge";
 import { User, Mail, Phone, MapPin, Shield } from "lucide-react";
 import { Admin } from "@/lib/types";
-import { getAdminProfile } from "@/actions/admin/admin";
+import { getUserProfile } from "@/actions/admin/admin";
 import { Role, UserSex } from "@prisma/client";
 import { Avatar, AvatarFallback, AvatarImage } from "./ui/avatar";
 import { useUser } from "@clerk/nextjs";
@@ -38,15 +38,16 @@ export default function AdminProfileComp() {
   useEffect(() => {
     const fetchAdminProfile = async () => {
       try {
-        const data = await getAdminProfile();
+        const data = await getUserProfile();
         setAdmin({
           ...data,
-          middleName: data.middleName || "",
+          middleName: data.middleInit || "",
           role: data.role.toUpperCase() as Role,
           sex: data.sex.toUpperCase() as UserSex,
           email: data.email || "",
           phone: data.phone || "",
           address: data.address || "",
+          birthday: "birthday" in data ? data.birthday || "" : "",
         });
       } catch (err) {
         setError(err instanceof Error ? err.message : "An error occurred");
