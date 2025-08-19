@@ -36,7 +36,7 @@ export default function CreateAdminForm() {
     resolver: zodResolver(createAdminSchema),
     defaultValues: {
       firstName: "",
-      middleName: "",
+      middleInit: "",
       lastName: "",
       username: "",
       password: "",
@@ -106,7 +106,7 @@ export default function CreateAdminForm() {
           />
           <FormField
             control={form.control}
-            name="middleName"
+            name="middleInit"
             render={({ field }) => (
               <FormItem>
                 <FormLabel>Middle Initial</FormLabel>

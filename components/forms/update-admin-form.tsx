@@ -42,7 +42,7 @@ export default function UpdateAdminDialog({ admin }: { admin: Admin }) {
     resolver: zodResolver(updateAdminSchema),
     defaultValues: {
       firstName: admin.firstName,
-      middleName: admin.middleName || "",
+      middleInit: admin.middleInit || "",
       lastName: admin.lastName,
       username: admin.username,
       email: admin.email,
@@ -107,10 +107,10 @@ export default function UpdateAdminDialog({ admin }: { admin: Admin }) {
               />
               <FormField
                 control={form.control}
-                name="middleName"
+                name="middleInit"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel>Middle Name</FormLabel>
+                    <FormLabel>Middle Initial</FormLabel>
                     <FormControl>
                       <Input {...field} />
                     </FormControl>

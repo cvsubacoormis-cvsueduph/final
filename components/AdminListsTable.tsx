@@ -73,8 +73,8 @@ export default function AdminListsTable() {
               adminListsData.map((adminData) => (
                 <TableRow key={adminData.id}>
                   <TableCell className="text-left">
-                    {adminData.firstName} {adminData.middleName}{" "}
-                    {adminData.lastName}
+                    {adminData.firstName}{" "}
+                    {adminData.middleInit?.charAt(0) || ""} {adminData.lastName}
                   </TableCell>
                   <TableCell className="text-center">
                     {adminData.address}

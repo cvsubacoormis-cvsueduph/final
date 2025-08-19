@@ -179,7 +179,7 @@ export type CreateAdminSchema = z.infer<typeof createAdminSchema>;
 
 export const updateAdminSchema = z.object({
   firstName: z.string().min(1, "First Name is required"),
-  middleName: z.string().min(1, "Middle Name is required"),
+  middleInit: z.string().min(1, "Middle Initial is required"),
   lastName: z.string().min(1, "Last Name is required"),
   username: z.string().min(1, "Username is required"),
   email: z.string().email("Invalid email format").min(1, "Email is required"),
