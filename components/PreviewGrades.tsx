@@ -33,6 +33,7 @@ import {
 import { SyncLoader } from "react-spinners";
 import { Input } from "./ui/input";
 import toast from "react-hot-toast";
+import { useUser } from "@clerk/nextjs";
 
 type AcademicTerm = {
   id: string;
@@ -78,6 +79,8 @@ export function PreviewGrades({
   );
   const [loading, setLoading] = useState<boolean>(false);
   const [error, setError] = useState<string>("");
+  const { user } = useUser();
+  const role = user?.publicMetadata?.role as string;
 
   // Fetch academic terms on component mount.
   useEffect(() => {
@@ -311,7 +314,9 @@ export function PreviewGrades({
                   <TableHead className="text-sm">Re Exam</TableHead>
                   <TableHead className="text-sm">Remarks</TableHead>
                   <TableHead className="text-sm">Instructor</TableHead>
-                  <TableHead className="text-sm">Edit</TableHead>
+                  {role !== "faculty" && (
+                    <TableHead className="text-sm">Edit</TableHead>
+                  )}
                 </TableRow>
               </TableHeader>
               <TableBody>
@@ -433,16 +438,18 @@ export function PreviewGrades({
                       )}
                     </TableCell>
                     <TableCell>
-                      <Button
-                        onClick={() => toggleEditRow(index)}
-                        className="bg-blue-700 hover:bg-blue-500"
-                      >
-                        {editingRows[index] ? (
-                          <CheckIcon className="w-4 h-4" />
-                        ) : (
-                          <PencilIcon className="w-4 h-4" />
-                        )}
-                      </Button>
+                      {role !== "faculty" && (
+                        <Button
+                          onClick={() => toggleEditRow(index)}
+                          className="bg-blue-700 hover:bg-blue-500"
+                        >
+                          {editingRows[index] ? (
+                            <CheckIcon className="w-4 h-4" />
+                          ) : (
+                            <PencilIcon className="w-4 h-4" />
+                          )}
+                        </Button>
+                      )}
                     </TableCell>
                   </TableRow>
                 ))}
@@ -450,13 +457,15 @@ export function PreviewGrades({
             </Table>
           )}
           <DialogFooter>
-            <Button
-              className="bg-blue-700 hover:bg-blue-500"
-              type="submit"
-              onClick={handleSaveChanges}
-            >
-              Save changes
-            </Button>
+            {role !== "faculty" && (
+              <Button
+                className="bg-blue-700 hover:bg-blue-500"
+                type="submit"
+                onClick={handleSaveChanges}
+              >
+                Save changes
+              </Button>
+            )}
           </DialogFooter>
         </DialogContent>
       </Dialog>

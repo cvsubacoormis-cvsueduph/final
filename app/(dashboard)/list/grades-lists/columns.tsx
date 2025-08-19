@@ -6,8 +6,8 @@ import { ArrowUpDown } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
 import { PreviewGrades } from "@/components/PreviewGrades";
-import { SelectToPrint } from "@/components/SelectToPrint";
 import GenerateCOGAdmin from "@/components/GenerateCOGForAdmin";
+import { useUser } from "@clerk/nextjs";
 
 export type Grades = {
   id: string;
@@ -136,19 +136,21 @@ export const columns: ColumnDef<Grades>[] = [
     accessorKey: "actions",
     header: "Actions",
     id: "actions",
-    cell: ({ row }) => {
-      const student = row.original;
-
-      return (
-        <div className="flex items-center space-x-2">
-          <PreviewGrades
-            studentNumber={String(student.studentNumber)}
-            firstName={student.firstName}
-            lastName={student.lastName}
-          />
-          <GenerateCOGAdmin studentId={student.id} />
-        </div>
-      );
-    },
+    cell: ({ row }) => <ActionsCell student={row.original} />,
   },
 ];
+function ActionsCell({ student }: { student: Grades }) {
+  const { user } = useUser();
+  const role = user?.publicMetadata?.role;
+
+  return (
+    <div className="flex items-center space-x-2">
+      <PreviewGrades
+        studentNumber={String(student.studentNumber)}
+        firstName={student.firstName}
+        lastName={student.lastName}
+      />
+      {role !== "faculty" && <GenerateCOGAdmin studentId={student.id} />}
+    </div>
+  );
+}
