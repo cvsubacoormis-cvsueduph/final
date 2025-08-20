@@ -1,9 +1,5 @@
 "use client";
 
-import * as XLSX from "xlsx";
-import Swal from "sweetalert2";
-import { ClipLoader } from "react-spinners";
-import { useState } from "react";
 import { UploadGrades } from "@/components/UploadGrades";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import ManualGradeEntry from "@/components/ManualGradeEntry";

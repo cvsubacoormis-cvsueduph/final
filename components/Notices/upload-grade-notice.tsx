@@ -16,6 +16,7 @@ export default function UploadGradeNotice() {
       { wch: 15 }, // studentNumber
       { wch: 15 }, // lastName
       { wch: 15 }, // firstName
+      { wch: 15 }, // middleInit
       { wch: 12 }, // courseCode
       { wch: 30 }, // courseTitle
       { wch: 10 }, // creditUnit
