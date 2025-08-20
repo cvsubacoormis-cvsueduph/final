@@ -165,10 +165,13 @@ export default function SeedingSubjectOffering() {
 
     const selectedMap = courseMajorConfig
       .filter((c) => c.enabled)
-      .reduce<Record<Courses, Major[]>>((acc, curr) => {
-        acc[curr.course] = curr.majors;
-        return acc;
-      }, {} as Record<Courses, Major[]>);
+      .reduce<Record<Courses, Major[]>>(
+        (acc, curr) => {
+          acc[curr.course] = curr.majors;
+          return acc;
+        },
+        {} as Record<Courses, Major[]>
+      );
 
     try {
       const responseLogs = await seedSubjectOffering({
@@ -280,9 +283,7 @@ export default function SeedingSubjectOffering() {
                           <Checkbox
                             checked={config.enabled}
                             onCheckedChange={() => toggleCourseEnabled(index)}
-                            className={
-                              config.enabled ? "bg-blue-500" : "bg-white-500"
-                            }
+                            className="data-[state=checked]:border-blue-600 data-[state=checked]:bg-blue-600 data-[state=checked]:text-white dark:data-[state=checked]:border-blue-700 dark:data-[state=checked]:bg-blue-700"
                           />
                           <Label className="font-medium">{config.course}</Label>
                         </div>
@@ -311,6 +312,7 @@ export default function SeedingSubjectOffering() {
                                   onCheckedChange={() =>
                                     handleMajorToggle(index, major)
                                   }
+                                  className="data-[state=checked]:border-blue-600 data-[state=checked]:bg-blue-600 data-[state=checked]:text-white dark:data-[state=checked]:border-blue-700 dark:data-[state=checked]:bg-blue-700"
                                 />
                                 <Label className="text-sm">
                                   {major === "NONE"
