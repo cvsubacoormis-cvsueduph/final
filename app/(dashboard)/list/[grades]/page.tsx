@@ -271,7 +271,7 @@ export default function GradesPage() {
                         >
                           {displayGrade}
                         </TableCell>
-                        <TableCell className="text-center">
+                        <TableCell className="text-center font-semibold">
                           {grade.reExam !== null &&
                           !isNaN(parseFloat(grade.reExam))
                             ? parseFloat(grade.reExam).toFixed(2)
@@ -282,7 +282,7 @@ export default function GradesPage() {
                         >
                           {grade.remarks}
                         </TableCell>
-                        <TableCell className="text-center">
+                        <TableCell className="text-center font-semibold">
                           {grade.instructor}
                         </TableCell>
                       </TableRow>
