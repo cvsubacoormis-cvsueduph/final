@@ -250,7 +250,8 @@ export async function POST(req: Request) {
           results.push({
             studentNumber: student.studentNumber,
             courseCode,
-            status: "⚠️ Existing grade is better - kept the existing grade",
+            status:
+              "⚠️ Existing grade is better - kept the existing grade instead",
           });
           continue;
         }
