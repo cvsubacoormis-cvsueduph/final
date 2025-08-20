@@ -254,7 +254,7 @@ export default function SeedingSubjectOffering() {
                     <SelectContent>
                       <SelectItem value="FIRST">First Semester</SelectItem>
                       <SelectItem value="SECOND">Second Semester</SelectItem>
-                      <SelectItem value="SUMMER">Summer</SelectItem>
+                      <SelectItem value="MIDYEAR">Midyear</SelectItem>
                     </SelectContent>
                   </Select>
                 </div>
