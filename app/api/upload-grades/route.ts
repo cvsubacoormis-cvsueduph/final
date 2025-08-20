@@ -104,7 +104,7 @@ export async function POST(req: Request) {
         results.push({
           identifier: normalizedStudentNumber || `${firstName} ${lastName}`,
           courseCode,
-          status: "❌ Invalid grade values",
+          status: "❌ Invalid grade value",
         });
         continue;
       }
@@ -169,7 +169,7 @@ export async function POST(req: Request) {
             identifier:
               `${sanitizedFirstName ?? ""} ${sanitizedLastName ?? ""}`.trim(),
             courseCode,
-            status: `❌ Multiple students found with name ${sanitizedFirstName} ${sanitizedLastName}`,
+            status: `❌ Multiple students found with names ${sanitizedFirstName} ${sanitizedLastName}`,
             possibleMatches: students.map((s) => ({
               studentNumber: s.studentNumber,
               firstName: s.firstName,
