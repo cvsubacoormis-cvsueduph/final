@@ -225,7 +225,7 @@ export async function POST(req: Request) {
         results.push({
           studentNumber: student.studentNumber,
           courseCode,
-          status: "❌ Subject not offered in selected term",
+          status: "❌ Subject not offered in selected terms",
         });
         continue;
       }
