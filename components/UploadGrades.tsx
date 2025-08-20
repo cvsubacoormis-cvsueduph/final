@@ -359,7 +359,7 @@ export function UploadGrades() {
           <Button
             onClick={handleUpload}
             disabled={isUploading}
-            className="px-8"
+            className="px-8 bg-blue-700 hover:bg-blue-800"
           >
             {isUploading ? "Uploading..." : "Upload Grades"}
           </Button>
