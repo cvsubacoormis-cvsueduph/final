@@ -104,7 +104,7 @@ export async function POST(req: Request) {
         results.push({
           identifier: normalizedStudentNumber || `${firstName} ${lastName}`,
           courseCode,
-          status: "❌ Invalid grade value",
+          status: "❌ Invalid grade values",
         });
         continue;
       }
