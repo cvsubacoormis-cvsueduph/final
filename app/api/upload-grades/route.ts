@@ -21,6 +21,21 @@ const GRADE_HIERARCHY = [
   "US",
 ];
 
+// 🔹 Helper to normalize numeric and special grade values
+function normalizeGrade(value: any): string | null {
+  if (!value) return null;
+  const str = String(value).trim().toUpperCase();
+
+  // Handle INC, DRP, PASSED, etc.
+  if (GRADE_HIERARCHY.includes(str)) {
+    return str;
+  }
+
+  // Handle numeric grades
+  const num = parseFloat(str);
+  return !isNaN(num) ? num.toFixed(2) : str;
+}
+
 export async function POST(req: Request) {
   const { userId } = await auth();
   if (!userId) {
@@ -56,6 +71,14 @@ export async function POST(req: Request) {
         ? String(studentNumber).replace(/-/g, "")
         : null;
 
+      // ✅ Sanitize names
+      const sanitizedFirstName = firstName
+        ? firstName.replace(/,/g, "").replace(/\s+/g, " ").trim()
+        : null;
+      const sanitizedLastName = lastName
+        ? lastName.replace(/,/g, "").replace(/\s+/g, " ").trim()
+        : null;
+
       // Validate required fields
       if (
         (!normalizedStudentNumber && (!firstName || !lastName)) ||
@@ -73,13 +96,11 @@ export async function POST(req: Request) {
         continue;
       }
 
-      // Standardize the grade format
-      const gradeStr = grade.toString().toUpperCase();
-      const standardizedGrade = GRADE_HIERARCHY.includes(gradeStr)
-        ? gradeStr
-        : parseFloat(grade).toFixed(2);
+      // ✅ Normalize grade & reExam
+      const standardizedGrade = normalizeGrade(grade);
+      const standardizedReExam = normalizeGrade(reExam);
 
-      if (!GRADE_HIERARCHY.includes(standardizedGrade)) {
+      if (!standardizedGrade) {
         results.push({
           identifier: normalizedStudentNumber || `${firstName} ${lastName}`,
           courseCode,
@@ -109,19 +130,34 @@ export async function POST(req: Request) {
           where: { studentNumber: normalizedStudentNumber },
         });
       } else {
-        // Search by name if no studentNumber provided
+        // 🔹 Search by sanitized name if no studentNumber provided
         const students = await prisma.student.findMany({
           where: {
             AND: [
-              { firstName: { equals: firstName, mode: "insensitive" } },
-              { lastName: { equals: lastName, mode: "insensitive" } },
+              sanitizedFirstName
+                ? {
+                    firstName: {
+                      equals: sanitizedFirstName,
+                      mode: "insensitive",
+                    },
+                  }
+                : {},
+              sanitizedLastName
+                ? {
+                    lastName: {
+                      equals: sanitizedLastName,
+                      mode: "insensitive",
+                    },
+                  }
+                : {},
             ],
           },
         });
 
         if (students.length === 0) {
           results.push({
-            identifier: `${firstName} ${lastName}`,
+            identifier:
+              `${sanitizedFirstName ?? ""} ${sanitizedLastName ?? ""}`.trim(),
             courseCode,
             status: "❌ Student not found by name",
           });
@@ -130,9 +166,10 @@ export async function POST(req: Request) {
 
         if (students.length > 1) {
           results.push({
-            identifier: `${firstName} ${lastName}`,
+            identifier:
+              `${sanitizedFirstName ?? ""} ${sanitizedLastName ?? ""}`.trim(),
             courseCode,
-            status: `❌ Multiple students found with name ${firstName} ${lastName}`,
+            status: `❌ Multiple students found with name ${sanitizedFirstName} ${sanitizedLastName}`,
             possibleMatches: students.map((s) => ({
               studentNumber: s.studentNumber,
               firstName: s.firstName,
@@ -237,7 +274,7 @@ export async function POST(req: Request) {
           courseTitle,
           creditUnit: Number(creditUnit),
           grade: standardizedGrade,
-          reExam: String(reExam),
+          reExam: standardizedReExam,
           remarks: String(remarks).toUpperCase(),
           instructor: String(instructor).toUpperCase(),
           academicTerm: {
@@ -249,7 +286,7 @@ export async function POST(req: Request) {
           courseTitle,
           creditUnit: Number(creditUnit),
           grade: standardizedGrade,
-          reExam: String(reExam),
+          reExam: standardizedReExam,
           remarks: String(remarks).toUpperCase(),
           instructor: String(instructor).toUpperCase(),
           subjectOffering: { connect: { id: subjectOffering.id } },
@@ -274,7 +311,7 @@ export async function POST(req: Request) {
         studentNumber: student.studentNumber,
         courseCode,
         status: "✅ Grade uploaded",
-        studentName: `${student.firstName} ${student.lastName}`,
+        studentName: `${sanitizedFirstName ?? student.firstName} ${sanitizedLastName ?? student.lastName}`,
       });
     } catch (error) {
       console.error(`Error processing entry:`, entry, error);
