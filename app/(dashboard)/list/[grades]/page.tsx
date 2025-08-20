@@ -260,10 +260,10 @@ export default function GradesPage() {
                         <TableCell className="text-center font-semibold">
                           {grade.courseCode}
                         </TableCell>
-                        <TableCell className="text-center">
+                        <TableCell className="text-center font-semibold">
                           {grade.creditUnit}
                         </TableCell>
-                        <TableCell className="text-center">
+                        <TableCell className="text-center font-semibold">
                           {grade.courseTitle}
                         </TableCell>
                         <TableCell
