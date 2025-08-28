@@ -45,7 +45,12 @@ export async function getStudentGradesWithReExam(studentId?: string) {
   const user = await clerk.users.getUser(userId);
   const role = user.publicMetadata?.role;
 
-  if (role !== "student" && role !== "admin") {
+  if (
+    role !== "student" &&
+    role !== "admin" &&
+    role !== "faculty" &&
+    role !== "registrar"
+  ) {
     throw new Error("Forbidden");
   }
 
