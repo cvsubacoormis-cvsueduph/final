@@ -27,7 +27,7 @@ const baseStudentSchema = z.object({
     .min(1, "First name is required")
     .max(20, "Max 30 characters")
     .regex(/^[a-zA-Z]+$/, "First name can only contain letters"),
-  middleInit: z.string().min(1).max(10).optional(),
+  middleInit: z.string().max(10).optional(),
   lastName: z
     .string()
     .min(1, "Last name is required")
