@@ -12,9 +12,12 @@ import {
   CardTitle,
 } from "@/components/ui/card";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { useForm } from "react-hook-form";
+import { useForm, UseFormWatch } from "react-hook-form";
 import { z } from "zod";
-import { createStudentSchema } from "@/lib/formValidationSchemas";
+import {
+  CreateStudentSchema,
+  createStudentSchema,
+} from "@/lib/formValidationSchemas";
 import toast from "react-hot-toast";
 import {
   Form,
@@ -35,8 +38,21 @@ import {
 } from "./ui/select";
 import { Textarea } from "./ui/textarea";
 import Link from "next/link";
-import { Eye, EyeOff } from "lucide-react";
+import {
+  CheckCircle,
+  Eye,
+  EyeOff,
+  GraduationCap,
+  Loader2,
+  MapPin,
+  Settings,
+  User,
+} from "lucide-react";
 import { registerStudent } from "@/actions/student/registerStudent";
+import { create } from "node:domain";
+import { cn } from "@/lib/utils";
+import { Progress } from "./ui/progress";
+import { courseMap, formatMajor } from "@/lib/courses";
 
 type UserSex = "MALE" | "FEMALE";
 type Courses = "BSCS" | "BSIT" | "BSCRIM" | "BSP" | "BSHM" | "BSBA" | "BSED";
@@ -48,8 +64,38 @@ type Major =
   | "MATHEMATICS";
 type Status = "REGULAR" | "IRREGULAR";
 
+const steps = [
+  {
+    id: 1,
+    title: "Personal Information",
+    icon: User,
+    description: "Basic personal information",
+  },
+  {
+    id: 2,
+    title: "Academic Information",
+    icon: GraduationCap,
+    description: "Course and academic details",
+  },
+  {
+    id: 3,
+    title: "Contact Information",
+    icon: MapPin,
+    description: "Contact and address details",
+  },
+  {
+    id: 4,
+    title: "Account Setup",
+    icon: Settings,
+    description: "Username and final setup",
+  },
+];
+
 export default function StudentSignup() {
-  const form = useForm({
+  const [currentStep, setCurrentStep] = useState(1);
+  const [loading, setLoading] = useState(false);
+
+  const form = useForm<CreateStudentSchema>({
     resolver: zodResolver(createStudentSchema),
     defaultValues: {
       studentNumber: "",
@@ -58,27 +104,64 @@ export default function StudentSignup() {
       lastName: "",
       middleInit: "",
       email: "",
-      password: "",
-      confirmPassword: "",
       phone: "",
       address: "",
-      img: "",
       sex: "" as UserSex,
-      course: "" as Courses,
-      major: "" as Major,
-      status: "" as Status,
+      course: "BSIT" as Courses,
+      major: "NONE" as Major,
+      status: "REGULAR",
+      password: "",
+      confirmPassword: "",
     },
+    mode: "onChange",
   });
+
+  const { watch } = form;
+
+  const password = form.watch("password");
+  const validateStep = async (step: number): Promise<boolean> => {
+    const fieldsToValidate: (keyof CreateStudentSchema)[] = [];
+
+    switch (step) {
+      case 1:
+        fieldsToValidate.push("firstName", "lastName", "sex");
+        break;
+      case 2:
+        fieldsToValidate.push("course", "studentNumber");
+        break;
+      case 3:
+        fieldsToValidate.push("address", "email");
+        break;
+      case 4:
+        fieldsToValidate.push("username", "password", "confirmPassword");
+        break;
+    }
+
+    return await form.trigger(fieldsToValidate);
+  };
+
+  const nextStep = async () => {
+    const isValid = await validateStep(currentStep);
+    if (isValid) {
+      setCurrentStep((prev) => Math.min(prev + 1, steps.length));
+    }
+  };
+
+  const prevStep = () => {
+    setCurrentStep((prev) => Math.max(prev - 1, 1));
+  };
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
 
   async function onSubmit(values: z.infer<typeof createStudentSchema>) {
     try {
+      setLoading(true);
       const response = await registerStudent(values);
 
       if (response.success) {
         toast.success("Student registered successfully!");
         form.reset();
+        setCurrentStep(1);
       } else {
         response.errors.forEach((msg: string) => {
           toast.error(msg);
@@ -87,248 +170,267 @@ export default function StudentSignup() {
     } catch (err) {
       console.error(err);
       toast.error("An unexpected error occurred.");
+    } finally {
+      setLoading(false);
     }
   }
 
+  const progress = (currentStep / steps.length) * 100;
+
   return (
-    <div className="min-h-screen bg-gray-50 py-8 px-4">
-      <div className="mx-auto max-w-xl">
-        <Card>
-          <CardHeader className="text-center">
-            <CardTitle className="text-xl font-bold">
-              Student Registration
-            </CardTitle>
-            <CardDescription className="text-sm">
-              Complete your student profile to get started
-            </CardDescription>
-          </CardHeader>
-          <CardContent>
-            <Form {...form}>
-              <form
-                onSubmit={form.handleSubmit(onSubmit)}
-                className="space-y-2 max-w-3xl mx-auto py-2"
+    <div className="space-y-6">
+      <div className="space-y-2">
+        <div className="flex justify-between text-sm text-muted-foreground">
+          <span className="text-blue-600">
+            Step {currentStep} of {steps.length}
+          </span>
+          <span className="text-blue-600">
+            {Math.round(progress)}% Complete
+          </span>
+        </div>
+        <Progress
+          value={progress}
+          className="[&>*]:bg-blue-700 h-2 mt-2
+        "
+        />
+      </div>
+
+      <div className="flex justify-between">
+        {steps.map((step) => {
+          const Icon = step.icon;
+          const isCompleted = currentStep > step.id;
+          const isCurrent = currentStep === step.id;
+
+          return (
+            <div key={step.id} className="flex flex-col items-center space-y-2">
+              <div
+                className={cn(
+                  "w-10 h-10 rounded-full flex items-center justify-center border-2 transition-colors",
+                  "border-blue-500 text-blue-500 bg-blue-100"
+                )}
               >
-                <div className="grid grid-cols-12 gap-4">
-                  <div className="col-span-6">
-                    <FormField
-                      control={form.control}
-                      name="studentNumber"
-                      render={({ field }) => (
-                        <FormItem>
-                          <FormLabel>Student Number</FormLabel>
-                          <FormControl>
-                            <Input
-                              placeholder="Enter Student Number"
-                              type="text"
-                              {...field}
-                              className="p-3 border border-blue-700 rounded-md text-sm focus:border-blue-900 focus:outline-none focus:ring-0 focus:border-2"
-                            />
-                          </FormControl>
-                          <FormMessage />
-                        </FormItem>
-                      )}
-                    />
-                  </div>
+                {isCompleted ? (
+                  <CheckCircle className="w-5 h-5 text-blue-500" />
+                ) : (
+                  <Icon className="w-5 h-5 text-blue-500" />
+                )}
+              </div>
+              <div className="text-center">
+                <p className="text-xs font-medium">{step.title}</p>
+              </div>
+            </div>
+          );
+        })}
+      </div>
 
-                  <div className="col-span-6">
-                    <FormField
-                      control={form.control}
-                      name="username"
-                      render={({ field }) => (
-                        <FormItem>
-                          <FormLabel>Username</FormLabel>
-                          <FormControl>
-                            <Input
-                              placeholder="Create username"
-                              type="text"
-                              {...field}
-                              className="p-3 border border-blue-700 rounded-md text-sm focus:border-blue-900 focus:outline-none focus:ring-0 focus:border-2"
-                            />
-                          </FormControl>
-
-                          <FormMessage />
-                        </FormItem>
-                      )}
-                    />
-                  </div>
-                </div>
-
-                <div className="grid grid-cols-12 gap-4">
-                  <div className="col-span-6">
-                    <FormField
-                      control={form.control}
-                      name="password"
-                      render={({ field }) => (
-                        <FormItem>
-                          <FormLabel>Password</FormLabel>
-                          <FormControl>
-                            <div className="relative">
-                              <Input
-                                placeholder="Create your password"
-                                type={showPassword ? "text" : "password"}
-                                {...field}
-                                className="p-3 pr-10 border border-blue-700 rounded-md text-sm focus:border-blue-900 focus:outline-none focus:ring-0 focus:border-2"
-                              />
-                              <span
-                                className="absolute right-3 top-1/2 -translate-y-1/2 cursor-pointer text-muted-foreground"
-                                onClick={() => setShowPassword(!showPassword)}
-                              >
-                                {showPassword ? (
-                                  <Eye size={18} />
-                                ) : (
-                                  <EyeOff size={18} />
-                                )}
-                              </span>
-                            </div>
-                          </FormControl>
-                          <FormMessage />
-                        </FormItem>
-                      )}
-                    />
-                  </div>
-
-                  <div className="col-span-6">
-                    <FormField
-                      control={form.control}
-                      name="confirmPassword"
-                      render={({ field }) => (
-                        <FormItem>
-                          <FormLabel>Confirm Password</FormLabel>
-                          <FormControl>
-                            <div className="relative">
-                              <Input
-                                placeholder="Confirm your password"
-                                type={showConfirmPassword ? "text" : "password"}
-                                {...field}
-                                className="p-3 pr-10 border border-blue-700 rounded-md text-sm focus:border-blue-900 focus:outline-none focus:ring-0 focus:border-2"
-                              />
-                              <span
-                                className="absolute right-3 top-1/2 -translate-y-1/2 cursor-pointer text-muted-foreground"
-                                onClick={() =>
-                                  setShowConfirmPassword(!showConfirmPassword)
-                                }
-                              >
-                                {showConfirmPassword ? (
-                                  <Eye size={18} />
-                                ) : (
-                                  <EyeOff size={18} />
-                                )}
-                              </span>
-                            </div>
-                          </FormControl>
-                          <FormMessage />
-                        </FormItem>
-                      )}
-                    />
-                  </div>
-                </div>
-                <div className="grid grid-cols-12 gap-4">
-                  <div className="col-span-4">
-                    <FormField
-                      control={form.control}
-                      name="firstName"
-                      render={({ field }) => (
-                        <FormItem>
-                          <FormLabel>First Name</FormLabel>
-                          <FormControl>
-                            <Input
-                              placeholder="Enter your first name"
-                              type="text"
-                              {...field}
-                              className="p-3 border border-blue-700 rounded-md text-sm focus:border-blue-900 focus:outline-none focus:ring-0 focus:border-2"
-                            />
-                          </FormControl>
-
-                          <FormMessage />
-                        </FormItem>
-                      )}
-                    />
-                  </div>
-
-                  <div className="col-span-4">
-                    <FormField
-                      control={form.control}
-                      name="lastName"
-                      render={({ field }) => (
-                        <FormItem>
-                          <FormLabel>Last Name</FormLabel>
-                          <FormControl>
-                            <Input
-                              placeholder="Enter your last name"
-                              type="text"
-                              {...field}
-                              className="p-3 border border-blue-700 rounded-md text-sm focus:border-blue-900 focus:outline-none focus:ring-0 focus:border-2"
-                            />
-                          </FormControl>
-
-                          <FormMessage />
-                        </FormItem>
-                      )}
-                    />
-                  </div>
-
-                  <div className="col-span-4">
-                    <FormField
-                      control={form.control}
-                      name="middleInit"
-                      render={({ field }) => (
-                        <FormItem>
-                          <FormLabel>Middle Initial</FormLabel>
-                          <FormControl>
-                            <Input
-                              placeholder="Enter middle Initial"
-                              type="text"
-                              {...field}
-                              className="p-3 border border-blue-700 rounded-md text-sm focus:border-blue-900 focus:outline-none focus:ring-0 focus:border-2"
-                            />
-                          </FormControl>
-                          <FormMessage />
-                        </FormItem>
-                      )}
-                    />
-                  </div>
-                </div>
-
-                <FormField
-                  control={form.control}
-                  name="sex"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>Sex</FormLabel>
-                      <Select
-                        onValueChange={field.onChange}
-                        defaultValue={field.value}
-                      >
+      <Card>
+        <CardHeader>
+          <CardTitle className="text-xl">
+            {steps[currentStep - 1].title}
+          </CardTitle>
+          <CardDescription>
+            {steps[currentStep - 1].description}
+          </CardDescription>
+        </CardHeader>
+        <CardContent className="space-y-4">
+          <Form {...form}>
+            <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
+              {currentStep === 1 && (
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <FormField
+                    control={form.control}
+                    name="firstName"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>First Name *</FormLabel>
                         <FormControl>
-                          <SelectTrigger className="p-3 border border-blue-700 rounded-md text-xs focus:border-blue-900 focus:outline-none focus:ring-0 focus:border-2">
-                            <SelectValue placeholder="Select sex" />
-                          </SelectTrigger>
+                          <Input placeholder="Enter first name" {...field} />
                         </FormControl>
-                        <SelectContent>
-                          <SelectItem value="MALE">Male</SelectItem>
-                          <SelectItem value="FEMALE">Female</SelectItem>
-                        </SelectContent>
-                      </Select>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+                  <FormField
+                    control={form.control}
+                    name="lastName"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>Last Name *</FormLabel>
+                        <FormControl>
+                          <Input placeholder="Enter last name" {...field} />
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+                  <FormField
+                    control={form.control}
+                    name="middleInit"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>Middle Initial</FormLabel>
+                        <FormControl>
+                          <Input placeholder="M" maxLength={1} {...field} />
+                        </FormControl>
+                        <FormDescription>
+                          Optional middle initial
+                        </FormDescription>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+                  <FormField
+                    control={form.control}
+                    name="sex"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>Sex *</FormLabel>
+                        <FormControl>
+                          <Select
+                            {...field}
+                            onValueChange={field.onChange}
+                            defaultValue={field.value}
+                          >
+                            <SelectTrigger>
+                              <SelectValue placeholder="Select sex" />
+                            </SelectTrigger>
+                            <SelectContent>
+                              <SelectItem value="MALE">Male</SelectItem>
+                              <SelectItem value="FEMALE">Female</SelectItem>
+                            </SelectContent>
+                          </Select>
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+                </div>
+              )}
 
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
+              {currentStep === 2 && (
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <FormField
+                    control={form.control}
+                    name="studentNumber"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>Student Number *</FormLabel>
+                        <FormControl>
+                          <Input placeholder="19010825" {...field} />
+                        </FormControl>
+                        <FormDescription>
+                          Your unique student identification number
+                        </FormDescription>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+                  <FormField
+                    control={form.control}
+                    name="course"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>Course *</FormLabel>
+                        <FormControl>
+                          <Select
+                            onValueChange={field.onChange}
+                            defaultValue={field.value}
+                          >
+                            <SelectTrigger>
+                              <SelectValue placeholder="Select course" />
+                            </SelectTrigger>
+                            <SelectContent>
+                              {[
+                                "BSIT",
+                                "BSCS",
+                                "BSBA",
+                                "BSHM",
+                                "BSP",
+                                "BSCRIM",
+                                "BSED",
+                              ].map((course) => (
+                                <SelectItem key={course} value={course}>
+                                  {course}
+                                </SelectItem>
+                              ))}
+                            </SelectContent>
+                          </Select>
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+                  <div className="md:col-span-2">
+                    <FormField
+                      control={form.control}
+                      name="major"
+                      render={({ field }) => (
+                        <FormItem>
+                          <FormLabel>Major (Optional)</FormLabel>
+                          <FormControl>
+                            <Select
+                              onValueChange={field.onChange}
+                              defaultValue={field.value}
+                            >
+                              <SelectTrigger>
+                                <SelectValue placeholder="Select major" />
+                              </SelectTrigger>
+                              <SelectContent>
+                                {[
+                                  "NONE",
+                                  "HUMAN_RESOURCE_MANAGEMENT",
+                                  "MARKETING_MANAGEMENT",
+                                  "ENGLISH",
+                                  "MATHEMATICS",
+                                ].map((major) => (
+                                  <SelectItem key={major} value={major}>
+                                    {major.replace(/_/g, " ")}
+                                  </SelectItem>
+                                ))}
+                              </SelectContent>
+                            </Select>
+                          </FormControl>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
+                  </div>
+                </div>
+              )}
 
-                <div className="grid grid-cols-12 gap-4">
-                  <div className="col-span-6">
+              {currentStep === 3 && (
+                <div className="space-y-4">
+                  <FormField
+                    control={form.control}
+                    name="address"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>Address *</FormLabel>
+                        <FormControl>
+                          <Input
+                            placeholder="Enter your full address"
+                            {...field}
+                          />
+                        </FormControl>
+                        <FormDescription>
+                          Your current residential address
+                        </FormDescription>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                     <FormField
                       control={form.control}
                       name="email"
                       render={({ field }) => (
                         <FormItem>
-                          <FormLabel>Email Address</FormLabel>
+                          <FormLabel>Email address *</FormLabel>
                           <FormControl>
                             <Input
                               placeholder="Enter email address"
                               type="email"
                               {...field}
-                              className="p-3 border border-blue-700 rounded-md text-sm focus:border-blue-900 focus:outline-none focus:ring-0 focus:border-2"
                             />
                           </FormControl>
                           <FormDescription>
@@ -338,25 +440,20 @@ export default function StudentSignup() {
                         </FormItem>
                       )}
                     />
-                  </div>
-
-                  <div className="col-span-6">
                     <FormField
                       control={form.control}
                       name="phone"
                       render={({ field }) => (
                         <FormItem>
-                          <FormLabel>Contact Number</FormLabel>
+                          <FormLabel>Phone number *</FormLabel>
                           <FormControl>
                             <Input
-                              placeholder="09223212312"
-                              type="text"
+                              placeholder="Enter phone number"
                               {...field}
-                              className="p-3 border border-blue-700 rounded-md text-sm focus:border-blue-900 focus:outline-none focus:ring-0 focus:border-2"
                             />
                           </FormControl>
                           <FormDescription>
-                            Please use an active contact number
+                            Your contact phone number
                           </FormDescription>
                           <FormMessage />
                         </FormItem>
@@ -364,182 +461,171 @@ export default function StudentSignup() {
                     />
                   </div>
                 </div>
+              )}
 
-                <FormField
-                  control={form.control}
-                  name="address"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>Address</FormLabel>
-                      <FormControl>
-                        <Textarea
-                          placeholder="Enter full address"
-                          className="p-3 border border-blue-700 rounded-md text-sm focus:border-blue-900 focus:outline-none focus:ring-0 focus:border-2 resize-none"
-                          {...field}
-                        />
-                      </FormControl>
-                      <FormDescription>
-                        Please enter full address
-                      </FormDescription>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
+              {currentStep === 4 && (
+                <div className="space-y-4">
+                  <FormField
+                    control={form.control}
+                    name="username"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>Username *</FormLabel>
+                        <FormControl>
+                          <Input placeholder="Enter username" {...field} />
+                        </FormControl>
+                        <FormDescription>
+                          This will be used to log into your student portal
+                        </FormDescription>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
 
-                <div className="grid grid-cols-12 gap-4">
-                  <div className="col-span-6">
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                     <FormField
                       control={form.control}
-                      name="course"
+                      name="password"
                       render={({ field }) => (
                         <FormItem>
-                          <FormLabel>Program</FormLabel>
-                          <Select
-                            onValueChange={(value) => {
-                              field.onChange(value);
-                              if (value !== "BSED" && value !== "BSBA") {
-                                form.setValue("major", "NONE");
-                              }
-                            }}
-                            defaultValue={field.value}
-                            required
-                          >
-                            <FormControl>
-                              <SelectTrigger className="p-3 border border-blue-700 rounded-mdfocus:border-blue-900 focus:outline-none focus:ring-0 focus:border-2 text-xs">
-                                <SelectValue placeholder="Select Program" />
-                              </SelectTrigger>
-                            </FormControl>
-                            <SelectContent>
-                              <SelectItem value="BSCS">
-                                Bachelor of Science in Computer Science
-                              </SelectItem>
-                              <SelectItem value="BSIT">
-                                Bachelor of Science in Information Technology
-                              </SelectItem>
-                              <SelectItem value="BSP">
-                                Bachelor of Science in Psychology
-                              </SelectItem>
-                              <SelectItem value="BSBA">
-                                Bachelor of Science in Business Administration
-                              </SelectItem>
-                              <SelectItem value="BSED">
-                                Bachelor of Science in Secondary Education
-                              </SelectItem>
-                              <SelectItem value="BSHM">
-                                Bachelor of Science in Hospitality Management
-                              </SelectItem>
-                              <SelectItem value="BSCRIM">
-                                Bachelor of Science in Criminology
-                              </SelectItem>
-                            </SelectContent>
-                          </Select>
+                          <FormLabel>Password *</FormLabel>
+                          <FormControl>
+                            <div className="relative">
+                              <Input
+                                type={showPassword ? "text" : "password"}
+                                {...form.register("password")}
+                                placeholder="Enter password"
+                              />
+                              <Button
+                                type="button"
+                                variant="ghost"
+                                size="sm"
+                                className="absolute right-2 top-1/2 -translate-y-1/2"
+                                onClick={() => setShowPassword((prev) => !prev)}
+                              >
+                                {showPassword ? (
+                                  <EyeOff className="h-4 w-4" />
+                                ) : (
+                                  <Eye className="h-4 w-4" />
+                                )}
+                              </Button>
+                            </div>
+                          </FormControl>
+                          <FormDescription>
+                            Must be at least 8 characters with uppercase,
+                            lowercase, and number
+                          </FormDescription>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
+                    <FormField
+                      control={form.control}
+                      name="confirmPassword"
+                      render={({ field }) => (
+                        <FormItem>
+                          <FormLabel>Confirm Password *</FormLabel>
+                          <FormControl>
+                            <div className="relative">
+                              <Input
+                                type={showPassword ? "text" : "password"}
+                                {...form.register("confirmPassword")}
+                                placeholder="Confirm password"
+                              />
+                            </div>
+                          </FormControl>
+                          <FormDescription>
+                            Re-enter your password to confirm
+                          </FormDescription>
                           <FormMessage />
                         </FormItem>
                       )}
                     />
                   </div>
 
-                  <div className="col-span-6">
-                    <FormField
-                      control={form.control}
-                      name="major"
-                      render={({ field }) => {
-                        const selectedCourse = form.watch("course");
-                        const showMajor =
-                          selectedCourse === "BSED" ||
-                          selectedCourse === "BSBA";
-
-                        return (
-                          <FormItem>
-                            <FormLabel>Major</FormLabel>
-                            <Select
-                              onValueChange={field.onChange}
-                              defaultValue={field.value}
-                              disabled={!showMajor}
-                              required={showMajor}
-                            >
-                              <FormControl>
-                                <SelectTrigger className="p-3 border border-blue-700 rounded-md text-xs focus:border-blue-900 focus:outline-none focus:ring-0 focus:border-2">
-                                  <SelectValue placeholder="Select Major" />
-                                </SelectTrigger>
-                              </FormControl>
-                              <SelectContent>
-                                {selectedCourse === "BSED" && (
-                                  <>
-                                    <SelectItem value="MATHEMATICS">
-                                      Mathematics
-                                    </SelectItem>
-                                    <SelectItem value="ENGLISH">
-                                      English
-                                    </SelectItem>
-                                  </>
-                                )}
-                                {selectedCourse === "BSBA" && (
-                                  <>
-                                    <SelectItem value="MARKETING_MANAGEMENT">
-                                      Marketing Management
-                                    </SelectItem>
-                                    <SelectItem value="HUMAN_RESOURCE_MANAGEMENT">
-                                      Human Resource Management
-                                    </SelectItem>
-                                  </>
-                                )}
-                                {!showMajor && (
-                                  <SelectItem value="NONE">None</SelectItem>
-                                )}
-                              </SelectContent>
-                            </Select>
-                            <FormMessage />
-                          </FormItem>
-                        );
-                      }}
-                    />
+                  <div className="mt-6 p-4 bg-muted rounded-lg">
+                    <h4 className="font-medium mb-2">Registration Summary</h4>
+                    <div className="text-sm space-y-1 text-muted-foreground">
+                      <p>
+                        <strong>Name:</strong> {watch("firstName") || ""}{" "}
+                        {watch("middleInit") || ""} {watch("lastName") || ""}
+                      </p>
+                      <p>
+                        <strong>Student Number:</strong>{" "}
+                        {watch("studentNumber") || "Not provided"}
+                      </p>
+                      <p>
+                        <strong>Course:</strong>{" "}
+                        {courseMap(
+                          watch("course")?.replace(/_/g, " ") || "Not selected"
+                        )}
+                      </p>
+                      <p>
+                        <strong>Major:</strong>{" "}
+                        {formatMajor(
+                          watch("major")?.replace(/_/g, " ") || "None"
+                        )}
+                      </p>
+                      <p>
+                        <strong>Username:</strong>{" "}
+                        {watch("username") || "Not set"}
+                      </p>
+                      <p>
+                        <strong>Password:</strong>{" "}
+                        {watch("password") ? "••••••••" : "Not set"}
+                      </p>
+                    </div>
                   </div>
                 </div>
+              )}
+            </form>
+          </Form>
+        </CardContent>
+      </Card>
 
-                <FormField
-                  control={form.control}
-                  name="status"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>Status</FormLabel>
-                      <Select
-                        onValueChange={field.onChange}
-                        defaultValue={field.value}
-                        required
-                      >
-                        <FormControl>
-                          <SelectTrigger className="p-3 border border-blue-700 rounded-md text-xs focus:border-blue-900 focus:outline-none focus:ring-0 focus:border-2">
-                            <SelectValue placeholder="Select Status" />
-                          </SelectTrigger>
-                        </FormControl>
-                        <SelectContent>
-                          <SelectItem value="REGULAR">Regular</SelectItem>
-                          <SelectItem value="IRREGULAR">Irregular</SelectItem>
-                        </SelectContent>
-                      </Select>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-                <Button
-                  type="submit"
-                  className="w-full bg-blue-700 hover:bg-blue-500 text-white py-2 px-4 rounded"
-                >
-                  Submit
-                </Button>
-              </form>
-            </Form>
-            <div className="flex justify-center items-center">
-              <p className="text-sm text-muted-foreground">
-                Already have an account?{" "}
-                <Link href="/login" className="text-blue-700">
-                  Login
-                </Link>
-              </p>
-            </div>
-          </CardContent>
-        </Card>
+      <div className="flex justify-between">
+        <Button
+          variant="outline"
+          onClick={prevStep}
+          disabled={currentStep === 1}
+          className="bg-white hover:bg-gray-100"
+        >
+          Previous
+        </Button>
+
+        {currentStep < steps.length ? (
+          <Button
+            onClick={nextStep}
+            className="bg-blue-700 hover:bg-blue-600"
+            disabled={loading}
+          >
+            Next
+          </Button>
+        ) : (
+          <Button
+            className="bg-blue-700 hover:bg-blue-600"
+            onClick={form.handleSubmit(onSubmit)}
+            disabled={loading}
+          >
+            {loading ? (
+              <>
+                <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                Submitting...
+              </>
+            ) : (
+              "Submit Registration"
+            )}
+          </Button>
+        )}
+      </div>
+      <div className="text-center text-sm mt-4 text-muted-foreground">
+        Already have an account?{" "}
+        <Link href="/sign-in">
+          {" "}
+          <p className="underline font-semibold hover:no-underline text-blue-600">
+            Login
+          </p>{" "}
+        </Link>
       </div>
     </div>
   );

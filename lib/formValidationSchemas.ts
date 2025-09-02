@@ -35,7 +35,7 @@ const baseStudentSchema = z.object({
     .regex(/^[a-zA-Z]+$/, "Last name can only contain letters"),
   email: z.string().email("Invalid email format").optional(),
   phone: z.string().min(1, "Phone number is required").max(18).optional(),
-  address: z.string().min(1, "Address is required").max(50),
+  address: z.string().min(1, "Address is required").max(100),
   sex: z.enum(["MALE", "FEMALE"], {
     message: "Sex is required",
   }),
