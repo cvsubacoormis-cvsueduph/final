@@ -26,14 +26,22 @@ function normalizeGrade(value: any): string | null {
   if (!value) return null;
   const str = String(value).trim().toUpperCase();
 
-  // Handle INC, DRP, PASSED, etc.
   if (GRADE_HIERARCHY.includes(str)) {
     return str;
   }
 
-  // Handle numeric grades
   const num = parseFloat(str);
   return !isNaN(num) ? num.toFixed(2) : str;
+}
+
+// 🔹 Helper to sanitize strings from Excel (remove quotes, extra spaces, commas)
+function sanitizeString(value: any): string | null {
+  if (!value) return null;
+  return String(value)
+    .replace(/['"]+/g, "") // remove quotes
+    .replace(/,/g, "") // remove stray commas
+    .replace(/\s+/g, " ") // collapse spaces
+    .trim();
 }
 
 export async function POST(req: Request) {
@@ -41,6 +49,7 @@ export async function POST(req: Request) {
   if (!userId) {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   }
+
   const grades = await req.json();
 
   if (!grades || !Array.isArray(grades)) {
@@ -71,25 +80,26 @@ export async function POST(req: Request) {
         ? String(studentNumber).replace(/-/g, "")
         : null;
 
-      // ✅ Sanitize names
-      const sanitizedFirstName = firstName
-        ? firstName.replace(/,/g, "").replace(/\s+/g, " ").trim()
-        : null;
-      const sanitizedLastName = lastName
-        ? lastName.replace(/,/g, "").replace(/\s+/g, " ").trim()
-        : null;
+      // ✅ Sanitize text inputs
+      const sanitizedFirstName = sanitizeString(firstName);
+      const sanitizedLastName = sanitizeString(lastName);
+      const sanitizedCourseCode = sanitizeString(courseCode);
+      const sanitizedCourseTitle = sanitizeString(courseTitle);
+      const sanitizedRemarks = sanitizeString(remarks)?.toUpperCase() ?? "";
+      const sanitizedInstructor =
+        sanitizeString(instructor)?.toUpperCase() ?? "";
 
       // Validate required fields
       if (
         (!normalizedStudentNumber && (!firstName || !lastName)) ||
-        !courseCode ||
+        !sanitizedCourseCode ||
         grade == null ||
         !academicYear ||
         !semester
       ) {
         results.push({
           identifier: normalizedStudentNumber || `${firstName} ${lastName}`,
-          courseCode,
+          courseCode: sanitizedCourseCode,
           status:
             "❌ Missing required fields (need studentNumber OR firstName+lastName)",
         });
@@ -103,13 +113,13 @@ export async function POST(req: Request) {
       if (!standardizedGrade) {
         results.push({
           identifier: normalizedStudentNumber || `${firstName} ${lastName}`,
-          courseCode,
+          courseCode: sanitizedCourseCode,
           status: "❌ Invalid grade value",
         });
         continue;
       }
 
-      // Check if academic term exists
+      // ✅ Check if academic term exists
       const academicTerm = await prisma.academicTerm.findUnique({
         where: { academicYear_semester: { academicYear, semester } },
       });
@@ -117,20 +127,19 @@ export async function POST(req: Request) {
       if (!academicTerm) {
         results.push({
           identifier: normalizedStudentNumber || `${firstName} ${lastName}`,
-          courseCode,
+          courseCode: sanitizedCourseCode,
           status: "❌ Academic term not found",
         });
         continue;
       }
 
-      // Find student
+      // ✅ Find student
       let student;
       if (normalizedStudentNumber) {
         student = await prisma.student.findUnique({
           where: { studentNumber: normalizedStudentNumber },
         });
       } else {
-        // 🔹 Search by sanitized name if no studentNumber provided
         const students = await prisma.student.findMany({
           where: {
             AND: [
@@ -158,7 +167,7 @@ export async function POST(req: Request) {
           results.push({
             identifier:
               `${sanitizedFirstName ?? ""} ${sanitizedLastName ?? ""}`.trim(),
-            courseCode,
+            courseCode: sanitizedCourseCode,
             status: "❌ Student not found by name",
           });
           continue;
@@ -168,7 +177,7 @@ export async function POST(req: Request) {
           results.push({
             identifier:
               `${sanitizedFirstName ?? ""} ${sanitizedLastName ?? ""}`.trim(),
-            courseCode,
+            courseCode: sanitizedCourseCode,
             status: `❌ Multiple students found with names ${sanitizedFirstName} ${sanitizedLastName}`,
             possibleMatches: students.map((s) => ({
               studentNumber: s.studentNumber,
@@ -185,16 +194,16 @@ export async function POST(req: Request) {
       if (!student) {
         results.push({
           identifier: normalizedStudentNumber || `${firstName} ${lastName}`,
-          courseCode,
+          courseCode: sanitizedCourseCode,
           status: "❌ Student not found",
         });
         continue;
       }
 
-      // Find curriculum subject
+      // ✅ Find curriculum subject
       const checklistSubject = await prisma.curriculumChecklist.findFirst({
         where: {
-          courseCode,
+          courseCode: sanitizedCourseCode,
           course: student.course,
           major: student.major ? student.major : Major.NONE,
         },
@@ -203,7 +212,7 @@ export async function POST(req: Request) {
       if (!checklistSubject) {
         results.push({
           studentNumber: student.studentNumber,
-          courseCode,
+          courseCode: sanitizedCourseCode,
           status: `❌ Subject not in curriculum for ${student.course}${
             student.major ? ` - ${student.major}` : ""
           }`,
@@ -211,7 +220,7 @@ export async function POST(req: Request) {
         continue;
       }
 
-      // Check subject offering
+      // ✅ Check subject offering
       const subjectOffering = await prisma.subjectOffering.findFirst({
         where: {
           curriculumId: checklistSubject.id,
@@ -224,18 +233,18 @@ export async function POST(req: Request) {
       if (!subjectOffering) {
         results.push({
           studentNumber: student.studentNumber,
-          courseCode,
+          courseCode: sanitizedCourseCode,
           status: "❌ Subject not offered in selected terms",
         });
         continue;
       }
 
-      // Check for existing grade
+      // ✅ Check for existing grade
       const existingGrade = await prisma.grade.findUnique({
         where: {
           studentNumber_courseCode_academicYear_semester: {
             studentNumber: student.studentNumber,
-            courseCode,
+            courseCode: sanitizedCourseCode,
             academicYear,
             semester,
           },
@@ -249,7 +258,7 @@ export async function POST(req: Request) {
         if (existingGradeIndex < newGradeIndex) {
           results.push({
             studentNumber: student.studentNumber,
-            courseCode,
+            courseCode: sanitizedCourseCode,
             status:
               "⚠️ Existing grade is better - kept the existing grade instead",
           });
@@ -257,12 +266,12 @@ export async function POST(req: Request) {
         }
       }
 
-      // Upsert grade
+      // ✅ Upsert grade
       await prisma.grade.upsert({
         where: {
           studentNumber_courseCode_academicYear_semester: {
             studentNumber: String(student.studentNumber),
-            courseCode,
+            courseCode: sanitizedCourseCode,
             academicYear,
             semester,
           },
@@ -271,37 +280,37 @@ export async function POST(req: Request) {
           student: {
             connect: { studentNumber: String(student.studentNumber) },
           },
-          courseCode,
-          courseTitle,
+          courseCode: sanitizedCourseCode,
+          courseTitle: sanitizedCourseTitle ?? "",
           creditUnit: Number(creditUnit),
           grade: standardizedGrade,
           reExam: standardizedReExam,
-          remarks: String(remarks).toUpperCase(),
-          instructor: String(instructor).toUpperCase(),
+          remarks: sanitizedRemarks,
+          instructor: sanitizedInstructor,
           academicTerm: {
             connect: { academicYear_semester: { academicYear, semester } },
           },
           subjectOffering: { connect: { id: subjectOffering.id } },
         },
         update: {
-          courseTitle,
+          courseTitle: sanitizedCourseTitle ?? "",
           creditUnit: Number(creditUnit),
           grade: standardizedGrade,
           reExam: standardizedReExam,
-          remarks: String(remarks).toUpperCase(),
-          instructor: String(instructor).toUpperCase(),
+          remarks: sanitizedRemarks,
+          instructor: sanitizedInstructor,
           subjectOffering: { connect: { id: subjectOffering.id } },
         },
       });
 
-      // Create log
+      // ✅ Create log
       await prisma.gradeLog.create({
         data: {
           studentNumber: student.studentNumber,
-          courseCode,
+          courseCode: sanitizedCourseCode,
           grade: standardizedGrade,
-          remarks: String(remarks).toUpperCase(),
-          instructor: String(instructor).toUpperCase(),
+          remarks: sanitizedRemarks,
+          instructor: sanitizedInstructor,
           academicYear,
           semester,
           action: existingGrade ? "UPDATED" : "CREATED",
@@ -310,7 +319,7 @@ export async function POST(req: Request) {
 
       results.push({
         studentNumber: student.studentNumber,
-        courseCode,
+        courseCode: sanitizedCourseCode,
         status: "✅ Grade uploaded",
         studentName: `${sanitizedFirstName ?? student.firstName} ${sanitizedLastName ?? student.lastName}`,
       });

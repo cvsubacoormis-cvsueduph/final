@@ -519,7 +519,7 @@ export function CurriculumChecklist() {
                                 </span>
                               </td>
                               <td
-                                className={`py-2 px-2 text-center print:py-1 ${getGradeColor(
+                                className={`py-2 px-2 text-center font-semibold print:py-1 ${getGradeColor(
                                   subject.allAttempts?.[
                                     subject.allAttempts.length - 1
                                   ]?.reExam
