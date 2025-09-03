@@ -112,17 +112,23 @@ export function CurriculumChecklist() {
             reExam: g.reExam, // ✅ ADD THIS
           }));
 
+          // Pick the better grade (grade vs reExam)
+          const effectiveGrade = getBetterGrade(
+            latestGrade?.grade,
+            latestGrade?.reExam ?? ""
+          );
+
           const completion = latestGrade
-            ? latestGrade.grade === "INC" ||
-              latestGrade.remarks?.includes("LACK OF REQ.")
+            ? effectiveGrade === "INC" ||
+              latestGrade.remarks?.toUpperCase().includes("LACK OF REQ.")
               ? "Incomplete"
-              : latestGrade.remarks?.includes("FAILED")
+              : latestGrade.remarks?.toUpperCase().includes("FAILED")
                 ? "Failed"
-                : latestGrade.remarks?.includes("UNSATISFACTORY")
+                : latestGrade.remarks?.toUpperCase().includes("UNSATISFACTORY")
                   ? "Unsatisfactory"
-                  : latestGrade.remarks?.includes("CON. FAILURE")
+                  : latestGrade.remarks?.toUpperCase().includes("CON. FAILURE")
                     ? "Con. Failure"
-                    : latestGrade.remarks?.includes("DROPPED")
+                    : latestGrade.remarks?.toUpperCase().includes("DROPPED")
                       ? "Dropped"
                       : "Completed"
             : "Not Taken";
