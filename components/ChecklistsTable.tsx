@@ -1,15 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import {
-  Printer,
-  Download,
-  CheckCircle,
-  Clock,
-  XCircle,
-  BookOpen,
-  Calendar,
-} from "lucide-react";
+import { CheckCircle, Clock, XCircle, BookOpen, Calendar } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
@@ -20,17 +12,13 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { getStudentData } from "@/actions/getStudentData";
 import { getCurriculumChecklist } from "@/actions/curriculum-actions";
 import { semesterMap, yearLevelMap } from "@/lib/utils";
 import { HashLoader } from "react-spinners";
-import Link from "next/link";
 import { AcademicProgress, Subject } from "@/lib/types";
 import { courseMap, formatMajor } from "@/lib/courses";
 import GenerateChecklistPDF from "./GenerateChecklistsPDF";
 import { getStudentGradesWithReExam } from "@/actions/student-grades/student-grades";
-import toast from "react-hot-toast";
-
 export function CurriculumChecklist() {
   const [selectedYear, setSelectedYear] = useState<string>("all");
   const [data, setData] = useState<{

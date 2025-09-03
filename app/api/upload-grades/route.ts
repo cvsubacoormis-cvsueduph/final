@@ -281,7 +281,7 @@ export async function POST(req: Request) {
             connect: { studentNumber: String(student.studentNumber) },
           },
           courseCode: sanitizedCourseCode,
-          courseTitle: sanitizedCourseTitle ?? "",
+          courseTitle: sanitizedCourseTitle?.toUpperCase() ?? "",
           creditUnit: Number(creditUnit),
           grade: standardizedGrade,
           reExam: standardizedReExam,
@@ -293,7 +293,7 @@ export async function POST(req: Request) {
           subjectOffering: { connect: { id: subjectOffering.id } },
         },
         update: {
-          courseTitle: sanitizedCourseTitle ?? "",
+          courseTitle: sanitizedCourseTitle?.toUpperCase() ?? "",
           creditUnit: Number(creditUnit),
           grade: standardizedGrade,
           reExam: standardizedReExam,
