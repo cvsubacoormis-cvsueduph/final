@@ -6,12 +6,10 @@ import { templateData } from "@/lib/templateSample";
 
 export default function UploadGradeNotice() {
   const handleDownloadTemplate = () => {
-    // Create workbook and worksheet
     const ws = XLSX.utils.json_to_sheet(templateData);
     const wb = XLSX.utils.book_new();
     XLSX.utils.book_append_sheet(wb, ws, "Sheet 1");
 
-    // Set column widths for better readability
     const colWidths = [
       { wch: 15 }, // studentNumber
       { wch: 15 }, // lastName
