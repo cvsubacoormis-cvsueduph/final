@@ -6,16 +6,6 @@ import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Separator } from "@/components/ui/separator";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
-import {
-  Dialog,
-  DialogContent,
-  DialogHeader,
-  DialogTitle,
-  DialogFooter,
-  DialogTrigger,
-} from "@/components/ui/dialog";
 import {
   Table,
   TableBody,
@@ -44,6 +34,7 @@ import {
 import { Grade } from "@/lib/types";
 import { useUser } from "@clerk/nextjs";
 import { courseMap, formatMajor } from "@/lib/courses";
+import StudentProfileSkeleton from "./skeleton/StudentProfileSkeleton";
 
 // Prisma-enum-aligned types (condensed to what's needed in the UI)
 type UserSex = "MALE" | "FEMALE";
@@ -123,9 +114,17 @@ function humanizeStatus(s: Status) {
 }
 
 export default function StudentProfile({ data }: { data: Student }) {
-  const [student, setStudent] = React.useState(data);
-  const [openEdit, setOpenEdit] = React.useState(false);
+  const [student, setStudent] = React.useState<Student>(data);
+  const [loading, setLoading] = React.useState(true);
   const { user } = useUser();
+
+  React.useEffect(() => {
+    // mimic async data setup
+    setTimeout(() => {
+      setStudent(data);
+      setLoading(false);
+    }, 1000); // ⏳ fake loading for demo
+  }, [data]);
 
   const displayName = [
     student.firstName.charAt(0).toUpperCase() +
@@ -159,6 +158,14 @@ export default function StudentProfile({ data }: { data: Student }) {
     const nextTotalPages = Math.max(1, Math.ceil(totalGrades / rowsPerPage));
     if (pageIndex > nextTotalPages - 1) setPageIndex(nextTotalPages - 1);
   }, [totalGrades, rowsPerPage, pageIndex]);
+
+  if (loading) {
+    return (
+      <>
+        <StudentProfileSkeleton />
+      </>
+    );
+  }
 
   return (
     <section aria-label="Student profile">
