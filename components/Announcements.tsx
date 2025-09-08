@@ -9,6 +9,7 @@ import {
   DialogTrigger,
 } from "./ui/dialog";
 import { Ellipsis } from "lucide-react";
+import { AnnouncementsSkeleton } from "./skeleton/AnnouncementsSkeleton";
 
 type Announcement = {
   id: number;
@@ -84,7 +85,9 @@ export default function Announcements() {
 
       <div className="flex flex-col gap-4 mt-4">
         {loading ? (
-          <p className="text-gray-400">Loading announcements...</p>
+          <>
+            <AnnouncementsSkeleton />
+          </>
         ) : announcements.length > 0 ? (
           announcements.slice(0, 3).map((item) => (
             <div key={item.id} className="bg-gray-100 rounded-md p-4 shadow-sm">

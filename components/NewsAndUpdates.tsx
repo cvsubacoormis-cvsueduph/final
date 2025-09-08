@@ -45,6 +45,7 @@ import {
   AlertDialogTitle,
 } from "./ui/alert-dialog";
 import { HashLoader } from "react-spinners";
+import { NewsAndUpdatesSkeleton } from "./skeleton/NewsAndUpdatesSkeleton";
 
 export function NewsAndUpdates() {
   const [isPostModalOpen, setIsPostModalOpen] = useState(false);
@@ -289,11 +290,7 @@ export function NewsAndUpdates() {
   const regularItems = currentItems.filter((item) => !item.important);
 
   if (isLoading) {
-    return (
-      <div className="flex items-center justify-center h-screen">
-        <HashLoader color="#1976D2" size={150} />
-      </div>
-    );
+    return <NewsAndUpdatesSkeleton />;
   }
 
   return (

@@ -3,7 +3,6 @@
 import React, { useEffect, useState } from "react";
 import Calendar from "react-calendar";
 import "react-calendar/dist/Calendar.css";
-import Image from "next/image";
 import {
   Dialog,
   DialogContent,
@@ -12,6 +11,8 @@ import {
 } from "./ui/dialog";
 import { DialogTitle } from "@radix-ui/react-dialog";
 import { Ellipsis } from "lucide-react";
+import { CalendarSkeleton } from "./skeleton/CalendarSkeleton";
+import { EventsSkeleton } from "./skeleton/EventsSkeleton";
 
 type Event = {
   id: number;
@@ -77,14 +78,18 @@ export default function EventCalendar() {
 
   return (
     <div className="bg-white p-4 rounded-md">
-      <Calendar
-        onChange={(value) => {
-          if (value instanceof Date) {
-            onChanges(value);
-          }
-        }}
-        value={value}
-      />{" "}
+      {loading ? (
+        <CalendarSkeleton />
+      ) : (
+        <Calendar
+          onChange={(value) => {
+            if (value instanceof Date) {
+              onChanges(value);
+            }
+          }}
+          value={value}
+        />
+      )}
       {/* onChange expects a Date or Date[] */}
       <div className="flex items-center justify-between">
         <h1 className="text-xl font-semibold my-4">Events</h1>
@@ -128,7 +133,9 @@ export default function EventCalendar() {
         </Dialog>
       </div>
       {loading ? (
-        <p className="text-gray-400">Loading events...</p>
+        <>
+          <EventsSkeleton />{" "}
+        </>
       ) : (
         <div className="flex flex-col gap-4">{renderEvents(events)}</div>
       )}

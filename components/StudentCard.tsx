@@ -3,6 +3,7 @@
 import { useState, useEffect } from "react";
 import { Cloud, Sun, CloudRain } from "lucide-react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { StudentCardSkeleton } from "./skeleton/StudentCardSkeleton";
 
 export function StudentCard() {
   const [weatherData, setWeatherData] = useState({
@@ -10,6 +11,7 @@ export function StudentCard() {
     condition: "sunny",
     description: "Loading weather data...",
   });
+  const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
     const fetchWeather = async () => {
@@ -19,9 +21,7 @@ export function StudentCard() {
           `https://api.weatherapi.com/v1/current.json?key=${API_KEY}&q=Bacoor, Cavite&aqi=no`
         );
         const data = await response.json();
-        console.log(data);
 
-        // Use WeatherAPI condition codes for more accurate icons
         const mapCondition = (code: number): string => {
           const rainyCodes = [
             1063, 1072, 1150, 1153, 1180, 1183, 1186, 1189, 1192, 1195, 1240,
@@ -43,6 +43,8 @@ export function StudentCard() {
         });
       } catch (error) {
         console.log("Error fetching weather data:", error);
+      } finally {
+        setIsLoading(false);
       }
     };
 
@@ -50,6 +52,14 @@ export function StudentCard() {
     const interval = setInterval(fetchWeather, 30 * 60 * 1000);
     return () => clearInterval(interval);
   }, []);
+
+  if (isLoading) {
+    return (
+      <div>
+        <StudentCardSkeleton />
+      </div>
+    );
+  }
 
   const getWeatherIcon = (condition: string) => {
     switch (condition) {
