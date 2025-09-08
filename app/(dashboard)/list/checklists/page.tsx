@@ -1,7 +1,9 @@
 "use client";
 
 import { CurriculumChecklist } from "@/components/ChecklistsTable";
+import { CurriculumChecklistSkeleton } from "@/components/skeleton/CurriculumChecklistSkeleton";
 import { RedirectToSignIn, SignedIn, SignedOut } from "@clerk/nextjs";
+import { Suspense } from "react";
 
 export default function CheckListsPage() {
   return (
@@ -17,8 +19,15 @@ export default function CheckListsPage() {
               </span>
             </h1>
           </div>
-          {/* LIST */}
-          <CurriculumChecklist />
+          <Suspense
+            fallback={
+              <>
+                <CurriculumChecklistSkeleton />
+              </>
+            }
+          >
+            <CurriculumChecklist />
+          </Suspense>
         </div>
       </SignedIn>
       <SignedOut>

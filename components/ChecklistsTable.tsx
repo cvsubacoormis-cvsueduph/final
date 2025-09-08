@@ -19,6 +19,7 @@ import { AcademicProgress, Subject } from "@/lib/types";
 import { courseMap, formatMajor } from "@/lib/courses";
 import GenerateChecklistPDF from "./GenerateChecklistsPDF";
 import { getStudentGradesWithReExam } from "@/actions/student-grades/student-grades";
+import { CurriculumChecklistSkeleton } from "./skeleton/CurriculumChecklistSkeleton";
 export function CurriculumChecklist() {
   const [selectedYear, setSelectedYear] = useState<string>("all");
   const [data, setData] = useState<{
@@ -273,9 +274,9 @@ export function CurriculumChecklist() {
 
   if (loading) {
     return (
-      <div className="flex items-center justify-center h-screen">
-        <HashLoader color="#1976D2" size={150} />
-      </div>
+      <>
+        <CurriculumChecklistSkeleton />
+      </>
     );
   }
 
