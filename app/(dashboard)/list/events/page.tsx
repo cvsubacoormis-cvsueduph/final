@@ -23,11 +23,9 @@ export default async function EventsLists() {
 
               {(role === "admin" || role === "superuser") && <CreateEvents />}
             </div>
-          </div>
-
-          {/* LIST CARD */}
-          <div className="bg-white p-4 rounded-md">
-            <EventsTable />
+            <div className="bg-white p-4 rounded-md">
+              <EventsTable />
+            </div>
           </div>
         </div>
       </SignedIn>
