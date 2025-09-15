@@ -1,6 +1,7 @@
 import { clerkMiddleware } from "@clerk/nextjs/server";
 import { NextResponse } from "next/server";
 import { routeAccessMap } from "./lib/settings";
+export const runtime = "nodejs";
 import axios from "axios";
 
 export default clerkMiddleware(async (auth, req) => {
